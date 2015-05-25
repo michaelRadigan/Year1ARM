@@ -13,7 +13,7 @@
 void
 check_file_error(FILE *file){
 	if(feof(file)){
-		printf("File error end of file\n");
+		printf("Reached end of file\n");
 	}
 	else if(ferror(file)){
 		printf("File error\n");
@@ -26,28 +26,25 @@ check_file_error(FILE *file){
  * @param file Pointer to the binary file
  */
 void 
-<<<<<<< HEAD
 memory_load_file(FILE *file){
 	int numBytes = MEM_SIZE;
 
 	memory_machine *machine_mem = malloc(sizeof(memory_machine)); 
-	machine_mem->word = malloc(numBytes * sizeof(uint8_t));
+	machine_mem->byte = malloc(numBytes * sizeof(uint8_t));
 
 	for(int i = 0; i < MEM_SIZE; i++){
-		if(fread(&machine_mem->word[i], BYTES, 1, file) == 1){
+		if(fread(&machine_mem->byte[i], BYTES, 1, file) == 1){
+	
+		printf("here\n");
 			continue;
 		}
 		else{
 			check_file_error(file);
 			break;
 		}
+
 	}
 	//Possible deallocation of memory here
 	fclose(file);
-=======
-load_file(char *file){
-	//do some stuff
-        // I don't know who wrote this comment ^^but it was very helpful.
->>>>>>> b69df27eacabde8c6e976d37489af65e143d0917
 }
 

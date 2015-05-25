@@ -8,7 +8,7 @@
 extern int numBytes;
 
 typedef struct memory_machine{
-	uint32_t *word; 
+	uint8_t *byte; 
 }memory_machine;
 
 
