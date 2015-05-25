@@ -1,5 +1,6 @@
 #include "common_instances.h"
 
+
 /**
 * Structure which represents the CPU
 * registers and shizzz
@@ -22,6 +23,20 @@ typedef struct instructions{
 }
 */
 
+
+
+/**********************************************
+*                  TODOS                      *
+***********************************************
+* Look into declaring a cpu in the header rather than passing it around like 
+* Chuckle brothers style --  "To me, to you".
+* Decode method
+* setflags()
+* nextfetch()
+* multiply()
+* etc
+-------------------------------------------------------*/
+
 /**********************************************
 *        FUNCTION DELCARATIONS                *
 **********************************************/
@@ -30,7 +45,7 @@ typedef struct instructions{
 * This will execute the next fetch
 **/
 uint32_t nextFetch();
-
+void setFlags(uint32_t *instruction, Cpu cpu);
 
 
 
@@ -118,6 +133,14 @@ void branchInstri(uint32_t instr, Cpu cpu ){
 }  
 
 
+void multiplyNonA(uint32_t *instruction, Cpu cpu){
+
+}
+
+void multiplyAccumulate(uint32_t *instruction, Cpu cpu){
+    
+}
+
 /**
  * This function carries out a multiply instruction
  * @param instuction is a 32bit instruction
@@ -125,19 +148,15 @@ void branchInstri(uint32_t instr, Cpu cpu ){
 */
 void multiply(uint32_t *instruction, Cpu cpu){
     if(checkCond( *instruction, cpu) == 0){
-
-    
-    
-    } else{
-    return;
+        return;
     }    
+
+    if ((*instruction & 0x00200000) >> 20 == 1){
+        multiplyAccumulate(instruction, cpu);    
+    } else {
+        multiplyNonA(instruction, cpu);
+    }
+    if ((*instruction & 0x00100000) >> 19 == 1){
+        setFlags(instruction, cpu);
+    }   
 }
-
-
-
-
-
-
-
-
-
