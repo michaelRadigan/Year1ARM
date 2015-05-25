@@ -26,6 +26,7 @@ check_file_error(FILE *file){
  * @param file Pointer to the binary file
  */
 void 
+<<<<<<< HEAD
 memory_load_file(FILE *file){
 	int numBytes = MEM_SIZE;
 
@@ -43,5 +44,10 @@ memory_load_file(FILE *file){
 	}
 	//Possible deallocation of memory here
 	fclose(file);
+=======
+load_file(char *file){
+	//do some stuff
+        // I don't know who wrote this comment ^^but it was very helpful.
+>>>>>>> b69df27eacabde8c6e976d37489af65e143d0917
 }
 
