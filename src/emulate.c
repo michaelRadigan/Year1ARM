@@ -6,14 +6,16 @@ typedef struct cpu{
   uint32_t *cpsr;
   uint32_t decode;
   uint32_t encode;
-}cpu;
+}Cpu;
 
+/*
 typedef struct instructions{
   (*branchInstr)(uint32_t instr, cpu cpu);
   (*multInstr)(uint32_t instr , cpu cpu);
   (*dataProcInstr)(uint32_t instr , cpu cpu);
   (*sdtInstr)(uint32_t instr , cpu cpu);
 }
+*/
 
 /**
   
@@ -26,7 +28,7 @@ uint32_t nextFetch();
 
 
 void setUpCycle(){
-    cpu cpustruct;
+    Cpu cpustruct;
     cpustruct.pc = 0;
     cpustruct.cpsr = 0;
     int i;
@@ -43,14 +45,13 @@ void setUpCycle(){
 /**
   @return 0 if condition is not met, 1 if met
 **/  
-int checkCond(Cond condition, cpu cpu){
+int checkCond(Cond condition, Cpu cpu){
 
-  uint8_t cpsr = (cpu->cpsr);
+  uint32_t cpsr_ = *(cpu.cpsr);
   // isolate the important bits
-  uint8_t v = cpsr & 0x10000000;
-  uint8_t c = cpsr & 0x20000000;
-  uint8_t z = cpsr & 0x40000000;
-  uint8_t n = cpsr & 0x80000000;
+  uint32_t v = cpsr_ & 0x10000000;
+  uint32_t z = cpsr_ & 0x40000000;
+  uint32_t n = cpsr_ & 0x80000000;
 
   switch(condition){
     case eq: 
@@ -72,7 +73,7 @@ int checkCond(Cond condition, cpu cpu){
   }
 }
 
-void branchInstri(uint32_t instr, cpu cpu ){
+void branchInstri(uint32_t instr, Cpu cpu ){
 
   uint32_t condBinary = instr & 0xf0000000;
   condBinary >>= (2*7);
@@ -81,7 +82,7 @@ void branchInstri(uint32_t instr, cpu cpu ){
     // check if condition is satisfied.
     return;
   }
-  
+}  
 
 
 
