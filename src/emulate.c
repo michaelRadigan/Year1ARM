@@ -20,6 +20,26 @@ typedef struct instructions{
 **/
 typedef enum cond{ eq , ne , ge , lt , gt , le , al} Cond;
 
+
+//this will execute the next fetch
+uint32_t nextFetch();
+
+
+void setUpCycle(){
+    cpu cpustruct;
+    cpustruct.pc = 0;
+    cpustruct.cpsr = 0;
+    int i;
+    for(i = 0; i< 14; i++){
+        cpustruct.reg[i] = 0;
+    }
+    cpustruct.decode = nextFetch();
+    cpustruct.encode = nextFetch();
+
+}
+
+
+
 /**
   @return 0 if condition is not met, 1 if met
 **/  
@@ -62,9 +82,7 @@ void branchInstri(uint32_t instr, cpu cpu ){
     return;
   }
   
-  //
 
-}
 
 
 
