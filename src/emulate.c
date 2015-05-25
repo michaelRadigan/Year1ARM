@@ -53,7 +53,6 @@ void setFlags(uint32_t *instruction, Cpu cpu);
 
 
 
-
 /**********************************************
 *               SETUP METHODS                 *
 **********************************************/
@@ -134,11 +133,22 @@ void branchInstri(uint32_t instr, Cpu cpu ){
 
 
 void multiplyNonA(uint32_t *instruction, Cpu cpu){
-
+    uint32_t rd, rm, rs;
+    rm = (*instruction & 0x0000000F);
+    rs = (*instruction & 0x00000F00) >> 8;
+    rd = (*instruction & 0x000F0000) >> 16;
+     /*need to form a 64-bit number and then truncate
+    *(cpu.reg + rd) = rm * rs;  */
 }
 
 void multiplyAccumulate(uint32_t *instruction, Cpu cpu){
-    
+    multiplyNonA(instruction, cpu);
+    int rn, rd;
+    rn = (*instruction & 0x0000F000) >> 12;
+    /*there is a slight duplication of code here 
+      that could possibly be improved*/
+    rd = (*instruction & 0x000F0000) >> 16;
+    *(cpu.reg + rd) += rn;
 }
 
 /**
@@ -150,7 +160,7 @@ void multiply(uint32_t *instruction, Cpu cpu){
     if(checkCond( *instruction, cpu) == 0){
         return;
     }    
-
+       /*Check these at some point*/
     if ((*instruction & 0x00200000) >> 20 == 1){
         multiplyAccumulate(instruction, cpu);    
     } else {
