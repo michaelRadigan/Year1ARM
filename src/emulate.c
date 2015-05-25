@@ -1,5 +1,9 @@
 #include "common_instances.h"
 
+/**
+* Structure which represents the CPU
+* registers and shizzz
+**/
 typedef struct cpu{
   uint32_t *reg[14]; 
   uint32_t *pc;
@@ -7,6 +11,7 @@ typedef struct cpu{
   uint32_t decode;
   uint32_t encode;
 }Cpu;
+
 
 /*
 typedef struct instructions{
@@ -17,16 +22,30 @@ typedef struct instructions{
 }
 */
 
+/**********************************************
+*        FUNCTION DELCARATIONS                *
+**********************************************/
+
 /**
-  
+* This will execute the next fetch
 **/
-typedef enum cond{ eq , ne , ge , lt , gt , le , al} Cond;
-
-
-//this will execute the next fetch
 uint32_t nextFetch();
 
 
+
+
+
+
+
+
+
+/**********************************************
+*               SETUP METHODS                 *
+**********************************************/
+
+/**
+* return
+**/
 void setUpCycle(){
     Cpu cpustruct;
     cpustruct.pc = 0;
@@ -41,13 +60,22 @@ void setUpCycle(){
 }
 
 
+/**********************************************
+*               DECODE METHODS                *
+**********************************************/
 
 /**
-  @return 0 if condition is not met, 1 if met
-**/  
+* Conditions Enum 
+**/
+typedef enum cond{ eq , ne , ge , lt , gt , le , al} Cond;
+
+
+/**
+*  @return 0 if condition is not met, 1 if met
+**/ 
 int checkCond(uint32_t instr, Cpu cpu){
 
-  uint32_t condBinary = instr & 0xf00000000;
+  uint32_t condBinary = instr & 0xf0000000;
   condBinary >>= (2*7);
   Cond condition = (Cond) condBinary;
 
@@ -77,6 +105,10 @@ int checkCond(uint32_t instr, Cpu cpu){
   }
 }
 
+/**
+*
+*
+**/
 void branchInstri(uint32_t instr, Cpu cpu ){
   
   if(checkCond(instr , cpu) == 0){
@@ -86,6 +118,20 @@ void branchInstri(uint32_t instr, Cpu cpu ){
 }  
 
 
+/**
+ * This function carries out a multiply instruction
+ * @param instuction is a 32bit instruction
+ * @param cpu is is Cpu structure
+*/
+void multiply(uint32_t *instruction, Cpu cpu){
+    if(checkCond( *instruction, cpu) == 0){
+
+    
+    
+    } else{
+    return;
+    }    
+}
 
 
 
