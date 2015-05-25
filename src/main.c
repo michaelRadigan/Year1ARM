@@ -9,7 +9,8 @@
  */
 int
 argc_check(int argc){
-	if(argc == 1){
+	
+	if(argc == 2){
 		return EXIT_SUCCESS;
 	}
 	else{
@@ -25,14 +26,13 @@ argc_check(int argc){
  */
 int
 argv_check(char **argv){
-	FILE *binFile = fopen(argv[1], "r");
+	FILE *binFile = fopen(argv[1], "rb");
 
-	if(binFile){
-		return EXIT_SUCCESS;
+	if(binFile == NULL){
+		return EXIT_FAILURE;
 	}
 	else{
-		/* Pointer is NULL */
-		return EXIT_FAILURE;
+		return EXIT_SUCCESS;
 	}
 }
 
@@ -46,13 +46,12 @@ argv_check(char **argv){
 int
 main(int argc, char **argv){
 
-	if(!argc_check(argc) || !argv_check(argv)){
+	if(argc_check(argc) || argv_check(argv)){
 		return EXIT_FAILURE;
 	}
 	else{
-		load_file(argv[1]);	
+		FILE *binFile = fopen(argv[1], "rb");
+		memory_load_file(binFile);
 	}
-		return EXIT_SUCCESS;
-
 	return EXIT_SUCCESS;
 }

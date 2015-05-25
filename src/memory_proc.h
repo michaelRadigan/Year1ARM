@@ -2,6 +2,17 @@
 #define MEMORY_PROC_H
 
 /* No need to include headers here -> they are included in the common_instances file*/
-void load_file(char *file);
+#include "common_instances.h"
+
+/* Declaring the variable */
+extern int numBytes;
+
+typedef struct memory_machine{
+	uint32_t *word; 
+}memory_machine;
+
+
+/* Declare all function prototypes here */
+void memory_load_file(FILE *file);
 
 #endif
