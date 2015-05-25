@@ -45,7 +45,11 @@ void setUpCycle(){
 /**
   @return 0 if condition is not met, 1 if met
 **/  
-int checkCond(Cond condition, Cpu cpu){
+int checkCond(uint32_t instr, Cpu cpu){
+
+  uint32_t condBinary = instr & 0xf00000000;
+  condBinary >>= (2*7);
+  Cond condition = (Cond) condBinary;
 
   uint32_t cpsr_ = *(cpu.cpsr);
   // isolate the important bits
@@ -74,11 +78,8 @@ int checkCond(Cond condition, Cpu cpu){
 }
 
 void branchInstri(uint32_t instr, Cpu cpu ){
-
-  uint32_t condBinary = instr & 0xf0000000;
-  condBinary >>= (2*7);
   
-  if(checkCond((Cond) condBinary , cpu) == 0){
+  if(checkCond(instr , cpu) == 0){
     // check if condition is satisfied.
     return;
   }
