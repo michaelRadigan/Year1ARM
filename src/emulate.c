@@ -58,19 +58,16 @@ typedef enum cond{ eq , ne , ge , lt , gt , le , al} Cond;
    @param instruction: pointer to the instructions
 *  @return 0 if condition is not met, 1 if met
 **/ 
-int checkCond(uint32_t instr){
+int checkCond(uint32_t *instruction){
 
-  uint32_t condBinary = instr & 0xf0000000;
+  uint32_t condBinary = *instruction & 0xf0000000;
 
   condBinary >>= (2*7);
   Cond condition = (Cond) condBinary;
 
-  uint32_t cpsr_ = cpu.cpsr;
-  /* isolate the important bits */
-  /*Reminder to ask Mickey why we need cpsr_*/
-  uint32_t v = cpsr_ & 0x10000000;
-  uint32_t z = cpsr_ & 0x40000000;
-  uint32_t n = cpsr_ & 0x80000000;
+  uint32_t v = cpu.cpsr & 0x10000000;
+  uint32_t z = cpu.cpsr & 0x40000000;
+  uint32_t n = cpu.cpsr & 0x80000000;
 
   switch(condition){
     case eq: 
@@ -96,9 +93,9 @@ int checkCond(uint32_t instr){
 *
 *
 **/
-void branchInstri(uint32_t instr){
+void branchInstri(uint32_t *instruction){
   
-  if(checkCond(instr) == 0){
+  if(checkCond(instruction) == 0){
     // check if condition is satisfied.
 
     return;
