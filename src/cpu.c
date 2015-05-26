@@ -124,7 +124,7 @@ instr_decode(uint32_t instr){
  * @param cpu Pointer to the cpu
  */
 void
-cpu_cycle(cpu *cpu ){
+cpu_cycle(cpu *cpu){
 
 	uint32_t instr = 0;
 	uint32_t pc;

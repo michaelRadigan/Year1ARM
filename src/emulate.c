@@ -1,19 +1,6 @@
 #include "common_instances.h"
 
-
-/**
-* Structure which represents the CPU
-* registers and shizzz
-**/
-typedef struct cpu{
-  uint32_t *reg[14]; 
-  uint32_t *pc;
-  uint32_t *cpsr;
-  uint32_t decode;
-  uint32_t encode;
-}Cpu;
-
-
+struct Cpu cpu = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; /*Why the missing baraces error?*/
 /*
 typedef struct instructions{
   (*branchInstr)(uint32_t instr, cpu cpu);
@@ -29,7 +16,7 @@ typedef struct instructions{
 *                  TODOS                      *
 ***********************************************
 * Look into declaring a cpu in the header rather than passing it around like 
-* Chuckle brothers style --  "To me, to you".
+* Chuckle brothers style --  "To me, to you". <- <-!!!!
 * Decode method
 * setflags()
 * nextfetch()
@@ -45,7 +32,7 @@ typedef struct instructions{
 * This will execute the next fetch
 **/
 uint32_t nextFetch();
-void setFlags(uint32_t *instruction, Cpu cpu);
+void setFlags(uint32_t *instruction);
 
 
 
@@ -56,23 +43,6 @@ void setFlags(uint32_t *instruction, Cpu cpu);
 /**********************************************
 *               SETUP METHODS                 *
 **********************************************/
-
-/**
-* return
-**/
-void setUpCycle(){
-    Cpu cpustruct;
-    cpustruct.pc = 0;
-    cpustruct.cpsr = 0;
-    int i;
-    for(i = 0; i< 14; i++){
-        cpustruct.reg[i] = 0;
-    }
-    cpustruct.decode = nextFetch();
-    cpustruct.encode = nextFetch();
-
-}
-
 
 /**********************************************
 *               DECODE METHODS                *
@@ -85,19 +55,19 @@ typedef enum cond{ eq , ne , ge , lt , gt , le , al} Cond;
 
 
 /**
+   @param instruction: pointer to the instructions
 *  @return 0 if condition is not met, 1 if met
 **/ 
-int checkCond(uint32_t instr, Cpu cpu){
+int checkCond(uint32_t *instruction){
 
-  uint32_t condBinary = instr & 0xf0000000;
+  uint32_t condBinary = *instruction & 0xf0000000;
+
   condBinary >>= (2*7);
   Cond condition = (Cond) condBinary;
 
-  uint32_t cpsr_ = *(cpu.cpsr);
-  // isolate the important bits
-  uint32_t v = cpsr_ & 0x10000000;
-  uint32_t z = cpsr_ & 0x40000000;
-  uint32_t n = cpsr_ & 0x80000000;
+  uint32_t v = cpu.cpsr & 0x10000000;
+  uint32_t z = cpu.cpsr & 0x40000000;
+  uint32_t n = cpu.cpsr & 0x80000000;
 
   switch(condition){
     case eq: 
@@ -107,7 +77,7 @@ int checkCond(uint32_t instr, Cpu cpu){
     case ge:
       return n==v;
     case lt:
-      return n!=v;
+     return n!=v;
     case gt:
       return (z==0)&&(n==v);
     case le:
@@ -123,32 +93,59 @@ int checkCond(uint32_t instr, Cpu cpu){
 *
 *
 **/
-void branchInstri(uint32_t instr, Cpu cpu ){
+void branchInstri(uint32_t *instruction){
   
-  if(checkCond(instr , cpu) == 0){
+  if(checkCond(instruction) == 0){
     // check if condition is satisfied.
+
     return;
   }
+
+  //TODO finish this method
+
 }  
 
 
-void multiplyNonA(uint32_t *instruction, Cpu cpu){
+void multiplyNonA(uint32_t *instruction){
     uint32_t rd, rm, rs;
     rm = (*instruction & 0x0000000F);
     rs = (*instruction & 0x00000F00) >> 8;
     rd = (*instruction & 0x000F0000) >> 16;
-     /*need to form a 64-bit number and then truncate
-    *(cpu.reg + rd) = rm * rs;  */
+    //rd = rm * rs
+    uint64_t a, b, c;
+    c = 0;
+    if(cpu.reg[rm] > cpu.reg[rs]){
+        a = cpu.reg[rm];
+        b = cpu.reg[rs];
+    } else {
+        a = cpu.reg[rs];
+        b = cpu.reg[rm];  
+    }
+
+    while(b != 0){
+        if((b & 1) != 0){
+             c = c + a;
+             a <<= 1;
+             b >>= 1;
+        }     
+    }
+    cpu.reg[rd] = (c & 0xFFFFFFFF); // check this!
 }
 
-void multiplyAccumulate(uint32_t *instruction, Cpu cpu){
-    multiplyNonA(instruction, cpu);
+/**
+ * This is the helper function for multiply which carries
+ * out both multiplucation and also addition. It updates teh values of the
+ * registers using multiplyNonA as a helper function.
+ * @Param instruction is a pointer to the instruction to be processed
+ * @Param cpu is a (hopefully temporary) method of accessing the cpu
+ * structure and updating the registers.*/ 
+
+void multiplyAccumulate(uint32_t *instruction){
+    multiplyNonA(instruction);
     int rn, rd;
     rn = (*instruction & 0x0000F000) >> 12;
-    /*there is a slight duplication of code here 
-      that could possibly be improved*/
     rd = (*instruction & 0x000F0000) >> 16;
-    *(cpu.reg + rd) += rn;
+    cpu.reg[rd] += cpu.reg[rn];
 }
 
 /**
@@ -156,17 +153,18 @@ void multiplyAccumulate(uint32_t *instruction, Cpu cpu){
  * @param instuction is a 32bit instruction
  * @param cpu is is Cpu structure
 */
-void multiply(uint32_t *instruction, Cpu cpu){
-    if(checkCond( *instruction, cpu) == 0){
+void multiply(uint32_t *instruction){
+    if(checkCond(instruction) == 0){
         return;
     }    
        /*Check these at some point*/
     if ((*instruction & 0x00200000) >> 20 == 1){
-        multiplyAccumulate(instruction, cpu);    
+        multiplyAccumulate(instruction);    
     } else {
-        multiplyNonA(instruction, cpu);
+        multiplyNonA(instruction);
     }
+
     if ((*instruction & 0x00100000) >> 19 == 1){
-        setFlags(instruction, cpu);
+        setFlags(instruction);
     }   
 }

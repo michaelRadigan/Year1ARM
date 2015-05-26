@@ -15,10 +15,10 @@ memory_machine *memory;
  */
 uint32_t
 memory_fetch_word_le_to_be(uint32_t word){
-    uint32_t swapped = ((word >> 24) & 0xff)     | // move byte 3 to byte 0
-                   	   ((word >> 8)  & 0xff00)   | // move byte 2 to byte 1
-                   	   ((word << 8)  & 0xff0000) | // move byte 1 to byte 2
-					   ((word << 24) & 0xff000000) // byte 0 to byte 3
+    uint32_t swapped = ((word >> 24) & 0xff)     | /* move byte 3 to byte 0*/
+                   	   ((word >> 8)  & 0xff00)   | /* move byte 2 to byte 1*/
+                   	   ((word << 8)  & 0xff0000) | /* move byte 1 to byte 2*/
+					   ((word << 24) & 0xff000000); /* byte 0 to byte 3*/
 	return swapped;
 }
 
@@ -37,7 +37,7 @@ memory_fetch_word(uint32_t pc){
 	/* Do bit-wise shifting to concatenate the four bytes
 	 * Input is little endian, hence shift like so
 	 */
-	//Possible source of bugs here
+	/*Possible source of bugs here*/
 	uint32_t result = byteOne | (byteTwo << 8) | (byteThree << 16) | (byteFour << 24);
 
 	uint32_t word_in_be = memory_fetch_word_le_to_be(result);
@@ -77,7 +77,7 @@ memory_machine_destroy(memory_machine *memptr){
  * @param cpuptr Pointer to cpu
  */
 void
-memory_cpu_init(cpu *cpuptr){
+memory_cpu_init(struct Cpu *cpuptr){
 	/* Need to implement with calloc to initialise to zero*/
 }
 
@@ -87,7 +87,7 @@ memory_cpu_init(cpu *cpuptr){
  * @param cpuptr Pointer to cpu
  */
 void
-memory_cpu_destroy(cpu *cpuptr){
+memory_cpu_destroy(struct Cpu *cpuptr){
 	free(cpuptr);
 }
 
@@ -114,11 +114,11 @@ check_file_error(FILE *file){
 void 
 memory_load_file(FILE *file){
 
-    memory_machine *memptr = NULL;
-	memory_machine_init(memptr);
+    memory_machine *memory = NULL;
+	memory_machine_init(memory);
 	
 	for(int i = 0; i < MEM_SIZE; i++){
-		if(fread(&memptr->byte[i], BYTES, 1, file) == 1){
+		if(fread(&memory->byte[i], BYTES, 1, file) == 1){
 	
 		printf("here\n");
 			continue;
