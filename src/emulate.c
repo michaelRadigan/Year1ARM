@@ -1,19 +1,6 @@
-#include "cpu.h"
-#include "emulate.h"
+#include "common_instances.h"
 
-/**
-* Structure which represents the CPU
-* registers and shizzz
-**
-typedef struct cpu{
-  uint32_t *reg[14]; 
-  uint32_t *pc;
-  uint32_t *cpsr;
-  uint32_t decode;
-  uint32_t encode;
-}Cpu;
-*/
-
+struct Cpu cpu = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; /*Why the missing baraces error?*/
 /*
 typedef struct instructions{
   (*branchInstr)(uint32_t instr, cpu cpu);
@@ -57,25 +44,6 @@ void setFlags(uint32_t *instruction);
 *               SETUP METHODS                 *
 **********************************************/
 
-/**
-* return
-**/
-/**
-void setUpCycle(){
-    cpu cpustruct;
-    cpustruct.pc = 0;
-    cpustruct.cpsr = 0;
-    int i;
-    for(i = 0; i< 14; i++){
-        cpustruct.reg[i] = 0;
-    }
-    cpustruct.decode = nextFetch();
-    cpustruct.encode = nextFetch();
-
-}
-**/
-
-
 /**********************************************
 *               DECODE METHODS                *
 **********************************************/
@@ -90,13 +58,16 @@ typedef enum cond{ eq , ne , ge , lt , gt , le , al} Cond;
    @param instruction: pointer to the instructions
 *  @return 0 if condition is not met, 1 if met
 **/ 
-int checkCond(uint32_t *instruction){
-  uint32_t condBinary = *instruction & 0xf0000000;
+int checkCond(uint32_t instr){
+
+  uint32_t condBinary = instr & 0xf0000000;
+
   condBinary >>= (2*7);
   Cond condition = (Cond) condBinary;
 
-  uint32_t cpsr_ = *(cpu.cpsr);
-  // isolate the important bits
+  uint32_t cpsr_ = cpu.cpsr;
+  /* isolate the important bits */
+  /*Reminder to ask Mickey why we need cpsr_*/
   uint32_t v = cpsr_ & 0x10000000;
   uint32_t z = cpsr_ & 0x40000000;
   uint32_t n = cpsr_ & 0x80000000;
@@ -125,9 +96,11 @@ int checkCond(uint32_t *instruction){
 *
 *
 **/
-void branchInstr(uint32_t *instruction){
+void branchInstri(uint32_t instr){
   
-  if(checkCond(instruction) == 0){
+  if(checkCond(instr) == 0){
+    // check if condition is satisfied.
+
     return;
   }
 
@@ -144,12 +117,12 @@ void multiplyNonA(uint32_t *instruction){
     //rd = rm * rs
     uint64_t a, b, c;
     c = 0;
-    if(*(cpu.reg[rm]) > *(cpu.reg[rs])){
-        a = *(cpu.reg[rm]);
-        b = *(cpu.reg[rs]);
+    if(cpu.reg[rm] > cpu.reg[rs]){
+        a = cpu.reg[rm];
+        b = cpu.reg[rs];
     } else {
-        a = *(cpu.reg[rs]);
-        b = *(cpu.reg[rm]);  
+        a = cpu.reg[rs];
+        b = cpu.reg[rm];  
     }
 
     while(b != 0){
@@ -159,7 +132,7 @@ void multiplyNonA(uint32_t *instruction){
              b >>= 1;
         }     
     }
-    *(cpu.reg[rd]) = (c & 0xFFFFFFFF); // check this!
+    cpu.reg[rd] = (c & 0xFFFFFFFF); // check this!
 }
 
 /**
@@ -175,7 +148,7 @@ void multiplyAccumulate(uint32_t *instruction){
     int rn, rd;
     rn = (*instruction & 0x0000F000) >> 12;
     rd = (*instruction & 0x000F0000) >> 16;
-    *(cpu.reg[rd]) += *(cpu.reg[rn]);
+    cpu.reg[rd] += cpu.reg[rn];
 }
 
 /**
