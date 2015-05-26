@@ -1,7 +1,6 @@
 #include "common_instances.h"
 
 struct Cpu cpu = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; /*Why the missing baraces error?*/
-
 /*
 typedef struct instructions{
   (*branchInstr)(uint32_t instr, cpu cpu);
@@ -45,8 +44,6 @@ void setFlags(uint32_t *instruction);
 *               SETUP METHODS                 *
 **********************************************/
 
-
-
 /**********************************************
 *               DECODE METHODS                *
 **********************************************/
@@ -58,11 +55,13 @@ typedef enum cond{ eq , ne , ge , lt , gt , le , al} Cond;
 
 
 /**
+   @param instruction: pointer to the instructions
 *  @return 0 if condition is not met, 1 if met
 **/ 
 int checkCond(uint32_t instr){
 
   uint32_t condBinary = instr & 0xf0000000;
+
   condBinary >>= (2*7);
   Cond condition = (Cond) condBinary;
 
@@ -81,7 +80,7 @@ int checkCond(uint32_t instr){
     case ge:
       return n==v;
     case lt:
-      return n!=v;
+     return n!=v;
     case gt:
       return (z==0)&&(n==v);
     case le:
@@ -101,8 +100,12 @@ void branchInstri(uint32_t instr){
   
   if(checkCond(instr) == 0){
     // check if condition is satisfied.
+
     return;
   }
+
+  //TODO finish this method
+
 }  
 
 
@@ -154,7 +157,7 @@ void multiplyAccumulate(uint32_t *instruction){
  * @param cpu is is Cpu structure
 */
 void multiply(uint32_t *instruction){
-    if(checkCond(*instruction) == 0){
+    if(checkCond(instruction) == 0){
         return;
     }    
        /*Check these at some point*/
