@@ -1,6 +1,4 @@
 #include "common_instances.h"
-#include "memory_proc.h"
-
 
 /**
  * Checks the number of arguments

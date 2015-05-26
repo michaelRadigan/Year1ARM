@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "memory_proc.h"
 /* Prototypes for functions */
 
 #endif
