@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "memory_proc.h"
 #include "cpu.h"
+#include "memory_proc.h"
 
 #endif

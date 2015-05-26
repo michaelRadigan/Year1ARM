@@ -4,29 +4,18 @@
 #include "common_instances.h"
 
 
-typedef struct{
+struct Cpu{
 	
-	uint32_t *cpu;
-
-	uint32_t r0;
-	uint32_t r1;
-	uint32_t r2;
-	uint32_t r3;
-	uint32_t r4;
-	uint32_t r5;
-	uint32_t r6;
-	uint32_t r7;
-	uint32_t r8;
-	uint32_t r9;
-	uint32_t r10;
-	uint32_t r11;
-	uint32_t r12;
-	uint32_t rsp;
-	uint32_t lr;
-	uint32_t pc;
-	uint32_t cpsr;
-}cpu;
-
+    uint32_t reg[14]; 
+    /*A pointer to the array holding the 15 generaq; purpose registers*
+     *we don't need them all but I'm including all 14 for completeness*/
+    uint32_t pc;
+    uint32_t cpsr;
+    uint32_t fetched; /*this will hold the next instruction to be decoded*/
+    
+    /*this will probably change, just here as a placeholder really*/
+    uint32_t decode; 	
+};
 
 /**
  * CPU registers
@@ -53,6 +42,6 @@ typedef enum{
 
 
 /* Function prototypes */
-void cpu_cycle(cpu *cpu);
+void cpu_cycle(struct Cpu *cpu);
 
 #endif
