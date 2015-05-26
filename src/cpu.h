@@ -8,6 +8,9 @@ typedef struct{
 	
 	uint32_t *cpu;
 
+	uint32_t decoded;
+	uint32_t fetched;
+
 	uint32_t r0;
 	uint32_t r1;
 	uint32_t r2;
