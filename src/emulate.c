@@ -60,8 +60,9 @@ void setFlags(uint32_t *instruction);
 /**
 * return
 **/
+/**
 void setUpCycle(){
-    Cpu cpustruct;
+    cpu cpustruct;
     cpustruct.pc = 0;
     cpustruct.cpsr = 0;
     int i;
@@ -72,6 +73,7 @@ void setUpCycle(){
     cpustruct.encode = nextFetch();
 
 }
+**/
 
 
 /**********************************************
@@ -85,6 +87,7 @@ typedef enum cond{ eq , ne , ge , lt , gt , le , al} Cond;
 
 
 /**
+   @param instruction: pointer to the instructions
 *  @return 0 if condition is not met, 1 if met
 **/ 
 int checkCond(uint32_t *instruction){
@@ -124,7 +127,7 @@ int checkCond(uint32_t *instruction){
 **/
 void branchInstr(uint32_t *instruction){
   
-  if(checkCond(instr) == 0){
+  if(checkCond(instruction) == 0){
     return;
   }
 
@@ -133,7 +136,7 @@ void branchInstr(uint32_t *instruction){
 }  
 
 
-void multiplyNonA(uint32_t *instruction, Cpu cpu){
+void multiplyNonA(uint32_t *instruction){
     uint32_t rd, rm, rs;
     rm = (*instruction & 0x0000000F);
     rs = (*instruction & 0x00000F00) >> 8;
@@ -167,8 +170,8 @@ void multiplyNonA(uint32_t *instruction, Cpu cpu){
  * @Param cpu is a (hopefully temporary) method of accessing the cpu
  * structure and updating the registers.*/ 
 
-void multiplyAccumulate(uint32_t *instruction, Cpu cpu){
-    multiplyNonA(instruction, cpu);
+void multiplyAccumulate(uint32_t *instruction){
+    multiplyNonA(instruction);
     int rn, rd;
     rn = (*instruction & 0x0000F000) >> 12;
     rd = (*instruction & 0x000F0000) >> 16;
@@ -180,18 +183,18 @@ void multiplyAccumulate(uint32_t *instruction, Cpu cpu){
  * @param instuction is a 32bit instruction
  * @param cpu is is Cpu structure
 */
-void multiply(uint32_t *instruction, Cpu cpu){
-    if(checkCond( *instruction, cpu) == 0){
+void multiply(uint32_t *instruction){
+    if(checkCond(instruction) == 0){
         return;
     }    
        /*Check these at some point*/
     if ((*instruction & 0x00200000) >> 20 == 1){
-        multiplyAccumulate(instruction, cpu);    
+        multiplyAccumulate(instruction);    
     } else {
-        multiplyNonA(instruction, cpu);
+        multiplyNonA(instruction);
     }
 
     if ((*instruction & 0x00100000) >> 19 == 1){
-        setFlags(instruction, cpu);
+        setFlags(instruction);
     }   
 }
