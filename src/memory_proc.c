@@ -13,8 +13,8 @@ memory_machine_init(memory_machine *memptr){
 
 	int numBytes = MEM_SIZE;
 
-	memptr = malloc(sizeof(memory_machine)); 
-	memptr->byte = malloc(numBytes * sizeof(uint8_t));
+	memptr = calloc(sizeof(memory_machine)); 
+	memptr->byte = calloc(numBytes * sizeof(uint8_t));
 }
 
 
@@ -34,7 +34,7 @@ memory_machine_destroy(memory_machine *memptr){
  */
 void
 memory_cpu_init(cpu *cpuptr){
-	/* Need to implement */
+	/* Need to implement with calloc to initialise to zero*/
 }
 
 
