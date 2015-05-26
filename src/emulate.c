@@ -1,10 +1,10 @@
-#include "common_instances.h"
-
+#include "cpu.h"
+#include "emulate.h"
 
 /**
 * Structure which represents the CPU
 * registers and shizzz
-**/
+**
 typedef struct cpu{
   uint32_t *reg[14]; 
   uint32_t *pc;
@@ -12,7 +12,7 @@ typedef struct cpu{
   uint32_t decode;
   uint32_t encode;
 }Cpu;
-
+*/
 
 /*
 typedef struct instructions{
@@ -45,7 +45,7 @@ typedef struct instructions{
 * This will execute the next fetch
 **/
 uint32_t nextFetch();
-void setFlags(uint32_t *instruction, Cpu cpu);
+void setFlags(uint32_t *instruction);
 
 
 
@@ -87,9 +87,8 @@ typedef enum cond{ eq , ne , ge , lt , gt , le , al} Cond;
 /**
 *  @return 0 if condition is not met, 1 if met
 **/ 
-int checkCond(uint32_t instr, Cpu cpu){
-
-  uint32_t condBinary = instr & 0xf0000000;
+int checkCond(uint32_t *instruction){
+  uint32_t condBinary = *instruction & 0xf0000000;
   condBinary >>= (2*7);
   Cond condition = (Cond) condBinary;
 
@@ -107,7 +106,7 @@ int checkCond(uint32_t instr, Cpu cpu){
     case ge:
       return n==v;
     case lt:
-      return n!=v;
+     return n!=v;
     case gt:
       return (z==0)&&(n==v);
     case le:
@@ -123,12 +122,14 @@ int checkCond(uint32_t instr, Cpu cpu){
 *
 *
 **/
-void branchInstri(uint32_t instr, Cpu cpu ){
+void branchInstr(uint32_t *instruction){
   
-  if(checkCond(instr , cpu) == 0){
-    // check if condition is satisfied.
+  if(checkCond(instr) == 0){
     return;
   }
+
+  //TODO finish this method
+
 }  
 
 
