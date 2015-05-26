@@ -29,7 +29,7 @@ typedef struct instructions{
 *                  TODOS                      *
 ***********************************************
 * Look into declaring a cpu in the header rather than passing it around like 
-* Chuckle brothers style --  "To me, to you".
+* Chuckle brothers style --  "To me, to you". <- <-!!!!
 * Decode method
 * setflags()
 * nextfetch()
@@ -138,18 +138,41 @@ void multiplyNonA(uint32_t *instruction, Cpu cpu){
     rm = (*instruction & 0x0000000F);
     rs = (*instruction & 0x00000F00) >> 8;
     rd = (*instruction & 0x000F0000) >> 16;
-     /*need to form a 64-bit number and then truncate
-    *(cpu.reg + rd) = rm * rs;  */
+    //rd = rm * rs
+    uint64_t a, b, c;
+    c = 0;
+    if(*(cpu.reg[rm]) > *(cpu.reg[rs])){
+        a = *(cpu.reg[rm]);
+        b = *(cpu.reg[rs]);
+    } else {
+        a = *(cpu.reg[rs]);
+        b = *(cpu.reg[rm]);  
+    }
+
+    while(b != 0){
+        if((b & 1) != 0){
+             c = c + a;
+             a <<= 1;
+             b >>= 1;
+        }     
+    }
+    *(cpu.reg[rd]) = (c & 0xFFFFFFFF); // check this!
 }
+
+/**
+ * This is the helper function for multiply which carries
+ * out both multiplucation and also addition. It updates teh values of the
+ * registers using multiplyNonA as a helper function.
+ * @Param instruction is a pointer to the instruction to be processed
+ * @Param cpu is a (hopefully temporary) method of accessing the cpu
+ * structure and updating the registers.*/ 
 
 void multiplyAccumulate(uint32_t *instruction, Cpu cpu){
     multiplyNonA(instruction, cpu);
     int rn, rd;
     rn = (*instruction & 0x0000F000) >> 12;
-    /*there is a slight duplication of code here 
-      that could possibly be improved*/
     rd = (*instruction & 0x000F0000) >> 16;
-    *(cpu.reg + rd) += rn;
+    *(cpu.reg[rd]) += *(cpu.reg[rn]);
 }
 
 /**
@@ -167,6 +190,7 @@ void multiply(uint32_t *instruction, Cpu cpu){
     } else {
         multiplyNonA(instruction, cpu);
     }
+
     if ((*instruction & 0x00100000) >> 19 == 1){
         setFlags(instruction, cpu);
     }   

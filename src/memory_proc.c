@@ -114,11 +114,11 @@ check_file_error(FILE *file){
 void 
 memory_load_file(FILE *file){
 
-    memory_machine *memptr = NULL;
-	memory_machine_init(memptr);
+    memory_machine *memory = NULL;
+	memory_machine_init(memory);
 	
 	for(int i = 0; i < MEM_SIZE; i++){
-		if(fread(&memptr->byte[i], BYTES, 1, file) == 1){
+		if(fread(&memory->byte[i], BYTES, 1, file) == 1){
 	
 		printf("here\n");
 			continue;
