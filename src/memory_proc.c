@@ -1,9 +1,51 @@
 #include "common_instances.h"
-#include "memory_proc.h"
 
 #define MEM_SIZE 65536
 #define BYTES    4
 
+
+/**
+ * Sets up machine memory
+ * @param memptr Pointer to machine memory
+ */
+void
+memory_machine_init(memory_machine *memptr){
+
+	int numBytes = MEM_SIZE;
+
+	memptr = malloc(sizeof(memory_machine)); 
+	memptr->byte = malloc(numBytes * sizeof(uint8_t));
+}
+
+
+/**
+ * Frees machine memory
+ * @param memptr Pointer to macine memory
+ */
+void
+memory_machine_destroy(memory_machine *memptr){
+	free(memptr);
+}
+
+
+/**
+ * Sets up cpu 
+ * @param cpuptr Pointer to cpu
+ */
+void
+memory_cpu_init(cpu *cpuptr){
+	/* Need to implement */
+}
+
+
+/**
+ * Frees cpu
+ * @param cpuptr Pointer to cpu
+ */
+void
+memory_cpu_destroy(cpu *cpuptr){
+	free(cpuptr);
+}
 
 
 /**
@@ -27,13 +69,12 @@ check_file_error(FILE *file){
  */
 void 
 memory_load_file(FILE *file){
-	int numBytes = MEM_SIZE;
 
-	memory_machine *machine_mem = malloc(sizeof(memory_machine)); 
-	machine_mem->byte = malloc(numBytes * sizeof(uint8_t));
-
+    memory_machine *memptr = NULL;
+	memory_machine_init(memptr);
+	
 	for(int i = 0; i < MEM_SIZE; i++){
-		if(fread(&machine_mem->byte[i], BYTES, 1, file) == 1){
+		if(fread(&memptr->byte[i], BYTES, 1, file) == 1){
 	
 		printf("here\n");
 			continue;

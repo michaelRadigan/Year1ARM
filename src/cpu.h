@@ -1,6 +1,14 @@
 #ifndef CPU_H
 #define CPU_H
 
+#include "common_instances.h"
+
+
+typedef struct{
+	uint32_t *cpu;
+}cpu;
+
+
 /**
  * CPU registers
  */

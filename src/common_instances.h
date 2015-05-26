@@ -8,6 +8,6 @@
 #include <stdint.h>
 
 #include "memory_proc.h"
-/* Prototypes for functions */
+#include "cpu.h"
 
 #endif

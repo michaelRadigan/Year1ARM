@@ -7,7 +7,7 @@
 /* Declaring the variable */
 extern int numBytes;
 
-typedef struct memory_machine{
+typedef struct{
 	uint8_t *byte; 
 }memory_machine;
 
