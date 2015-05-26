@@ -1,5 +1,5 @@
-#include "emaulateTest.h"
-#include "/mnt/sshdirectory/Documents/Projects/arm11_16/src/emulate.h"
+#include "emulateTest.h"
+#include "../src/emulate.h"
 #include <stdio.h>
 
 void test_setUpCycle(void){
