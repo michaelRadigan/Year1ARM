@@ -4,9 +4,9 @@
 #include "common_instances.h"
 
 
-struct Cpu{
+typedef struct{
 	
-<<<<<<< HEAD
+//<<<<<<< HEAD
 	uint32_t *cpu;
 
 	uint32_t decoded;
@@ -30,18 +30,64 @@ struct Cpu{
 	uint32_t pc;
 	uint32_t cpsr;
 }cpu;
+/*
 =======
     uint32_t reg[14]; 
-    /*A pointer to the array holding the 15 generaq; purpose registers*
+*/
+	/*A pointer to the array holding the 15 generaq; purpose registers*
      *we don't need them all but I'm including all 14 for completeness*/
-    uint32_t pc;
-    uint32_t cpsr;
-    uint32_t fetched; /*this will hold the next instruction to be decoded*/
+//  uint32_t pc;
+//  uint32_t cpsr;
+//  uint32_t fetched; /*this will hold the next instruction to be decoded*/
     
     /*this will probably change, just here as a placeholder really*/
-    uint32_t decode; 	
-};
->>>>>>> 803a795f1453dd24f2b0f53b872e25c083ccee99
+//    uint32_t decode; 	
+//};
+
+//>>>>>>> 803a795f1453dd24f2b0f53b872e25c083ccee99
+
+
+
+
+
+
+/**
+ * ARM Condition Codes
+ */
+typedef enum{
+	CC_EQ = 0x0,
+	CC_NE = 0x1,
+	CC_GE = 0xA,
+	CC_LT = 0xB,
+	CC_GT = 0xC,
+	CC_LE = 0xD,
+	CC_AL = 0xE
+}arm_cc;
+
+
+/**
+ * ARM Operation Codes
+ */
+typedef enum{
+	/* Continuity of OpCodes is not
+	 * maintained because we are only
+	 * dealing with a subset of them
+	 */
+	OC_AND = 0x0,
+	OC_EOR = 0x1,
+	OC_SUB = 0x2,
+	OC_RSB = 0x3,
+	OC_ADD = 0x4,
+	OC_TST = 0x8,
+	OC_TEQ = 0x9,
+	OC_CMP = 0xA,
+	OC_ORR = 0xC,
+	OC_MOV = 0xD
+}arm_oc;
+
+
+
+
 
 
 /**
@@ -65,7 +111,7 @@ typedef enum{
 	RLR = 0xE,
 	RPC = 0xF,
 	CPSR = 0x10
-}cpuReg;
+}cpu_reg;
 
 
 /* Function prototypes */

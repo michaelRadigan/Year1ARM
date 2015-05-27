@@ -1,10 +1,12 @@
 #include "common_instances.h"
 
-#define BITS_DATA_PROC         2
-#define BITS_MULT_PTRN_1       4
-#define BITS_MULT_PTRN_2       6
-#define BITS_SINGLE_DATA_TRANS 2
-#define BITS_BRANCH   		   4
+#define BITS_DATA_PROC_MASK           0x0C000000
+#define BITS_MULT_PTRN_MASK_1         0x000000F0
+#define BITS_MULT_PTRN_MASK_2         0x0FC00000
+#define BITS_SINGLE_DATA_TRANS_MASK_1 0x00600000
+#define BITS_SINGLE_DATA_TRANS_MASK_2 0x0C000000
+#define BITS_BRANCH_MASK              0x0F000000
+#define BITS_COND_MASK			      0xF0000000
 
 
 /* Boolean methods to check validity */
@@ -19,10 +21,9 @@
  * @return EXIT_SUCCESS if all ok
  */
 int
-get_bits(uint32_t instr, int offset, int shift, uint32_t expected){
+get_bits(uint32_t instr, uint32_t mask, int shift, uint32_t expected){
 	
-	uint32_t mask_data_proc = (1 << offset) - 1;
-    uint32_t result = instr & mask_data_proc;
+    uint32_t result = instr & mask;
 	
 	if ((result >> shift) == expected){
 		return EXIT_SUCCESS;
@@ -35,67 +36,114 @@ get_bits(uint32_t instr, int offset, int shift, uint32_t expected){
 
 /**
  * Checks if instruction is Data Processing
- * @param instr The word instruction
+ * @param instr The instruction word
  * @return EXIT_SUCCESS if all ok
  */
 int
 instr_data_proc(uint32_t instr){
-	return get_bits(instr, BITS_DATA_PROC, 26, 0x00000000);
+	return get_bits(instr, BITS_DATA_PROC_MASK, 26, 0x00000000);
 }
 
 
 /**
  * Checks if instruction is Multiply
- * @param instr The word instruction
+ * @param instr The instruction word
  * @return EXIT_SUCCESS if all ok
  */
 int
 instr_mult(uint32_t instr){
-	return get_bits(instr, BITS_MULT_PTRN_1, 4, 0x00000009) &&
-		   get_bits(instr, BITS_MULT_PTRN_2, 22, 0x00000000);
+	return get_bits(instr, BITS_MULT_PTRN_MASK_1, 4, 0x00000009) &&
+		   get_bits(instr, BITS_MULT_PTRN_MASK_2, 22, 0x00000000);
 }
 
 
 
 /**
  * Checks if instruction is Single Data Transfer
- * @param instr The word instruction
+ * @param instr The instruction word
  * @return EXIT_SUCCESS if all ok
  */
 int
 instr_single_data_trans(uint32_t instr){
-	return get_bits(instr, BITS_SINGLE_DATA_TRANS, 21, 0x00000000) &&
-		   get_bits(instr, BITS_SINGLE_DATA_TRANS, 26, 0x00000001);
+	return get_bits(instr, BITS_SINGLE_DATA_TRANS_MASK_1, 21, 0x00000000) &&
+		   get_bits(instr, BITS_SINGLE_DATA_TRANS_MASK_2, 26, 0x00000001);
 }
 
 
 /**
  * Checks if instruction is Branch
- * @param instr The word instruction
+ * @param instr The instruction word
  * @return EXIT_SUCCESS if all ok
  */
 int
 instr_branch(uint32_t instr){
-	return get_bits(instr, BITS_BRANCH, 24, 0x0000000A);
+	return get_bits(instr, BITS_BRANCH_MASK, 24, 0x0000000A);
+}
+
+
+/**
+ * Checks if Condition field is satisfied by CPSR register
+ * @param instr The instruction word
+ * @return EXIT_SUCCESS if all ok
+ */
+int 
+check_instr_cond_code(uint32_t instr){
+	/* Uninitialised cpu cos havent implemented malloc/calloc */
+
+	cpu *cpu;
+	uint32_t cpsr_reg = cpu->cpsr;
+	return get_bits(instr, BITS_COND_MASK, 28, cpsr_reg);
 }
 
 
 /* Execution of instructions */
 
-void
-execute_data_proc(uint32_t instr);
-
 
 void
-execute_mult(uint32_t instr);
+execute_data_proc(uint32_t instr){
+	/* If cond field is satisfied by cpsr reg then execute */
+	if(check_instr_cond_code(instr)){
+	
+	}
+	else{
+		/* Don't execute and fetch next instruction */
+	}
+}
+
+void
+execute_mult(uint32_t instr){
+	/* If cond field is satisfied by cpsr reg then execute */
+	if(check_instr_cond_code(instr)){
+	
+	}
+	else{
+		/* Don't execute and fetch next instruction */
+	}
+}
 
 
 void
-execute_single_data_trans(uint32_t instr);
+execute_single_data_trans(uint32_t instr){
+	/* If cond field is satisfied by cpsr reg then execute */
+	if(check_instr_cond_code(instr)){
+	
+	}
+	else{
+		/* Don't execute and fetch next instruction */
+	}
+}
+
 
 void
-execute_branch(uint32_t instr);
-
+execute_branch(uint32_t instr){
+	/* If cond field is satisfied by cpsr reg then execute */
+	if(check_instr_cond_code(instr)){
+	
+	}
+	else{
+		/* Don't execute and fetch next instruction */
+	}
+}
 
 
 void
@@ -125,6 +173,8 @@ instr_decode(uint32_t instr){
  */
 void
 cpu_cycle(cpu *cpu){
+
+	/* Before cpu struct pointer is passed in we need to initialise it */
 
 	uint32_t instr = 0;
 	uint32_t pc;
