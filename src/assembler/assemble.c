@@ -3,29 +3,27 @@
 
 /* Structures
 
-DICTIONARY label_address;
-DICTIONARY code_binarycode;
-DICTIONARY opcode_function;
+DICTIONARY *label_address;
+DICTIONARY *code_binarycode;
+DICTIONARY *opcode_function;
 
 */
 
 
 
-DICTIONARY setUPlabel_address(void){
-
-
+DICTIONARY *setUPlabel_address(void){
+  //TODO
+  return NULL;
 }
 
-DICTIONARY setUPcode_binarycode(void){
-
-
-
+DICTIONARY *setUPcode_binarycode(void){
+  //TODO
+  return NULL;
 }
 
-DICTIONARY setUPopcode_function(void){
-
-
-
+DICTIONARY *setUPopcode_function(void){
+  //TODO
+  return NULL;
 }
 
 int main(int argc, char **argv) {
@@ -44,13 +42,13 @@ int main(int argc, char **argv) {
 
   
 
-  ptr_SourceFile = fopen( *(argv[0]) ,"r");
+  ptr_SourceFile = fopen( argv[0] ,"r");
 
   if (!ptr_SourceFile){  
     return EXIT_FAILURE;
   }
 
-  ptr_WriteFile = fopen( *(argv[1]) , "+w");
+  ptr_WriteFile = fopen( argv[1] , "+w");
 
   if(!ptr_WriteFile){
     return EXIT_FAILURE;
