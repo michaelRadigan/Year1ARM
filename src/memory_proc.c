@@ -76,7 +76,7 @@ memory_machine_destroy(memory_machine *memptr){
  * @param cpuptr Pointer to cpu
  */
 void
-memory_cpu_init(struct Cpu *cpuptr){
+memory_cpu_init(cpu *cpuptr){
 	/* Need to implement with calloc to initialise to zero*/
 }
 
@@ -86,7 +86,7 @@ memory_cpu_init(struct Cpu *cpuptr){
  * @param cpuptr Pointer to cpu
  */
 void
-memory_cpu_destroy(struct Cpu *cpuptr){
+memory_cpu_destroy(cpu *cpuptr){
 	free(cpuptr);
 }
 
@@ -114,7 +114,7 @@ void
 memory_load_file(FILE *file){
 
     memory_machine *memory = NULL;
-	memory_machine_init(memory);
+	memory_machine_init(&memory);
 	
 	for(int i = 0; i < MEM_SIZE; i++){
 		if(fread(&memory->byte[i], BYTES, 1, file) == 1){
