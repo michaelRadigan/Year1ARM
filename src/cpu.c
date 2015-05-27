@@ -11,9 +11,10 @@
 #define FLAG_I_MASK					  0x02000000
 #define FLAG_A_MASK 				  0x00200000
 #define FLAG_P_MASK 				  0x01000000
-#define FLAG_A_MASK                   0x00100000 
+#define FLAG_U_MASK                   0x00800000 
 #define OPCODE_MASK					  0x01E00000
 #define FLAG_S_MASK					  0x00100000
+#define FLAG_L_MASK					  0x00100000
 #define REG_1_MASK  				  0x000F0000
 #define REG_2_MASK 					  0x0000F000
 #define REG_3_MASK 					  0x00000F00
@@ -47,11 +48,19 @@ check_bits(uint32_t instr, uint32_t mask, int shift, uint32_t expected){
 }
 
 
+/**
+ * Extracts the relevant bit selection
+ * @param instr The word instruction
+ * @param mask  The relevant bit mask
+ * @param shift The relevant shift amount
+ * @return The extracted bits
+ */
 uint32_t
 extract_bits(uint32_t instr, uint32_t mask, uint32_t shift){
 	uint32_t result = instr & mask;
 	return (result >> shift); 
 }
+
 
 /**
  * Checks if instruction is Data Processing
@@ -74,7 +83,6 @@ instr_mult(uint32_t instr){
 	return check_bits(instr, BITS_MULT_PTRN_MASK_1, 4, 0x00000009) &&
 		   check_bits(instr, BITS_MULT_PTRN_MASK_2, 22, 0x00000000);
 }
-
 
 
 /**
@@ -117,61 +125,116 @@ check_instr_cond_code(uint32_t instr){
 
 /* Decoding of instructions */
 
+
+/**
+ * Extracts the relevant bits and sets them in the Data Proc struct
+ * @param instr The instruction word
+ */
 void 
 decode_data_proc(uint32_t instr){
 	//get I flag
 	uint32_t I_flag = extract_bits(instr, FLAG_I_MASK, 25);
+	instr_data_proc_ptr->I_flag = I_flag;
+
 	//get opcode
 	uint32_t op_code = extract_bits(instr, OPCODE_MASK, 21); 
+	instr_data_proc_ptr->op_code = op_code;
+	
 	//get s flag
 	uint32_t S_flag = extract_bits(instr, FLAG_S_MASK, 20);
+	instr_data_proc_ptr->S_flag = S_flag;
+	
 	//get Rn reg
 	uint32_t rn_reg = extract_bits(instr, REG_1_MASK, 16);
+	instr_data_proc_ptr->rn_reg = rn_reg;
+	
 	//get Rd reg
 	uint32_t rd_reg = extract_bits(instr, REG_2_MASK, 12);
+	instr_data_proc_ptr->rd_reg = rd_reg;
+	
 	//Operand2
 	uint32_t operand_2 = extract_bits(instr, OPERAND_MASK, 0);
+	instr_data_proc_ptr->operand_2 = operand_2;
 }
 
+
+/**
+ * Extracts the relevant bits and sets them in the Data Proc struct
+ * @param instr The instruction word
+ */
 void
 decode_mult(uint32_t instr){
 	//get A flag
 	uint32_t A_flag = extract_bits(instr, FLAG_A_MASK, 21);
+	instr_mult_ptr->A_flag = A_flag;
+
 	//get S flag
 	uint32_t S_flag = extract_bits(instr, FLAG_S_MASK, 20);
+	instr_mult_ptr->S_flag = S_flag;	
+	
 	//get Rd reg
 	uint32_t rd_reg = extract_bits(instr, REG_1_MASK, 16);
+	instr_mult_ptr->rd_reg = rd_reg;
+	
 	//get Rn reg
 	uint32_t rn_reg = extract_bits(instr, REG_2_MASK, 12);
+	instr_mult_ptr->rn_reg = rn_reg;	
+	
 	//get Rs reg
 	uint32_t rs_reg = extract_bits(instr, REG_3_MASK, 8);
+	instr_mult_ptr->rs_reg = rs_reg;	
+	
 	//get Rm reg
 	uint32_t rm_reg = extract_bits(instr, REG_4_MASK, 0);
+	instr_mult_ptr->rm_reg = rm_reg;
 }
 
+
+/**
+ * Extracts the relevant bits and sets them in the Data Proc struct
+ * @param instr The instruction word
+ */
 void
 decode_single_data_trans(uint32_t instr){
 	//get I flag
 	uint32_t I_flag = extract_bits(instr, FLAG_I_MASK, 25); 
+	instr_single_data_trans_ptr->I_flag = I_flag;
+	
 	//get P flag
 	uint32_t P_flag = extract_bits(instr, FLAG_P_MASK, 24);
+	instr_single_data_trans_ptr->P_flag = P_flag;
+	
 	//get U flag
 	uint32_t U_flag = extract_bits(instr, FLAG_U_MASK, 23);
+	instr_single_data_trans_ptr->U_flag = U_flag;
+	
 	//get L flag
 	uint32_t L_flag = extract_bits(instr, FLAG_L_MASK, 20);
+	instr_single_data_trans_ptr->L_flag = L_flag;	
+	
 	//get Rn flag
 	uint32_t rn_reg = extract_bits(instr, REG_1_MASK, 16);
+    instr_single_data_trans_ptr->rn_reg = rn_reg;	
+	
 	//get Rd flag
 	uint32_t rd_reg = extract_bits(instr, REG_2_MASK, 12);
+	instr_single_data_trans_ptr->rd_reg = rd_reg;	
+	
 	//get offset
 	uint32_t offset = extract_bits(instr, OFFSET_1_MASK, 0);
+	instr_single_data_trans_ptr->offset = offset;
 }
 
+
+/**
+ * Extracts the relevant bits and sets them in the Data Proc struct
+ * @param instr The instruction word
+ */
 void
 decode_branch(uint32_t instr){
 	//get offset
 	uint32_t offset = extract_bits(instr, OFFSET_1_MASK, 0);
-
+	instr_branch_ptr->offset = offset;
 }
  
 

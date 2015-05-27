@@ -91,6 +91,60 @@ memory_cpu_destroy(cpu *cpuptr){
 }
 
 
+/* Initialsing memory for instruction struct */
+
+instr_data_proc_struct *instr_data_proc_ptr;
+instr_mult_struct *instr_mult_ptr;
+instr_single_data_trans_struct *instr_single_data_trans_ptr;
+instr_branch_struct *instr_branch_ptr;
+
+
+/**
+ * Sets up instruction memory
+ */
+void
+memory_instr_data_proc_init(){
+	/* source of error in calloc due to size of 1 as it can change */
+	instr_data_proc_ptr = calloc(1, sizeof(instr_data_proc_struct));
+}
+
+
+/**
+ * Sets up instruction memory
+ */
+void
+memory_instr_mult_init(){
+	/* source of error in calloc due to size of 1 as it can change */
+	instr_mult_ptr = calloc(1, sizeof(instr_mult_struct));
+
+}
+
+
+/**
+ * Sets up instruction memory
+ */
+void
+memory_instr_single_data_transfer_init(){
+	/* source of error in calloc due to size of 1 as it can change */
+	instr_single_data_trans_ptr = calloc(1, sizeof(instr_single_data_trans_struct));
+}
+
+
+/**
+ * Sets up instruction memory
+ */
+void
+memory_instr_branch_init(){
+	/* source of error in calloc due to size of 1 as it can change */
+	instr_branch_ptr = calloc(1, sizeof(instr_branch_struct));
+}
+
+
+
+
+
+
+
 /**
  * Checks whether EOF or an error has occured
  * @param file Pointer to the binary file

@@ -7,43 +7,57 @@
 
 /* ARM instruction set structs */
 
-typedef struct{
-	arm_cc cond_code;
-
-	//instr_flags->flag_I; 
-
-	arm_oc op_code;
-
-	// opcodeselect;
-
-	instr_flags *flags;
-
-	cpu_reg reg_n;
-
-	cpu_reg reg_d;
-
-	[TYPE????   operand2]	
-
-
-}instr_data_proc;
-
-op_code = OC_AND;
-op_code = 0x0;
-
-INSTR_DATA_PROC_HANDLER(inst)
-
-
-int (*name(int shit))(int) {
-
-}
+/* Try to use enums somehow in structs/functions */
 
 typedef struct{
-}instr_mult;
+
+	uint32_t I_flag;
+	uint32_t op_code;
+	uint32_t S_flag;
+	uint32_t rn_reg;
+	uint32_t rd_reg;
+	uint32_t operand_2;
+	
+}instr_data_proc_struct;
+
+extern instr_data_proc_struct *instr_data_proc_ptr;
+
 
 typedef struct{
-}instr_single_data_transfer;
+
+	uint32_t A_flag;
+	uint32_t S_flag;
+	uint32_t rd_reg;
+	uint32_t rn_reg;
+	uint32_t rs_reg;
+	uint32_t rm_reg;
+
+}instr_mult_struct;
+
+extern instr_mult_struct *instr_mult_ptr;
+
 
 typedef struct{
-}instr_branch;
+
+	uint32_t I_flag;
+	uint32_t P_flag;
+	uint32_t U_flag;
+	uint32_t L_flag;
+	uint32_t rn_reg;
+	uint32_t rd_reg;
+	uint32_t offset;
+
+}instr_single_data_trans_struct;
+
+extern instr_single_data_trans_struct *instr_single_data_trans_ptr;
+
+
+typedef struct{
+
+	uint32_t offset;
+
+}instr_branch_struct;
+
+extern instr_branch_struct *instr_branch_ptr;
 
 #endif

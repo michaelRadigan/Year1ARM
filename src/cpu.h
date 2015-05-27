@@ -134,7 +134,7 @@ typedef enum{
 
 /* Function prototypes */
 int check_bits(uint32_t instr, uint32_t mask, int shift, uint32_t expected);
-uint32_t extract_bits(uint32_t instr, uint32_t mask, uint32_t shift)
+uint32_t extract_bits(uint32_t instr, uint32_t mask, uint32_t shift);
 
 int instr_data_proc(uint32_t instr);
 int instr_mult(uint32_t instr);
