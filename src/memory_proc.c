@@ -72,22 +72,22 @@ memory_machine_destroy(memory_machine *memptr){
 
 
 /**
- * Sets up cpu 
- * @param cpuptr Pointer to cpu
+ * Sets up CPU 
  */
 void
-memory_cpu_init(cpu *cpuptr){
+memory_cpu_init(){
 	/* Need to implement with calloc to initialise to zero*/
+	/* source of error in calloc due to size of 1 as it can change */
+	cpu_ptr = calloc(1, sizeof(cpu));
 }
 
 
 /**
- * Frees cpu
- * @param cpuptr Pointer to cpu
+ * Frees CPU
  */
 void
-memory_cpu_destroy(cpu *cpuptr){
-	free(cpuptr);
+memory_cpu_destroy(){
+	free(cpu_ptr);
 }
 
 
@@ -140,6 +140,41 @@ memory_instr_branch_init(){
 }
 
 
+
+/**
+ * Frees instruction memory
+ */
+void
+memory_instr_data_proc_destroy(){
+	free(instr_data_proc_ptr);
+}
+
+
+/**
+ * Frees instruction memory
+ */
+void
+memory_instr_mult_destroy(){
+	free(instr_mult_ptr);
+}
+
+
+/**
+ * Frees instruction memory
+ */
+void
+memory_instr_single_data_transfer_destroy(){
+	free(instr_single_data_trans_ptr);
+}
+
+
+/**
+ * Frees instruction memory
+ */
+void
+memory_instr_branch_destroy(){
+	free(instr_branch_ptr);
+}
 
 
 

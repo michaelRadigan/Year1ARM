@@ -23,6 +23,18 @@
 #define OFFSET_1_MASK                 0x00000FFF 
 #define OFFSET_2_MASK                 0x00FFFFFF
 
+
+/* Global variables */
+
+
+/* Pointer definitions */
+cpu *cpu_ptr;
+
+
+/* Program counter will act as a pointer to memory*/
+uint32_t pc = 0; 
+
+
 /* Boolean methods to check validity */
 
 
@@ -115,10 +127,7 @@ instr_branch(uint32_t instr){
  */
 int 
 check_instr_cond_code(uint32_t instr){
-	/* Uninitialised cpu cos havent implemented malloc/calloc */
-
-	cpu *cpu;
-	uint32_t cpsr_reg = cpu->cpsr;
+	uint32_t cpsr_reg = cpu_ptr->cpsr;
 	return check_bits(instr, BITS_COND_MASK, 28, cpsr_reg);
 }
 
@@ -242,79 +251,80 @@ decode_branch(uint32_t instr){
 
 
 void
-execute_data_proc(uint32_t instr){
-	/* If cond field is satisfied by cpsr reg then execute */
-	if(check_instr_cond_code(instr)){
-
-		
-		/* Check if the I (Immediate Operand) flag is set (1)*/
-		if(   get_bits()  ){
-			// If set then Operand2 is an immediate constant
-		}
-		else{
-			/* it is a shifted register */
-		}
-	
-	}
-	else{
-		/* Don't execute and fetch next instruction */
-	}
+execute_data_proc(){
+    		
 }
 
 void
-execute_mult(uint32_t instr){
-	/* If cond field is satisfied by cpsr reg then execute */
-	if(check_instr_cond_code(instr)){
-	
-	}
-	else{
-		/* Don't execute and fetch next instruction */
-	}
+execute_mult(){
+
 }
 
 
 void
-execute_single_data_trans(uint32_t instr){
-	/* If cond field is satisfied by cpsr reg then execute */
-	if(check_instr_cond_code(instr)){
-	
-	}
-	else{
-		/* Don't execute and fetch next instruction */
-	}
+execute_single_data_trans(){
+
 }
 
 
 void
-execute_branch(uint32_t instr){
-	/* If cond field is satisfied by cpsr reg then execute */
-	if(check_instr_cond_code(instr)){
+execute_branch(){
+	uint32_t offset = instr_branch_ptr->offset;
+
+	/* Shift offset left 2 bits, 
+	 * and sign extend to 32 bits
+	 */
+	uint32_t result = offset << 2;
 	
-	}
-	else{
-		/* Don't execute and fetch next instruction */
-	}
+	/* Add result to pc */
+	pc += result; 
+
 }
 
 
+/**
+ * Selects which instruction to decode
+ * @param instr The instruction word to be decoded
+ */
 void
 instr_decode(uint32_t instr){
 	
 	if(instr_data_proc(instr)){
-//		decode_data_proc(instr);
-		execute_data_proc(instr);
+		decode_data_proc(instr);
 	}
 	else if(instr_mult(instr)){
-//		decode_mult(instr);
-		execute_mult(instr);
+		decode_mult(instr);
 	}
 	else if(instr_single_data_trans(instr)){
-//		decode_single_data_trans(instr);
-		execute_single_data_trans(instr);
+		decode_single_data_trans(instr);
 	}
-	else if(instr_branch(instr){
-//			decode_branch(instr);
-			execute_branch(instr);
+	else if(instr_branch(instr)){
+			decode_branch(instr);
+	}
+	else{
+	
+	}
+}
+
+
+/**
+ * Selects which instruction to execute
+ * @param instr The instruction word to be executed
+ */
+void
+instr_execute(uint32_t instr){
+	
+	if(instr_data_proc(instr) && check_instr_cond_code(instr)){
+		execute_data_proc();
+	}
+	else if(instr_mult(instr) && check_instr_cond_code(instr)){
+		execute_mult();
+	}
+	else if(instr_single_data_trans(instr) && check_instr_cond_code(instr)){
+		execute_single_data_trans();
+	}
+	else if(instr_branch(instr) && check_instr_cond_code(instr)){
+        execute_branch();
 	}
 	else{
 	
@@ -327,16 +337,14 @@ instr_decode(uint32_t instr){
  * @param cpu Pointer to the cpu
  */
 void
+/* ARGUMENT NOT NECESSARY??? */
 cpu_cycle(cpu *cpu){
 
 	/* Before cpu struct pointer is passed in we need to initialise it */
 
 	uint32_t instr = 0;
-	uint32_t pc;
-
-	/* Program counter will act as a pointer to memory*/
+    pc = cpu_ptr->pc;
 	/* Fetch one instruction from memory */
-	pc = cpu->pc;
 	instr = memory_fetch_word(pc);
 	cpu->pc = pc + 4;
 
@@ -347,4 +355,5 @@ cpu_cycle(cpu *cpu){
 	}
 	
 	instr_decode(instr);
+	instr_execute(instr);
 }
