@@ -15,11 +15,10 @@ memory_machine *memory;
  */
 uint32_t
 memory_fetch_word_le_to_be(uint32_t word){
-    uint32_t swapped = ((word >> 24) & 0xff)     | /* move byte 3 to byte 0*/
-                   	   ((word >> 8)  & 0xff00)   | /* move byte 2 to byte 1*/
-                   	   ((word << 8)  & 0xff0000) | /* move byte 1 to byte 2*/
-					   ((word << 24) & 0xff000000); /* byte 0 to byte 3*/
-	return swapped;
+     return (((word >> 24) & 0x000000ff)| /* move byte 3 to byte 0*/
+             ((word >> 8)  & 0x0000ff00)| /* move byte 2 to byte 1*/
+             ((word << 8)  & 0x00ff0000)| /* move byte 1 to byte 2*/
+			 ((word << 24) & 0xff000000)); /* byte 0 to byte 3*/
 }
 
 
@@ -77,7 +76,7 @@ memory_machine_destroy(memory_machine *memptr){
  * @param cpuptr Pointer to cpu
  */
 void
-memory_cpu_init(struct Cpu *cpuptr){
+memory_cpu_init(cpu *cpuptr){
 	/* Need to implement with calloc to initialise to zero*/
 }
 
@@ -87,7 +86,7 @@ memory_cpu_init(struct Cpu *cpuptr){
  * @param cpuptr Pointer to cpu
  */
 void
-memory_cpu_destroy(struct Cpu *cpuptr){
+memory_cpu_destroy(cpu *cpuptr){
 	free(cpuptr);
 }
 
@@ -115,7 +114,7 @@ void
 memory_load_file(FILE *file){
 
     memory_machine *memory = NULL;
-	memory_machine_init(memory);
+	memory_machine_init(&memory);
 	
 	for(int i = 0; i < MEM_SIZE; i++){
 		if(fread(&memory->byte[i], BYTES, 1, file) == 1){

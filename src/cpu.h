@@ -86,8 +86,26 @@ typedef enum{
 }arm_oc;
 
 
+/**
+ * Flags
+ */
+typedef struct{
+	/* All flags are 1 bit wide */ 
+	
+	/* Instruction Flags */
+	int flag_I : 1;
+	int flag_S : 1;
+	int flag_A : 1;
+	int flag_P : 1;
+	int flag_U : 1;
+	int flag_L : 1;
 
-
+	/* CSPR register flags */
+	int flag_N : 1;
+	int flag_Z : 1;
+	int flag_C : 1;
+	int flag_V : 1;
+}instr_flags;
 
 
 /**
@@ -115,6 +133,28 @@ typedef enum{
 
 
 /* Function prototypes */
-void cpu_cycle(struct Cpu *cpu);
+int check_bits(uint32_t instr, uint32_t mask, int shift, uint32_t expected);
+uint32_t extract_bits(uint32_t instr, uint32_t mask, uint32_t shift)
+
+int instr_data_proc(uint32_t instr);
+int instr_mult(uint32_t instr);
+int instr_single_data_trans(uint32_t instr);
+int instr_branch(uint32_t instr);
+
+int check_instr_cond_code(uint32_t instr);
+
+void decode_data_proc(uint32_t instr);
+void decode_mult(uint32_t instr);
+void decode_single_data_trans(uint32_t instr);
+void decode_branch(uint32_t instr);
+
+void execute_data_proc(uint32_t instr);
+void execute_mult(uint32_t instr);
+void execute_single_data_trans(uint32_t instr);
+void execute_branch(uint32_t instr);
+
+void instr_decode(uint32_t instr);
+
+void cpu_cycle(cpu *cpu);
 
 #endif

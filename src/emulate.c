@@ -1,6 +1,6 @@
 #include "common_instances.h"
 
-struct Cpu cpu = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; /*Why the missing baraces error?*/
+struct cpu cpu = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; /*Why the missing baraces error?*/
 /*
 typedef struct instructions{
   (*branchInstr)(uint32_t instr, cpu cpu);
