@@ -39,8 +39,7 @@ get_bits(uint32_t instr, uint32_t mask, int shift, uint32_t expected){
  * @param instr The instruction word
  * @return EXIT_SUCCESS if all ok
  */
-int
-instr_data_proc(uint32_t instr){
+int instr_data_proc(uint32_t instr){
 	return get_bits(instr, BITS_DATA_PROC_MASK, 26, 0x00000000);
 }
 
@@ -103,6 +102,15 @@ void
 execute_data_proc(uint32_t instr){
 	/* If cond field is satisfied by cpsr reg then execute */
 	if(check_instr_cond_code(instr)){
+
+		
+		/* Check if the I (Immediate Operand) flag is set (1)*/
+		if(   get_bits()  ){
+			// If set then Operand2 is an immediate constant
+		}
+		else{
+			/* it is a shifted register */
+		}
 	
 	}
 	else{
@@ -150,15 +158,19 @@ void
 instr_decode(uint32_t instr){
 	
 	if(instr_data_proc(instr)){
+//		decode_data_proc(instr);
 		execute_data_proc(instr);
 	}
 	else if(instr_mult(instr)){
+//		decode_mult(instr);
 		execute_mult(instr);
 	}
 	else if(instr_single_data_trans(instr)){
+//		decode_single_data_trans(instr);
 		execute_single_data_trans(instr);
 	}
 	else if(instr_branch(instr){
+//			decode_branch(instr);
 			execute_branch(instr);
 	}
 	else{
@@ -193,5 +205,3 @@ cpu_cycle(cpu *cpu){
 	
 	instr_decode(instr);
 }
-
-

@@ -86,8 +86,26 @@ typedef enum{
 }arm_oc;
 
 
+/**
+ * Flags
+ */
+typedef struct{
+	/* All flags are 1 bit wide */ 
+	
+	/* Instruction Flags */
+	int flag_I : 1;
+	int flag_S : 1;
+	int flag_A : 1;
+	int flag_P : 1;
+	int flag_U : 1;
+	int flag_L : 1;
 
-
+	/* CSPR register flags */
+	int flag_N : 1;
+	int flag_Z : 1;
+	int flag_C : 1;
+	int flag_V : 1;
+}instr_flags;
 
 
 /**
@@ -115,6 +133,6 @@ typedef enum{
 
 
 /* Function prototypes */
-void cpu_cycle(struct Cpu *cpu);
+void cpu_cycle(cpu *cpu);
 
 #endif

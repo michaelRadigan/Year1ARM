@@ -9,7 +9,7 @@ all: assemble emulate
 
 assemble: assemble.o
 
-emulate: emulate.o
+emulate: emulate.o cpu.o memory_proc.o main.o
 
 clean:
 	rm -f $(wildcard *.o)
