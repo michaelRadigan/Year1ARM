@@ -31,6 +31,9 @@
 #define SHIFT_TYPE_MASK               0x00000060
 /* Global variables */
 
+/*This variable will always either be a 0 or a 1, it will be set and checked
+ * as appropriate throughout the program */
+int carry_out_flag = 0;
 
 /* Pointer definitions */
 cpu *cpu_ptr;
@@ -353,16 +356,79 @@ shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val
 	}
 }
 
+
+/*Note, we could find the msb using log2 if we can work out how to cast*/
+int
+most_significant_bit(uint32_t test){
+    int i, temp;
+    temp = test;
+    for(i = 31; i < 0; i--){
+        if((temp & 0x80000000) == 0x80000000){
+            return i;
+        } else {
+            temp <<= 1;
+        }
+    }
+    return 0;
+}
+/*Note, I am returning 31 here even if it is not the least significant bit
+ *as this function is for the purpose of checking for underflow.*/
+int
+least_significant_bit(uint32_t test){
+    int i, temp;
+    temp = test;
+    for(i = 0; i < 31; i++){
+        if((temp & 0x1) == 0){
+            temp >>= 1;
+        } else {
+            return i;
+        }
+    return 31;
+    }
+
 uint32_t
 execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
+    if(S_flag_set()){
+        int msb = most_significant_bit(reg_val);
+        if(msb + shift_amount > 31){
+            carry_out_flag = 1;
+        }
+    }
+        return (reg_val << shift_amount);
 }
+
+/* This function takes 2 parameters and sets the overflow flag if an overflow
+ * occurs.
+ * @param shift_amount is the number of places that reg_val should be shifted
+ * @param reg_val is the value upon which the shift is to occur. */
+void shift_right_flag_check(uint32_t shift_amount, uint32_t reg_val){
+    if(S_flag_set()){
+        int lsb = least_significant_bit(reg_val);
+        if(lsb - shift_amount < 0){
+            carry_out_flag = 1;   
+        }
+    }
+} 
+
+
 
 uint32_t
 execute_logical_shift_right(uint32_t shift_amount, uint32_t reg_val){
+    shift_right_flag_check(shift_amount, reg_val); 
+    return (reg_val >> shift_amount);
 }
 
 uint32_t
 execute_arithmetic_shift_right(uint32_t shift_amount, uint32_t reg_val){
+    int i, return_val, bit31;
+    shift_right_flag_check(shift_amount, reg_val);
+    bit31 = reg_val & 0x80000000;
+    return_val = reg_val;
+    for(i = 0; i < shift_amount; i++){
+        return_val >>= 1;
+        return_val += bit31;
+    }
+    return return_val;
 }
 
 uint32_t
@@ -475,10 +541,6 @@ execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
 		uint32_t left_operand, uint32_t right_operand){
 	return (*execute_op_code_ptr)(left_operand, right_operand);
 }
-
-
-
-
 
 
 
