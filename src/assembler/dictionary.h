@@ -9,22 +9,22 @@
 
 /* Define objects for dictionary objects */
 
-typedef void key KEY;
-typedef void value VALUE;
+typedef void KEY;
+typedef void VALUE;
 
 typedef struct dictionary_entry{
   
-  KEY key  
-  VALUE value
+  KEY *key; 
+  VALUE *value;
 
-  ENTRY next
+  struct dictionary_entry *next;
 
 } ENTRY;
 
 typedef struct dictionary{
  
   int size;
-  ENTRY root;
+  ENTRY *root;
 
 } DICTIONARY;
 
@@ -34,21 +34,21 @@ typedef struct dictionary{
 /* Function definitions */
 
 //Creates an Empty dictioary structure
-DICTIONARY create(void);
+DICTIONARY *createDictionary(void);
 
 //Returns 1 if empty, 0 otherwise
-int isEmpty(DICTIONARY d);
+int isEmpty(DICTIONARY *d);
 
 //Returns 1 if put successful, 0 otherwise
-int put(DICTIONARY d , KEY key , VALUE value);
+int putElem(DICTIONARY *d , KEY *key , VALUE *value);
 
 //Returns value at key in d
-VALUE get(DICTIONARY d , KEY key);
+VALUE *getElem(DICTIONARY *d , KEY *key);
 
 //Returns 1 if remove of key in d is successful, 0 otherwise
-int remove(DICTIONARY d , KEY key);
+int removeElem(DICTIONARY *d , KEY *key);
 
 //Returns 1 if all dictioary memory elemnts have been freed, 0 otherwise;
-int destry(DICTIONARY d);
+int destroyDictionary(DICTIONARY *d);
 
 #endif
