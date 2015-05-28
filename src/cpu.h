@@ -6,7 +6,6 @@
 
 typedef struct{
 	
-//<<<<<<< HEAD
 	uint32_t *cpu;
 
 	uint32_t decoded;
@@ -33,25 +32,7 @@ typedef struct{
 
 extern cpu *cpu_ptr;
 
-/*
-=======
     uint32_t reg[14]; 
-
-	/*A pointer to the array holding the 15 generaq; purpose registers*
-     *we don't need them all but I'm including all 14 for completeness*/
-//  uint32_t pc;
-//  uint32_t cpsr;
-//  uint32_t fetched; /*this will hold the next instruction to be decoded*/
-    
-    /*this will probably change, just here as a placeholder really*/
-//    uint32_t decode; 	
-//};
-
-//>>>>>>> 803a795f1453dd24f2b0f53b872e25c083ccee99
-
-
-
-
 
 
 /**
