@@ -84,29 +84,6 @@ DICTIONARY *setUPopcode_function(void){
   return d;
 }
 
-/* Note: This function returns a pointer to a substring of the original string.
- If the given string was allocated dynamically, the caller must not overwrite
- that pointer with the returned value, since the original pointer must be
- deallocated using the same allocator with which it was allocated.  The return
- value must NOT be deallocated using free() etc.*/
-char *trimwhitespace(char *str)
-{
-  char *end;
-
-  // Trim leading space
-  while(isspace(*str)) str++;
-  if(*str == 0)  // All spaces?
-    return str;
-  
-   // Trim trailing space
-  end = str + strlen(str) - 1;
-  while(end > str && isspace(*end)) end--;
-
-     // Write new null terminator
-    *(end+1) = 0;
-
-  return str;
-}
 
 /* Returns label if label exists on current line else returns NULL */
 char *getLabel(char *source){
@@ -121,10 +98,12 @@ int main(int argc, char **argv) {
   
 
   //Setup Dictionaries
-  label_address = setUPlabel_address;
-  code_binarycode = setUPcode_binarycode;
-  opcode_function = setUPopcode_function;
+  label_address = setUPlabel_address();
+  code_binarycode = setUPcode_binarycode();
+  opcode_function = setUPopcode_function();
+  
 
+  //Setup File fields
   FILE *ptr_SourceFile;
   FILE *ptr_WriteFile;
 
@@ -171,8 +150,6 @@ int main(int argc, char **argv) {
     if(getLabel(buff)!=NULL){
       const char p[2] = ":";
       strtok(buff,p);
-    }else{
-      buff = trimwhitespace(buff);
     }
 
     if((token = strtok(buff,s))==NULL){
@@ -180,9 +157,8 @@ int main(int argc, char **argv) {
     }
 
     uint32_t (*func_ptr)(char *);
-    // not sure if should cast to (uint32_t *) or not
-    if((func_ptr = (uint32_t) getElem(opcode_function , (void *)token)) == NULL){
-      printf("GET FAILURE FROM DICTIONARY, OPCODE DOES NOT EXIST: %s" , token);
+    if((func_ptr = getElem(opcode_function , (void *)token)) == NULL){
+      printf("GETELEM FAILURE FROM DICTIONARY, OPCODE DOES NOT EXIST: %s" , token);
     }
     
     output = func_ptr(buff);
@@ -193,7 +169,6 @@ int main(int argc, char **argv) {
       break;
     }
   }
-
 
 
   fclose(ptr_SourceFile);

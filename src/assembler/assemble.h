@@ -22,6 +22,5 @@ DICTIONARY *opcode_function;
 DICTIONARY *setUPlabel_address(void);
 DICTIONARY *setUPcode_binarycode(void);
 DICTIONARY *setUPopcode_function(void);
-char *trimwhitespace(char *str);
 char *getLabel(char *source);
 #endif
