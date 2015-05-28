@@ -23,7 +23,12 @@
 #define OFFSET_1_MASK                 0x00000FFF 
 #define OFFSET_2_MASK                 0x00FFFFFF
 
-
+#define IMMEDIATE_VALUE_MASK		  0x000000FF
+#define ROTATE_FIELD_MASK             0x00000F00
+#define BIT_4_MASK 					  0x00000010
+#define RM_REG_MASK 				  0x0000000F	
+#define SHIFT_VALUE_MASK 			  0x00000F80
+#define SHIFT_TYPE_MASK               0x00000060
 /* Global variables */
 
 
@@ -249,13 +254,244 @@ decode_branch(uint32_t instr){
  
 
 /* Execution of instructions */
-
-
-void
-execute_data_proc(){
-    		
+uint32_t
+rotate_right(uint32_t value_to_shift, uint32_t rotate_amount){
+  return ((value_to_shift >> rotate_amount) | (value_to_shift << (32 - rotate_amount)));
 }
 
+}
+void
+execute_data_proc(){
+
+
+	uint32_t operand_2_val;
+
+
+	if(I_flag_set()){
+		/* Operand2 is an immediate constant */
+		uint32_t immediate_value = extract_bits(instr_data_proc_ptr->operand_2, IMMEDIATE_VALUE_MASK, 0);
+		uint32_t rotate_field    = extract_bits(instr_data_proc_ptr->operand_2, ROTATE_FIELD_MASK, 8);
+
+		/* Double rotation amount */
+		uint32_t rotate_amount = rotate_field << 1;
+		
+		/* Rotate right */
+		uint32_t rotated_result = rotate_right(immediate_value, rotate_amount);
+
+		operand_2_val = rotated_result;
+	}
+	else{
+		/* Operand2 is a shifted register */
+		
+		/* Read contents of register Rm */
+		uint32_t reg_rm = extract_bits(instr_data_proc_ptr->operand_2, RM_REG_MASK, 0);
+		uint32_t reg_val = register_select_read(reg_rm);
+
+		/* Examine bit 4 of Operand2 */
+		uint32_t bit_4 = extract_bits(instr_data_proc_ptr->operand_2, BIT_4_MASK, 4);
+
+
+		if(bit_4){
+			/* If bit 4 == 1 then shift is specified by register */
+
+
+            /* Read contents of register Rs */
+		uint32_t reg_rm = extract_bits(instr_data_proc_ptr->operand_2, RM_REG_MASK, 0);
+		uint32_t reg_val = register_select_read(reg_rm);
+
+
+
+		}
+		else{
+			/* Else shift by a constant amount */
+
+			/* Integer shift value */
+			uint32_t shift_amount = extract_bits(instr_data_proc_ptr->operand_2, SHIFT_VALUE_MASK, 7)
+            uint32_t shift_type  = extract_bits(instr_data_proc_ptr->operand_2, SHIFT_TYPE_MASK, 5);
+
+			operand_2_val = shift_type_dispatch(shift_type, shift_amount, reg_val);
+		}
+	}
+
+
+
+
+
+
+
+    uint32_t left_operand = instr_data_proc_ptr->rn_reg;
+	uint32_t op_code = instr_data_proc_ptr->op_code;
+    uint32_t result = opcode_dispatch(op_code, left_operand, operand_2_val);
+
+
+	uint32_t rd_reg = instr_data_proc_ptr->rd_reg;
+
+	/* Will not always write depending on opcode */
+	register_select_write(result, rd_reg);
+
+	if(S_flag_set()){
+		/* Update CPSR flags during execution of instruction*/
+	}
+
+
+}
+
+uint32_t
+shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val){
+
+	switch(shift_type){
+		case LSL : 
+			return execute_shift_type(&execute_logical_shift_left, shift_amount, reg_val);
+		case LSR : 
+			return execute_shift_type(&execute_logical_shift_right, shift_amount, reg_val);
+	    case ASR : 
+			return execute_shift_type(&execute_arithmetic_shift_right, shift_amount, reg_val);
+		case ROR : 
+			return execute_shift_type(&execute_rotate_right, shift_amount, reg_val);
+		default  :
+			printf("Given shift type not supported");
+	}
+}
+
+uint32_t
+execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
+}
+
+uint32_t
+execute_logical_shift_right(uint32_t shift_amount, uint32_t reg_val){
+}
+
+uint32_t
+execute_arithmetic_shift_right(uint32_t shift_amount, uint32_t reg_val){
+}
+
+uint32_t
+execute_rotate_right(uint32_t shift_amount, uint32_t reg_val){
+}
+
+
+uint32_t
+execute_shift_type(uint32_t (*execute_shift_type_ptr)(uint32_t, uint32_t),
+		uint32_t shift_amount, uint32_t reg_val){
+	return (*execute_shift_type_ptr)(shift_amount, reg_val);
+}
+
+
+
+
+
+
+
+
+uint32_t
+opcode_dispatch(uint32_t opcode, uint32_t left_operand, uint32_t right_operand){
+
+	switch(opcode){
+		case OC_AND : 
+			return execute_op_code(&execute_op_code_add, left_operand, right_operand);	
+		case OC_EOR :
+			return execute_op_code(&execute_op_code_eor, left_operand, right_operand);
+		case OC_SUB :
+			return execute_op_code(&execute_op_code_sub, left_operand, right_operand);
+		case OC_RSB :
+			return execute_op_code(&execute_op_code_rsb, left_operand, right_operand);
+		case OC_ADD :
+			return execute_op_code(&execute_op_code_add, left_operand, right_operand);
+		case OC_TST :
+			return execute_op_code(&execute_op_code_tst, left_operand, right_operand);
+		case OC_TEQ :
+			return execute_op_code(&execute_op_code_teq, left_operand, right_operand);
+		case OC_CMP :
+			return execute_op_code(&execute_op_code_cmp, left_operand, right_operand);
+		case OC_ORR :
+			return execute_op_code(&execute_op_code_orr, left_operand, right_operand);
+		case OC_MOV :
+			return execute_op_code(&execute_op_code_mov, left_operand, right_operand);
+		default :
+			printf("Unsupported opcade selected");
+	}
+}
+
+uint32_t
+execute_op_code_and(uint32_t reg, uint32_t operand2){
+	return reg & operand2;
+}
+
+uint32_t
+execute_op_code_eor(uint32_t reg, uint32_t operand2){
+	return reg ^ operand2; 
+}
+
+
+uint32_t
+execute_op_code_sub(uint32_t reg, uint32_t operand2){
+	return reg operand2;
+}
+
+
+uint32_t
+execute_op_code_rsb(uint32_t reg, uint32_t operand2){
+/* need to swap the two operands */
+
+
+}
+
+
+uint32_t
+execute_op_code_add(uint32_t reg, uint32_t operand2){
+
+}
+
+uint32_t
+execute_op_code_tst(uint32_t reg, uint32_t operand2){
+
+}
+
+
+uint32_t
+execute_op_code_teq(uint32_t reg, uint32_t operand2){
+
+}
+
+uint32_t
+execute_op_code_cmp(uint32_t reg, uint32_t operand2){
+
+}
+
+uint32_t
+execute_op_code_orr(uint32_t reg, uint32_t operand2){
+
+
+}
+
+uint32_t
+execute_op_code_mov(uint32_t reg, uint32_t operand2){
+
+}
+
+//run the function pointer with inputs
+uint32_t
+execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t), 
+		uint32_t left_operand, uint32_t right_operand){
+	return (*execute_op_code_ptr)(left_operand, right_operand);
+}
+
+
+
+
+
+
+
+
+static int
+I_flag_set(){
+	if(instr_data_proc_ptr->I_flag == 1){
+		return EXIT_SUCCESS;
+	}
+	else{
+		return EXIT_FAILURE;
+	}
+}
 
 /**
  * Carries out the Multiply instruction
@@ -296,6 +532,8 @@ execute_mult(){
 static void 
 multiply_rm_rs(){
 
+	/* TODO : check which value is larger */
+	/* TODO : the multiply is bit wise not int */
 	uint32_t rm_reg = instr_mult_ptr->rm_reg;
 	uint32_t rs_reg = instr_mult_ptr->rs_reg;
 	uint32_t rd_reg = instr_mult_ptr->rd_reg;
@@ -319,8 +557,11 @@ accumulate_rm_rs_rn(){
 	uint32_t rd_reg = instr_mult_ptr->rd_reg;
 
 	uint32_t rn_reg_contents = register_select_read(rn_reg);
+	uint32_t rd_reg_contents = register_select_read(rd_reg);
 
-	register_select_write(rn_reg_contents, rd_reg);
+	uint32_t result = rn_reg_contents + rd_reg_contents;
+
+	register_select_write(result, rd_reg);
 }
 
 
@@ -331,19 +572,19 @@ void
 register_select_write(uint32_t calc, uint32_t reg){
 
 	switch(reg){
-		case R0 : cpu_ptr->r0 += calc; break;
-		case R1 : cpu_ptr->r1 += calc; break;
-		case R2 : cpu_ptr->r2 += calc; break;
-		case R3 : cpu_ptr->r3 += calc; break;
-		case R4 : cpu_ptr->r4 += calc; break;
-		case R5 : cpu_ptr->r5 += calc; break;
-		case R6 : cpu_ptr->r6 += calc; break;
-		case R7 : cpu_ptr->r7 += calc; break;
-		case R8 : cpu_ptr->r8 += calc; break;
-		case R9 : cpu_ptr->r9 += calc; break;
-		case R10 : cpu_ptr->r10 += calc; break;
-		case R11 : cpu_ptr->r11 += calc; break;
-		case R12 : cpu_ptr->r12 += calc; break;
+		case R0 : cpu_ptr->r0 = calc; break;
+		case R1 : cpu_ptr->r1 = calc; break;
+		case R2 : cpu_ptr->r2 = calc; break;
+		case R3 : cpu_ptr->r3 = calc; break;
+		case R4 : cpu_ptr->r4 = calc; break;
+		case R5 : cpu_ptr->r5 = calc; break;
+		case R6 : cpu_ptr->r6 = calc; break;
+		case R7 : cpu_ptr->r7 = calc; break;
+		case R8 : cpu_ptr->r8 = calc; break;
+		case R9 : cpu_ptr->r9 = calc; break;
+		case R10 : cpu_ptr->r10 = calc; break;
+		case R11 : cpu_ptr->r11 = calc; break;
+		case R12 : cpu_ptr->r12 = calc; break;
 		default :printf("Invalid reg");
 	}
 }
@@ -479,7 +720,7 @@ instr_execute(uint32_t instr){
  */
 void
 /* ARGUMENT NOT NECESSARY??? */
-cpu_cycle(cpu *cpu){
+cpu_cycle(void){
 
 	/* Before cpu struct pointer is passed in we need to initialise it */
 
