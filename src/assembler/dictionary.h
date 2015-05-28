@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-
+#include <string.h>
 
 /* Define objects for dictionary objects */
 

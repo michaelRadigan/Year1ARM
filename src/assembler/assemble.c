@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
 
     uint32_t (*func_ptr)(char *);
     if((func_ptr = getElem(opcode_function , (void *)token)) == NULL){
-      printf("GETELEM FAILURE FROM DICTIONARY, OPCODE DOES NOT EXIST: %s" , token);
+      printf("FAILURE FROM DICTIONARY, OPCODE DOES NOT EXIST: %s" , token);
     }
     
     output = func_ptr(buff);
