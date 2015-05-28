@@ -35,6 +35,11 @@
 
 /* Global variables */
 
+<<<<<<< HEAD
+=======
+/*This variable will always either be a 0 or a 1, it will be set and checked
+ * as appropriate throughout the program */
+>>>>>>> df4b1bd62e0b67133df5ee21337ffc3610cfebcd
 int carry_out_flag = 0;
 
 /* Pointer definitions */
@@ -432,15 +437,69 @@ shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val
 }
 
 
+<<<<<<< HEAD
 /**
  * Executes the Logical Shift Left operation
  * @param shift_amount The amount the value will be shifted by
  * @param reg_val      The value stored in the register
  * @return The result of carrying out the operation
  */
+=======
+/*Note, we could find the msb using log2 if we can work out how to cast*/
+int
+most_significant_bit(uint32_t test){
+    int i, temp;
+    temp = test;
+    for(i = 31; i < 0; i--){
+        if((temp & 0x80000000) == 0x80000000){
+            return i;
+        } else {
+            temp <<= 1;
+        }
+    }
+    return 0;
+}
+/*Note, I am returning 31 here even if it is not the least significant bit
+ *as this function is for the purpose of checking for underflow.*/
+int
+least_significant_bit(uint32_t test){
+    int i, temp;
+    temp = test;
+    for(i = 0; i < 31; i++){
+        if((temp & 0x1) == 0){
+            temp >>= 1;
+        } else {
+            return i;
+        }
+    return 31;
+    }
+
+>>>>>>> df4b1bd62e0b67133df5ee21337ffc3610cfebcd
 uint32_t
 execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
+    if(S_flag_set()){
+        int msb = most_significant_bit(reg_val);
+        if(msb + shift_amount > 31){
+            carry_out_flag = 1;
+        }
+    }
+        return (reg_val << shift_amount);
 }
+
+/* This function takes 2 parameters and sets the overflow flag if an overflow
+ * occurs.
+ * @param shift_amount is the number of places that reg_val should be shifted
+ * @param reg_val is the value upon which the shift is to occur. */
+void shift_right_flag_check(uint32_t shift_amount, uint32_t reg_val){
+    if(S_flag_set()){
+        int lsb = least_significant_bit(reg_val);
+        if(lsb - shift_amount < 0){
+            carry_out_flag = 1;   
+        }
+    }
+} 
+
+
 
 
 /**
@@ -451,6 +510,8 @@ execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
  */
 uint32_t
 execute_logical_shift_right(uint32_t shift_amount, uint32_t reg_val){
+    shift_right_flag_check(shift_amount, reg_val); 
+    return (reg_val >> shift_amount);
 }
 
 
@@ -462,6 +523,15 @@ execute_logical_shift_right(uint32_t shift_amount, uint32_t reg_val){
  */
 uint32_t
 execute_arithmetic_shift_right(uint32_t shift_amount, uint32_t reg_val){
+    int i, return_val, bit31;
+    shift_right_flag_check(shift_amount, reg_val);
+    bit31 = reg_val & 0x80000000;
+    return_val = reg_val;
+    for(i = 0; i < shift_amount; i++){
+        return_val >>= 1;
+        return_val += bit31; /*possibly do this with bitwise or? */
+    }
+    return return_val;
 }
 
 
@@ -473,6 +543,9 @@ execute_arithmetic_shift_right(uint32_t shift_amount, uint32_t reg_val){
  */
 uint32_t
 execute_rotate_right(uint32_t shift_amount, uint32_t reg_val){
+    shift_right_flag_check(shift_amount, reg_val);
+    return((reg_value >> shift_amount) | (reg_value << (32 - shift_amount))); /*possible bug*/
+    
 }
 
 
@@ -491,6 +564,7 @@ execute_shift_type(uint32_t (*execute_shift_type_ptr)(uint32_t, uint32_t),
 	return (*execute_shift_type_ptr)(shift_amount, reg_val);
 }
 
+<<<<<<< HEAD
 
 /**
  * Selects which opcode should be carried out
@@ -498,6 +572,8 @@ execute_shift_type(uint32_t (*execute_shift_type_ptr)(uint32_t, uint32_t),
  * @param left_operand  Used to carry out opcode
  * @param right_operand Used to carry out opcode
  */
+=======
+>>>>>>> df4b1bd62e0b67133df5ee21337ffc3610cfebcd
 uint32_t
 opcode_dispatch(uint32_t opcode, uint32_t left_operand, uint32_t right_operand){
 
@@ -657,9 +733,14 @@ execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
 }
 
 
+<<<<<<< HEAD
 /**
  * Checks whether I flag is set
  */
+=======
+
+
+>>>>>>> df4b1bd62e0b67133df5ee21337ffc3610cfebcd
 static int
 I_flag_set(){
 	if(instr_data_proc_ptr->I_flag == 1){

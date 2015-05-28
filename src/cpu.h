@@ -6,7 +6,6 @@
 
 typedef struct{
 	
-//<<<<<<< HEAD
 	uint32_t *cpu;
 
 	uint32_t decoded;
@@ -33,6 +32,11 @@ typedef struct{
 
 extern cpu *cpu_ptr;
 
+<<<<<<< HEAD
+=======
+    uint32_t reg[14]; 
+
+>>>>>>> df4b1bd62e0b67133df5ee21337ffc3610cfebcd
 
 /**
  * ARM Condition Codes
