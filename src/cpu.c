@@ -29,6 +29,7 @@
 
 /* Pointer definitions */
 cpu *cpu_ptr;
+instr_flags *instr_flags_ptr;
 
 
 /* Program counter will act as a pointer to memory*/
@@ -255,9 +256,149 @@ execute_data_proc(){
     		
 }
 
+
+/**
+ * Carries out the Multiply instruction
+ */
 void
 execute_mult(){
 
+	if(A_flag_set()){
+		/* Perform a multiply and accumulate */
+		multiply_rm_rs();
+    	accumulate_rm_rs_rn();
+	}
+	else{
+		/* Perform only multiply */
+		multiply_rm_rs();
+	}
+
+	/* If S bit is set, update N and Z flags of CPSR*/
+	if(S_flag_set()){
+		uint32_t rd_reg = instr_mult_ptr->rd_reg;
+		uint32_t result = register_select_read(rd_reg);
+
+		/* Set Z flag iff result is 0 */
+		if(result == 0){
+			instr_flags_ptr->flag_Z = 1;
+		}
+
+		/* Set N flag to bit 31 of result */
+		uint32_t flag_N_result = extract_bits(result, 0x40000000, 30);
+		instr_flags_ptr->flag_N = flag_N_result;
+	}
+}
+
+
+/**
+ * Multiplies the contents of two registers
+ */
+static void 
+multiply_rm_rs(){
+
+	uint32_t rm_reg = instr_mult_ptr->rm_reg;
+	uint32_t rs_reg = instr_mult_ptr->rs_reg;
+	uint32_t rd_reg = instr_mult_ptr->rd_reg;
+
+	uint32_t rm_reg_contents = register_select_read(rm_reg);
+	uint32_t rs_reg_contents = register_select_read(rs_reg);
+ 
+	uint32_t result_mult = rm_reg_contents * rs_reg_contents;
+
+	register_select_write(result_mult, rd_reg);
+}
+
+
+/**
+ * Adds the contents of a register the the destination register
+ */
+static void
+accumulate_rm_rs_rn(){
+	
+	uint32_t rn_reg = instr_mult_ptr->rn_reg;
+	uint32_t rd_reg = instr_mult_ptr->rd_reg;
+
+	uint32_t rn_reg_contents = register_select_read(rn_reg);
+
+	register_select_write(rn_reg_contents, rd_reg)
+}
+
+
+/**
+ * Writes the result of calculation to the correct register
+ */
+void
+register_select_write(uint32_t calc, uint32_t reg){
+
+	switch(reg){
+		case R0 : cpu_ptr->r0 = calc; break;
+		case R1 : cpu_ptr->r1 = calc; break;
+		case R2 : cpu_ptr->r2 = calc; break;
+		case R3 : cpu_ptr->r3 = calc; break;
+		case R4 : cpu_ptr->r4 = calc; break;
+		case R5 : cpu_ptr->r5 = calc; break;
+		case R6 : cpu_ptr->r6 = calc; break;
+		case R7 : cpu_ptr->r7 = calc; break;
+		case R8 : cpu_ptr->r8 = calc; break;
+		case R9 : cpu_ptr->r9 = calc; break;
+		case R10 : cpu_ptr->r10 = calc; break;
+		case R11 : cpu_ptr->r11 = calc; break;
+		case R12 : cpu_ptr->r12 = calc; break;
+		default :printf("Invalid reg");
+	}
+}
+
+
+/**
+ * Reads the content of the selected register
+ */
+uint32_t 
+register_select_read(uint32_t reg){
+
+	switch(reg){
+		case R0 : return cpu_ptr->r0; break;
+		case R1 : return cpu_ptr->r1; break;
+		case R2 : return cpu_ptr->r2; break;
+		case R3 : return cpu_ptr->r3; break;
+		case R4 : return cpu_ptr->r4; break;
+		case R5 : return cpu_ptr->r5; break;
+		case R6 : return cpu_ptr->r6; break;
+		case R7 : return cpu_ptr->r7; break;
+		case R8 : return cpu_ptr->r8; break;
+		case R9 : return cpu_ptr->r9; break;
+		case R10 : return cpu_ptr->r10; break;
+		case R11 : return cpu_ptr->r11; break;
+		case R12 : return cpu_ptr->r12; break;
+		default :printf("Invalid reg");
+	}
+}
+
+
+/**
+ * Checks if the A flag is set
+ */
+static int
+A_flag_set(void){
+	if(instr_mult_ptr->A_flag == 1){
+		return EXIT_SUCCESS;
+	}
+	else{
+		return EXIT_FAILURE;
+	}
+}
+
+
+/**
+ * Checks if the S flag is set
+ */
+static int
+S_flag_set(void){
+	if(instr_mult_ptr->S_flag == 1){
+		return EXIT_SUCCESS;
+	}
+	else{
+		return EXIT_FAILURE;
+	}
 }
 
 

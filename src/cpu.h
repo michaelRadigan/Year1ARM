@@ -36,7 +36,7 @@ extern cpu *cpu_ptr;
 /*
 =======
     uint32_t reg[14]; 
-*/
+
 	/*A pointer to the array holding the 15 generaq; purpose registers*
      *we don't need them all but I'm including all 14 for completeness*/
 //  uint32_t pc;
@@ -110,6 +110,7 @@ typedef struct{
 	int flag_V : 1;
 }instr_flags;
 
+extern instr_flags *instr_flags_ptr;
 
 /**
  * CPU registers
@@ -134,6 +135,7 @@ typedef enum{
 	CPSR = 0x10
 }cpu_reg;
 
+//extern enum cpu_reg select_reg;
 
 /* Function prototypes */
 int check_bits(uint32_t instr, uint32_t mask, int shift, uint32_t expected);
@@ -152,7 +154,18 @@ void decode_single_data_trans(uint32_t instr);
 void decode_branch(uint32_t instr);
 
 void execute_data_proc();
+
+
 void execute_mult();
+
+static void multiply_rm_rs();
+static void accumulate_rm_rs_rn();
+
+void register_select_write(uint32_t calc, uint32_t reg);
+uint32_t register_select_read(uint32_t reg);
+static int A_flag_set(void);
+static int S_flag_set(void);
+
 void execute_single_data_trans();
 void execute_branch();
 
