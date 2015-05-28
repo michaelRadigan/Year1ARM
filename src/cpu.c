@@ -331,19 +331,19 @@ void
 register_select_write(uint32_t calc, uint32_t reg){
 
 	switch(reg){
-		case R0 : cpu_ptr->r0 = calc; break;
-		case R1 : cpu_ptr->r1 = calc; break;
-		case R2 : cpu_ptr->r2 = calc; break;
-		case R3 : cpu_ptr->r3 = calc; break;
-		case R4 : cpu_ptr->r4 = calc; break;
-		case R5 : cpu_ptr->r5 = calc; break;
-		case R6 : cpu_ptr->r6 = calc; break;
-		case R7 : cpu_ptr->r7 = calc; break;
-		case R8 : cpu_ptr->r8 = calc; break;
-		case R9 : cpu_ptr->r9 = calc; break;
-		case R10 : cpu_ptr->r10 = calc; break;
-		case R11 : cpu_ptr->r11 = calc; break;
-		case R12 : cpu_ptr->r12 = calc; break;
+		case R0 : cpu_ptr->r0 += calc; break;
+		case R1 : cpu_ptr->r1 += calc; break;
+		case R2 : cpu_ptr->r2 += calc; break;
+		case R3 : cpu_ptr->r3 += calc; break;
+		case R4 : cpu_ptr->r4 += calc; break;
+		case R5 : cpu_ptr->r5 += calc; break;
+		case R6 : cpu_ptr->r6 += calc; break;
+		case R7 : cpu_ptr->r7 += calc; break;
+		case R8 : cpu_ptr->r8 += calc; break;
+		case R9 : cpu_ptr->r9 += calc; break;
+		case R10 : cpu_ptr->r10 += calc; break;
+		case R11 : cpu_ptr->r11 += calc; break;
+		case R12 : cpu_ptr->r12 += calc; break;
 		default :printf("Invalid reg");
 	}
 }
