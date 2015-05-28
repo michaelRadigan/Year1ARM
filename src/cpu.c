@@ -320,7 +320,7 @@ accumulate_rm_rs_rn(){
 
 	uint32_t rn_reg_contents = register_select_read(rn_reg);
 
-	register_select_write(rn_reg_contents, rd_reg)
+	register_select_write(rn_reg_contents, rd_reg);
 }
 
 
