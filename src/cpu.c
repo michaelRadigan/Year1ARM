@@ -168,7 +168,7 @@ decode_data_proc(uint32_t instr){
 
 
 /**
- * Extracts the relevant bits and sets them in the Data Proc struct
+ * Extracts the relevant bits and sets them in the Mult struct
  * @param instr The instruction word
  */
 void
@@ -200,7 +200,7 @@ decode_mult(uint32_t instr){
 
 
 /**
- * Extracts the relevant bits and sets them in the Data Proc struct
+ * Extracts the relevant bits and sets them in the Single Data Trans struct
  * @param instr The instruction word
  */
 void
@@ -236,7 +236,7 @@ decode_single_data_trans(uint32_t instr){
 
 
 /**
- * Extracts the relevant bits and sets them in the Data Proc struct
+ * Extracts the relevant bits and sets them in the Branch struct
  * @param instr The instruction word
  */
 void
