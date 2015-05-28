@@ -484,7 +484,7 @@ cpu_cycle(cpu *cpu){
 	/* Before cpu struct pointer is passed in we need to initialise it */
 
 	uint32_t instr = 0;
-    pc = cpu_ptr->pc;
+        pc = cpu_ptr->pc;
 	/* Fetch one instruction from memory */
 	instr = memory_fetch_word(pc);
 	cpu->pc = pc + 4;
@@ -497,4 +497,66 @@ cpu_cycle(cpu *cpu){
 	
 	instr_decode(instr);
 	instr_execute(instr);
+}
+
+/**
+ * Prints the values of each of the registers
+ * (Yes, I cried as I wrote this)
+ * No parameters (may need the cpu parameter)
+ */
+void
+print_registers(){
+    printf("%s", "The register r0 contains: ");
+    printf("%x", r0);
+   
+    printf("%s", "The register r1 contains: ");
+    printf("%x", r1);
+   
+    printf("%s", "The register r2 contains: ");
+    printf("%x", r2);  
+  
+    printf("%s", "The register r3 contains: ");
+    printf("%x", r3);  
+  
+    printf("%s", "The register r3 contains: ");
+    printf("%x", r3); 
+          
+    printf("%s", "The register r4 contains: ");
+    printf("%x", r4);
+
+    printf("%s", "The register r5 contains: ");
+    printf("%x", r5);
+
+    printf("%s", "The register r6 contains: ");
+    printf("%x", r6);
+
+    printf("%s", "The register r7 contains: ");
+    printf("%x", r7);
+
+    printf("%s", "The register r8 contains: ");
+    printf("%x", r8);
+
+    printf("%s", "The register r9 contains: ");
+    printf("%x", r9);
+
+    printf("%s", "The register r10 contains: ");
+    printf("%x", r10);
+
+    printf("%s", "The register r11 contains: ");
+    printf("%x", r11);
+
+    printf("%s", "The register r12 contains: ");
+    printf("%x", r12);
+
+    printf("%s", "The register rsp contains: ");
+    printf("%x", rsp);
+
+    printf("%s", "The register lr contains: ");
+    printf("%x", lr);
+
+    printf("%s", "The register pc contains: ");
+    printf("%x", pc);
+
+    printf("%s", "The register cpsr contains: ");
+    printf("%x", cpsr);
 }
