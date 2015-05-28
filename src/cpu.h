@@ -33,26 +33,6 @@ typedef struct{
 
 extern cpu *cpu_ptr;
 
-/*
-=======
-    uint32_t reg[14]; 
-
-	/*A pointer to the array holding the 15 generaq; purpose registers*
-     *we don't need them all but I'm including all 14 for completeness*/
-//  uint32_t pc;
-//  uint32_t cpsr;
-//  uint32_t fetched; /*this will hold the next instruction to be decoded*/
-    
-    /*this will probably change, just here as a placeholder really*/
-//    uint32_t decode; 	
-//};
-
-//>>>>>>> 803a795f1453dd24f2b0f53b872e25c083ccee99
-
-
-
-
-
 
 /**
  * ARM Condition Codes
@@ -101,7 +81,6 @@ typedef enum{
 }arm_shift;
 
 
-
 /**
  * Flags
  */
@@ -129,6 +108,7 @@ typedef struct{
 
 extern instr_flags *instr_flags_ptr;
 
+
 /**
  * CPU registers
  */
@@ -152,9 +132,9 @@ typedef enum{
 	CPSR = 0x10
 }cpu_reg;
 
-//extern enum cpu_reg select_reg;
 
 /* Function prototypes */
+
 int check_bits(uint32_t instr, uint32_t mask, int shift, uint32_t expected);
 uint32_t extract_bits(uint32_t instr, uint32_t mask, uint32_t shift);
 
@@ -170,26 +150,16 @@ void decode_mult(uint32_t instr);
 void decode_single_data_trans(uint32_t instr);
 void decode_branch(uint32_t instr);
 
-
-
 void execute_data_proc();
-
-
+void C_flag_set(uint32_t op_code);
+void register_select_write_opcode(uint32_t opcode, uint32_t result, uint32_t rd_reg);
 uint32_t shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val);
 uint32_t execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val);
 uint32_t execute_logical_shift_right(uint32_t shift_amount, uint32_t reg_val);
 uint32_t execute_arithmetic_shift_right(uint32_t shift_amount, uint32_t reg_val);
 uint32_t execute_rotate_right(uint32_t shift_amount, uint32_t reg_val);
-
 uint32_t execute_shift_type(uint32_t (*execute_shift_type_ptr)(uint32_t, uint32_t),
 		uint32_t shift_amount, uint32_t reg_val);
-
-
-
-
-
-
-
 uint32_t opcode_dispatch(uint32_t opcode, uint32_t left_operand, uint32_t right_operand);
 uint32_t execute_op_code_and(uint32_t reg, uint32_t operand2);
 uint32_t execute_op_code_eor(uint32_t reg, uint32_t operand2);
@@ -201,30 +171,28 @@ uint32_t execute_op_code_teq(uint32_t reg, uint32_t operand2);
 uint32_t execute_op_code_cmp(uint32_t reg, uint32_t operand2);
 uint32_t execute_op_code_orr(uint32_t reg, uint32_t operand2);
 uint32_t execute_op_code_mov(uint32_t reg, uint32_t operand2);
+
 uint32_t execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
 	    uint32_t left_operand, uint32_t right_operand);
-
-
-
 static int I_flag_set(); 
 
 
-
-
 void execute_mult();
-
 static void multiply_rm_rs();
 static void accumulate_rm_rs_rn();
-
 void register_select_write(uint32_t calc, uint32_t reg);
 uint32_t register_select_read(uint32_t reg);
 static int A_flag_set(void);
 static int S_flag_set(void);
 
+
 void execute_single_data_trans();
+
+
 void execute_branch();
 
 void instr_decode(uint32_t instr);
+void instr_execute(uint32_t instr);
 
 void cpu_cycle(cpu *cpu);
 
