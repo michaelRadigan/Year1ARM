@@ -12,7 +12,9 @@
 
 Our organisation was not ideal from the start. In my opinion I believe that this is because all our our group members were at different stages of learning C. We had decided to try and get the emulator finished as soon as possible. This led to a lot of work being done in the first day or two by the group member who was already familiar with C. When the rest of the group were comfortable with the language it was a real struggle to both catch up and also contribute effectively. There was a fair bit of confusion (possible exacerbated by a lack of familiarity with with git) leading ultimately to quite a bit of redundant code being written, and of course deleted. This led to much of the emulator being written by one person.
 
-We believe that in part 2 we will be able to learn form our mistakes and manage our time more efficiently (not just because all of our group now know the language). As a result, we have all decided on the structure of the program and one member has created a skeleton files for the assembler. This will allow easier collaboration as all that needs to be done is for function bodies to be filled in. This means that we all understand how the program works, and we have a very clear structure to follow - we thus don't need to rely on one person to do all the work and experience all the difficulties that have followed.
+We believe that in part 2 we will be able to learn form our mistakes and manage our time more efficiently (not just because all of our group now know the language). For example, towards the end of part 1 we experimented with an informal style of pair programming; we believe that the incorporation of this into our collaborative process will greatly improve our efficiency.
+
+Testament to our increase in team productivity, we have all decided on the structure of part 2 prior to any code being written. One member then created a set of skeleton files and methods for the assembler. This will allow concentrate solely on the method at hand as all that needs to be done is for function bodies to be filled in. This means that we all understand how the program works, and we have a very clear structure to follow - we thus don't need to rely on one person to do all the work and experience all the difficulties that have followed.
 
 
 
@@ -52,7 +54,7 @@ We are using the 2-pass method to implement the assembling, so on the first pass
 \textbf{encode.c} contains all of the functions needed to translate each specific instruction into its binary representation. They all follow the same format so they can be used and stored easily in the dictionary.
 
 \item
-\textbf{dictionary.c} is a polymorphic abstract data type based on a linked list. We chose a linked list as it would be more appropriate for the small data sets of this task. It is used extensively in the implementation of this assembler.
+\textbf{dictionary.c} is a polymorphic abstract data type based on a binary search tree. We chose a BST as it would be more appropriate for the possible large data sets of this task. It is used extensively in the implementation of this assembler.
 
 \end{itemize}
 
