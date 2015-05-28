@@ -426,13 +426,16 @@ execute_arithmetic_shift_right(uint32_t shift_amount, uint32_t reg_val){
     return_val = reg_val;
     for(i = 0; i < shift_amount; i++){
         return_val >>= 1;
-        return_val += bit31;
+        return_val += bit31; /*possibly do this with bitwise or? */
     }
     return return_val;
 }
 
 uint32_t
 execute_rotate_right(uint32_t shift_amount, uint32_t reg_val){
+    shift_right_flag_check(shift_amount, reg_val);
+    return((reg_value >> shift_amount) | (reg_value << (32 - shift_amount))); /*possible bug*/
+    
 }
 
 
@@ -441,13 +444,6 @@ execute_shift_type(uint32_t (*execute_shift_type_ptr)(uint32_t, uint32_t),
 		uint32_t shift_amount, uint32_t reg_val){
 	return (*execute_shift_type_ptr)(shift_amount, reg_val);
 }
-
-
-
-
-
-
-
 
 uint32_t
 opcode_dispatch(uint32_t opcode, uint32_t left_operand, uint32_t right_operand){
