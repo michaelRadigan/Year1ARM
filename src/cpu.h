@@ -30,6 +30,9 @@ typedef struct{
 	uint32_t pc;
 	uint32_t cpsr;
 }cpu;
+
+extern cpu *cpu_ptr;
+
 /*
 =======
     uint32_t reg[14]; 
@@ -134,7 +137,7 @@ typedef enum{
 
 /* Function prototypes */
 int check_bits(uint32_t instr, uint32_t mask, int shift, uint32_t expected);
-uint32_t extract_bits(uint32_t instr, uint32_t mask, uint32_t shift)
+uint32_t extract_bits(uint32_t instr, uint32_t mask, uint32_t shift);
 
 int instr_data_proc(uint32_t instr);
 int instr_mult(uint32_t instr);
@@ -148,10 +151,10 @@ void decode_mult(uint32_t instr);
 void decode_single_data_trans(uint32_t instr);
 void decode_branch(uint32_t instr);
 
-void execute_data_proc(uint32_t instr);
-void execute_mult(uint32_t instr);
-void execute_single_data_trans(uint32_t instr);
-void execute_branch(uint32_t instr);
+void execute_data_proc();
+void execute_mult();
+void execute_single_data_trans();
+void execute_branch();
 
 void instr_decode(uint32_t instr);
 
