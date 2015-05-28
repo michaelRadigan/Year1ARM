@@ -29,7 +29,7 @@ typedef struct dictionary{
 
 
 //Creates an Empty dictioary structure
-DICTIONARY *create(void){
+DICTIONARY *createDictionary(void){
   //TODO
   return NULL;
 }
@@ -41,9 +41,11 @@ int isEmpty(DICTIONARY *d){
   return 0;
 }
 
-
+#include <stdio.h>
+#include <stdint.h>
 //Returns 1 if put successful, 0 otherwise
 int putElem(DICTIONARY *d , KEY *key , VALUE *value){
+  // printf("%s , %d" , (char *) key , *((int *) value) );
   //TODO
   return 0;
 }
@@ -63,7 +65,7 @@ int removeElem(DICTIONARY *d , KEY *key){
 }
 
 //Returns 1 if all dictioary memory elemnts have been freed, 0 otherwise;
-int destry(DICTIONARY *d){
+int destroyDictionary(DICTIONARY *d){
   //TODO
   return 0;
 }

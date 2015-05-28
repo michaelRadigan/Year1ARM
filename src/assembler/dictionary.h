@@ -34,7 +34,7 @@ typedef struct dictionary{
 /* Function definitions */
 
 //Creates an Empty dictioary structure
-DICTIONARY *create(void);
+DICTIONARY *createDictionary(void);
 
 //Returns 1 if empty, 0 otherwise
 int isEmpty(DICTIONARY *d);
@@ -49,6 +49,6 @@ VALUE *getElem(DICTIONARY *d , KEY *key);
 int removeElem(DICTIONARY *d , KEY *key);
 
 //Returns 1 if all dictioary memory elemnts have been freed, 0 otherwise;
-int destry(DICTIONARY *d);
+int destroyDictionary(DICTIONARY *d);
 
 #endif
