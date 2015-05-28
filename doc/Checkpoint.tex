@@ -41,13 +41,29 @@ Due to the confusion during our handling of part 1, we took a much more organise
 We have based the program design has been structured on the design of a physical CPU, thus the steps involved are as so:
 \begin{enumerate}
 \item
+We have 4 main modules: emulate.c, memory\_ proc.c, cpu.c and instructions.c. Each one emulates an area of a physical CPU.
+
+\item
+Emulate.c is the entry point to the application and reads in the binary file and checks for possible errors. The binary instructions are then passed on to the 'Memory' in memory\_ proc.c
+
+\item
+memory\_ proc.c includes all of the functions for dynamically allocating and freeing memory, little to big endian conversion, error checking and reading from memory.
+
+\item
+cpu.c primarily runs the fetch/execute/decode cycle with the header incorporating all the CPU and flags into a struct and the registers into an enumeration. 
 
 
 
 \end{enumerate}
 
 \subsection{Assembler}
+The design of the Assembler revolves around the use of several dictionaries for lookups.
 
+\begin{enumerate}
+
+\item
+blah
+\end{enumerate}
 
 
 \end{document}
