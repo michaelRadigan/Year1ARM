@@ -71,6 +71,19 @@ typedef enum{
 
 
 /**
+ * ARM Shift Types
+ */
+typedef enum{
+
+	LSL = 0x0,
+	LSR = 0x1,
+	ASR = 0x2,
+	ROR = 0x3
+}arm_shift;
+
+
+
+/**
  * Flags
  */
 typedef struct{
@@ -89,6 +102,10 @@ typedef struct{
 	int flag_Z : 1;
 	int flag_C : 1;
 	int flag_V : 1;
+
+	/* Carry flag used in arithmetic and shift operation */
+	int flag_carry : 1;
+
 }instr_flags;
 
 extern instr_flags *instr_flags_ptr;
@@ -134,7 +151,45 @@ void decode_mult(uint32_t instr);
 void decode_single_data_trans(uint32_t instr);
 void decode_branch(uint32_t instr);
 
+
+
 void execute_data_proc();
+
+
+uint32_t shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val);
+uint32_t execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val);
+uint32_t execute_logical_shift_right(uint32_t shift_amount, uint32_t reg_val);
+uint32_t execute_arithmetic_shift_right(uint32_t shift_amount, uint32_t reg_val);
+uint32_t execute_rotate_right(uint32_t shift_amount, uint32_t reg_val);
+
+uint32_t execute_shift_type(uint32_t (*execute_shift_type_ptr)(uint32_t, uint32_t),
+		uint32_t shift_amount, uint32_t reg_val);
+
+
+
+
+
+
+
+uint32_t opcode_dispatch(uint32_t opcode, uint32_t left_operand, uint32_t right_operand);
+uint32_t execute_op_code_and(uint32_t reg, uint32_t operand2);
+uint32_t execute_op_code_eor(uint32_t reg, uint32_t operand2);
+uint32_t execute_op_code_sub(uint32_t reg, uint32_t operand2);
+uint32_t execute_op_code_rsb(uint32_t reg, uint32_t operand2);
+uint32_t execute_op_code_add(uint32_t reg, uint32_t operand2);
+uint32_t execute_op_code_tst(uint32_t reg, uint32_t operand2);
+uint32_t execute_op_code_teq(uint32_t reg, uint32_t operand2);
+uint32_t execute_op_code_cmp(uint32_t reg, uint32_t operand2);
+uint32_t execute_op_code_orr(uint32_t reg, uint32_t operand2);
+uint32_t execute_op_code_mov(uint32_t reg, uint32_t operand2);
+uint32_t execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
+	    uint32_t left_operand, uint32_t right_operand);
+
+
+
+static int I_flag_set(); 
+
+
 
 
 void execute_mult();
