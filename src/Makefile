@@ -7,8 +7,6 @@ CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_BSD_SOURCE -std=c99 -Werror -pedantic
 
 all: assemble emulate
 
-assemble: assemble.o encode.o dictionary.o
-
 emulate: emulate.o cpu.o memory_proc.o main.o
 
 clean:
