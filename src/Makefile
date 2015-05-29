@@ -7,7 +7,7 @@ CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_BSD_SOURCE -std=c99 -Werror -pedantic
 
 all: assemble emulate
 
-emulate: emulate.o cpu.o memory_proc.o main.o
+emulate: cpu.o memory_proc.o
 
 clean:
 	rm -f $(wildcard *.o)

@@ -4,9 +4,9 @@
 #include "common_instances.h"
 
 
-typedef struct{
+typedef struct cpu {
 	
-	uint32_t *cpu;
+	//uint32_t *cpu;
 
 	uint32_t decoded;
 	uint32_t fetched;
@@ -86,18 +86,18 @@ typedef struct{
 	/* All flags are 1 bit wide */ 
 	
 	/* Instruction Flags */
-	int flag_I : 1;
-	int flag_S : 1;
-	int flag_A : 1;
-	int flag_P : 1;
-	int flag_U : 1;
-	int flag_L : 1;
+	int flag_I;// : 1;
+	int flag_S;// : 1;
+	int flag_A;// : 1;
+	int flag_P;// : 1;
+	int flag_U;// : 1;
+	int flag_L;// : 1;
 
 	/* CSPR register flags */
-	int flag_N : 1;
-	int flag_Z : 1;
-	int flag_C : 1;
-	int flag_V : 1;
+	int flag_N;// : 1;
+	int flag_Z;// : 1;
+	int flag_C;// : 1;
+	int flag_V;// : 1;
 
 	/* Carry flag used in arithmetic and shift operation */
 	int flag_carry : 1;
@@ -173,19 +173,24 @@ uint32_t execute_op_code_mov(uint32_t reg, uint32_t operand2);
 
 uint32_t execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
 	    uint32_t left_operand, uint32_t right_operand);
-static int I_flag_set(); 
+int I_flag_set(); 
 
 
 void execute_mult();
-static void multiply_rm_rs();
-static void accumulate_rm_rs_rn();
+void multiply_rm_rs();
+void accumulate_rm_rs_rn();
 void register_select_write(uint32_t calc, uint32_t reg);
 uint32_t register_select_read(uint32_t reg);
-static int A_flag_set(void);
-static int S_flag_set(void);
+int A_flag_set(void);
+int S_flag_set(void);
 
 
 void execute_single_data_trans();
+int L_flag_set(void);
+int P_flag_set(void);
+int U_flag_set(void);
+
+
 
 
 void execute_branch();
@@ -194,5 +199,7 @@ void instr_decode(uint32_t instr);
 void instr_execute(uint32_t instr);
 
 void cpu_cycle();
+
+void print_registers(void);
 
 #endif

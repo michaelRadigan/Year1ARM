@@ -3,7 +3,6 @@
 
 #include "common_instances.h"
 
-#define INSTR_DATA_PROC_HANDLER(X) fun_name(X)
 
 /* ARM instruction set structs */
 

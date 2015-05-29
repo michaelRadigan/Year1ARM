@@ -45,6 +45,17 @@ memory_fetch_word(uint32_t pc){
 }
 
 
+void
+memory_write_word(uint16_t memory_index, uint32_t word_to_write){
+	/* Does conversion from big to little endian for memory write */
+	uint32_t mask = 0x000000FF;
+
+	for(int i = 0; i < 4; i++){
+		memory->byte[memory_index + i] = (word_to_write & mask) >> i * 8;
+		mask <<= 8;
+	}
+}
+
 /**
  * Sets up machine memory
  * @param memptr Pointer to machine memory
