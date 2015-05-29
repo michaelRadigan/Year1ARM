@@ -6,35 +6,34 @@
 #define BITS_SINGLE_DATA_TRANS_MASK_1 0x00600000
 #define BITS_SINGLE_DATA_TRANS_MASK_2 0x0C000000
 #define BITS_BRANCH_MASK              0x0F000000
-#define BITS_COND_MASK			      0xF0000000
+#define BITS_COND_MASK		      0xF0000000
 
-#define FLAG_I_MASK					  0x02000000
-#define FLAG_A_MASK 				  0x00200000
-#define FLAG_P_MASK 				  0x01000000
+#define FLAG_I_MASK		      0x02000000
+#define FLAG_A_MASK 		      0x00200000
+#define FLAG_P_MASK 		      0x01000000
 #define FLAG_U_MASK                   0x00800000 
-#define OPCODE_MASK					  0x01E00000
-#define FLAG_S_MASK					  0x00100000
-#define FLAG_L_MASK					  0x00100000
-#define REG_1_MASK  				  0x000F0000
-#define REG_2_MASK 					  0x0000F000
-#define REG_3_MASK 					  0x00000F00
-#define REG_4_MASK 					  0x0000000F	
+#define OPCODE_MASK		      0x01E00000
+#define FLAG_S_MASK		      0x00100000
+#define FLAG_L_MASK		      0x00100000
+#define REG_1_MASK  		      0x000F0000
+#define REG_2_MASK 		      0x0000F000
+#define REG_3_MASK 		      0x00000F00
+#define REG_4_MASK 		      0x0000000F	
 #define OPERAND_MASK                  0x00000FFF 
 #define OFFSET_1_MASK                 0x00000FFF 
 #define OFFSET_2_MASK                 0x00FFFFFF
 
-#define IMMEDIATE_VALUE_MASK		  0x000000FF
+#define IMMEDIATE_VALUE_MASK	      0x000000FF
 #define ROTATE_FIELD_MASK             0x00000F00
-#define BIT_4_MASK 					  0x00000010
-#define RM_REG_MASK 				  0x0000000F	
-#define SHIFT_VALUE_MASK 			  0x00000F80
+#define BIT_4_MASK 		      0x00000010
+#define RM_REG_MASK 		      0x0000000F	
+#define SHIFT_VALUE_MASK 	      0x00000F80
 #define SHIFT_TYPE_MASK               0x00000060
-#define RS_REG_MASK 				  0x00000F00
+#define RS_REG_MASK 		      0x00000F00
 #define RS_VAL_MASK                   0x000000FF
 #define RESULT_BIT_MASK               0x80000000
 
 /* Global variables */
-
 
 /*This variable will always either be a 0 or a 1, it will be set and checked
  * as appropriate throughout the program */
@@ -115,7 +114,7 @@ instr_mult(uint32_t instr){
  */
 int
 instr_single_data_trans(uint32_t instr){
-	return check_bits(instr, BITS_SINGLE_DATA_TRANS_MASK_1, 21, 0x00000000) &&
+    	return check_bits(instr, BITS_SINGLE_DATA_TRANS_MASK_1, 21, 0x00000000) &&
 		   check_bits(instr, BITS_SINGLE_DATA_TRANS_MASK_2, 26, 0x00000001);
 }
 
@@ -234,7 +233,7 @@ decode_single_data_trans(uint32_t instr){
 	
 	//get Rn flag
 	uint32_t rn_reg = extract_bits(instr, REG_1_MASK, 16);
-    instr_single_data_trans_ptr->rn_reg = rn_reg;	
+        instr_single_data_trans_ptr->rn_reg = rn_reg;	
 	
 	//get Rd flag
 	uint32_t rd_reg = extract_bits(instr, REG_2_MASK, 12);
@@ -267,9 +266,41 @@ decode_branch(uint32_t instr){
 void
 execute_data_proc(){
 
-	uint32_t operand_2_val;
+    uint32_t operand_2_val = result_set_I_flag(I_flag_set());
 
-	if(I_flag_set()){
+
+
+    uint32_t left_operand = instr_data_proc_ptr->rn_reg;
+    uint32_t op_code = instr_data_proc_ptr->op_code;
+    uint32_t result = opcode_dispatch(op_code, left_operand, operand_2_val);
+
+    if(S_flag_set()){
+		/* Update CPSR flags */
+
+		/* Set C flag */
+		C_flag_set(op_code);
+
+		/* Set Z flag */
+		if(result == 0x0){
+		    instr_flags_ptr->flag_Z = 1;
+		}
+
+		/* Set N flag */
+		uint32_t result_bit_31 = extract_bits(result, RESULT_BIT_MASK, 31);
+		instr_flags_ptr->flag_N = result_bit_31;
+	}
+
+	uint32_t rd_reg = instr_data_proc_ptr->rd_reg;
+
+	register_select_write_opcode(op_code, result, rd_reg);
+}
+
+uint32_t
+result_set_I_flag(int I_flag_set){	
+	
+        uint32_t operand_2_val = 0;
+      
+        if(I_flag_set){
 		/* Operand2 is an immediate constant */
 		uint32_t immediate_value = extract_bits(instr_data_proc_ptr->operand_2, IMMEDIATE_VALUE_MASK, 0);
 		uint32_t rotate_field    = extract_bits(instr_data_proc_ptr->operand_2, ROTATE_FIELD_MASK, 8);
@@ -298,7 +329,7 @@ execute_data_proc(){
 		if(bit_4){
 			/* If bit 4 == 1 then shift is specified by register */
 
-            /* Read contents of register Rs */
+                        /* Read contents of register Rs */
 			uint32_t reg_rs = extract_bits(instr_data_proc_ptr->operand_2, RS_REG_MASK, 8);
 			uint32_t reg_rs_val = register_select_read(reg_rs);
 
@@ -317,32 +348,8 @@ execute_data_proc(){
 			operand_2_val = shift_type_dispatch(shift_type, shift_amount, reg_val);
 		}
 	}
-
-    uint32_t left_operand = instr_data_proc_ptr->rn_reg;
-	uint32_t op_code = instr_data_proc_ptr->op_code;
-    uint32_t result = opcode_dispatch(op_code, left_operand, operand_2_val);
-
-    if(S_flag_set()){
-		/* Update CPSR flags */
-
-		/* Set C flag */
-		C_flag_set(op_code);
-
-		/* Set Z flag */
-		if(result == 0x0){
-		    instr_flags_ptr->flag_Z = 1;
-		}
-
-		/* Set N flag */
-		uint32_t result_bit_31 = extract_bits(result, RESULT_BIT_MASK, 31);
-		instr_flags_ptr->flag_N = result_bit_31;
-	}
-
-	uint32_t rd_reg = instr_data_proc_ptr->rd_reg;
-
-	register_select_write_opcode(op_code, result, rd_reg);
+	return operand_2_val;
 }
-
 
 /**
  * Sets the C flag 
@@ -425,7 +432,7 @@ shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val
 			return execute_shift_type(&execute_logical_shift_left, shift_amount, reg_val);
 		case LSR : 
 			return execute_shift_type(&execute_logical_shift_right, shift_amount, reg_val);
-	    case ASR : 
+                case ASR : 
 			return execute_shift_type(&execute_arithmetic_shift_right, shift_amount, reg_val);
 		case ROR : 
 			return execute_shift_type(&execute_rotate_right, shift_amount, reg_val);
@@ -455,6 +462,8 @@ most_significant_bit(uint32_t test){
     }
     return 0;
 }
+
+
 /*Note, I am returning 31 here even if it is not the least significant bit
  *as this function is for the purpose of checking for underflow.*/
 int
@@ -471,6 +480,8 @@ least_significant_bit(uint32_t test){
     }
 }
 
+
+
 uint32_t
 execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
     if(S_flag_set()){
@@ -481,6 +492,7 @@ execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
     }
         return (reg_val << shift_amount);
 }
+
 
 /* This function takes 2 parameters and sets the overflow flag if an overflow
  * occurs.
@@ -494,8 +506,6 @@ void shift_right_flag_check(uint32_t shift_amount, uint32_t reg_val){
         }
     }
 } 
-
-
 
 
 /**
@@ -618,15 +628,49 @@ execute_op_code_eor(uint32_t reg, uint32_t operand2){
 	return reg ^ operand2; 
 }
 
+/*This is simply a bitwise add function, the algorithm is from wikipedia
+ *it is in a helper method as the checks for carry flags are different in
+ *subtract and add, possible to improve efficiency by checking which is larger
+ *but I don't feel that this is necessary
+ *@param reg is a uint32_t which is added
+ *@param operand2 is a uint32_t which is added*/
+uint32_t
+bitwise_add(uint32_t reg, uint32_t operand2){
+    uint32_t x, y, sum, carry;
+    sum = reg ^ operand2;
+    carry = reg & operand2;
+    while(carry != 0){
+        carry <<= 1;
+        x = sum;
+        y = carry;
+        sum = x ^ y;
+        carry = x & y;
+    }
+    return sum;
+}
 
 /**
  * Executes the SUB operation 
+ * **Not sure if this is correct**
  * @param reg The value stored in the register
  * @param operand2 The value after doing rotate/shift operation
  */
 uint32_t
 execute_op_code_sub(uint32_t reg, uint32_t operand2){
-	return reg operand2;
+    if(S_flag_set()){
+        int i;
+        for(i = 0; i < 31; i++){
+             if(most_significant_bit(reg) < 
+                most_significant_bit(operand2)){
+                carry_out_flag = 1; break;
+             } else if(most_significant_bit(reg) > 
+                most_significant_bit(operand2)){
+                break;
+             }
+         }
+/*the loop reaching the end means that they are equal*/
+         return 0;
+         }
 }
 
 
@@ -637,20 +681,25 @@ execute_op_code_sub(uint32_t reg, uint32_t operand2){
  */
 uint32_t
 execute_op_code_rsb(uint32_t reg, uint32_t operand2){
-/* need to swap the two operands */
-
-
+    return execute_op_code_sub(operand2, reg);
 }
 
 
 /**
- * Executes the ADD operation 
+ * Executes the ADD operation
+ * Algorithm from wikipedia pageon bitwise operations 
  * @param reg The value stored in the register
  * @param operand2 The value after doing rotate/shift operation
  */
 uint32_t
 execute_op_code_add(uint32_t reg, uint32_t operand2){
-
+    if(S_flag_set()){
+        if((most_significant_bit(reg) == 31 
+          && (most_significant_bit(operand2)) == 31)){
+            carry_out_flag = 1;
+        }
+    }
+    return bitwise_add(reg, operand2);
 }
 
 
@@ -661,7 +710,7 @@ execute_op_code_add(uint32_t reg, uint32_t operand2){
  */
 uint32_t
 execute_op_code_tst(uint32_t reg, uint32_t operand2){
-
+    return reg & operand2;
 }
 
 
@@ -672,18 +721,22 @@ execute_op_code_tst(uint32_t reg, uint32_t operand2){
  */
 uint32_t
 execute_op_code_teq(uint32_t reg, uint32_t operand2){
-
+    return reg ^ operand2;
 }
 
 
 /**
+ ***I have assumed that the lack of saving is done at a higher level and so** 
+  ** have just called sub here THE ALTERNATIVE is that we set the bit flag 
+     and do not need to calculate the result, in which case move the 
+     "carry_out_flag check" section of sub to a helper method and just call this
  * Executes the CMP operation 
  * @param reg The value stored in the register
  * @param operand2 The value after doing rotate/shift operation
  */
 uint32_t
 execute_op_code_cmp(uint32_t reg, uint32_t operand2){
-
+    return execute_op_code_sub(reg, operand2);	
 }
 
 
@@ -694,8 +747,7 @@ execute_op_code_cmp(uint32_t reg, uint32_t operand2){
  */
 uint32_t
 execute_op_code_orr(uint32_t reg, uint32_t operand2){
-
-
+    return reg | operand2;
 }
 
 
@@ -706,7 +758,8 @@ execute_op_code_orr(uint32_t reg, uint32_t operand2){
  */
 uint32_t
 execute_op_code_mov(uint32_t reg, uint32_t operand2){
-
+    /* Not sure if this is correct */
+    return operand2;
 }
 
 
@@ -894,6 +947,7 @@ S_flag_set(void){
 void
 execute_single_data_trans(){
 
+
 }
 
 
@@ -909,7 +963,6 @@ execute_branch(){
 	
 	/* Add result to pc */
 	pc += result; 
-
 }
 
 
@@ -977,7 +1030,7 @@ cpu_cycle(void){
         pc = cpu_ptr->pc;
 	/* Fetch one instruction from memory */
 	instr = memory_fetch_word(pc);
-	cpu->pc = pc + 4;
+	cpu_ptr->pc = pc + 4;
 
 	/* Check if all-0 instruction first */
 
@@ -1000,7 +1053,7 @@ print_registers(){
     printf("%x", cpu_ptr->r0);
    
     printf("%s", "The register r1 contains: ");
-    printf("%x", cpu_pt->r1);
+    printf("%x", cpu_ptr->r1);
    
     printf("%s", "The register r2 contains: ");
     printf("%x", cpu_ptr->r2);  

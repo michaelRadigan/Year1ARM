@@ -149,6 +149,7 @@ void decode_single_data_trans(uint32_t instr);
 void decode_branch(uint32_t instr);
 
 void execute_data_proc();
+uint32_t result_set_I_flag(int I_flag_set);
 void C_flag_set(uint32_t op_code);
 void register_select_write_opcode(uint32_t opcode, uint32_t result, uint32_t rd_reg);
 uint32_t shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val);
@@ -192,6 +193,6 @@ void execute_branch();
 void instr_decode(uint32_t instr);
 void instr_execute(uint32_t instr);
 
-void cpu_cycle(cpu *cpu);
+void cpu_cycle();
 
 #endif
