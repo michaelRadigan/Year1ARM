@@ -6,12 +6,36 @@
 
 
 
+/* Struct for storing function pointers */
 
 
+typedef uint32_t *(*Encode)(char *);
+
+typedef struct storeEncode{
+    Encode encFunc;
+}STR_ENC;
+
+
+/* The structs required to store the functions */
+STR_ENC *dp1;
+STR_ENC *dp2;
+STR_ENC *dp3;
+STR_ENC *m;
+STR_ENC *ma;
+STR_ENC *ldr;
+STR_ENC *str;
+STR_ENC *b;
+STR_ENC *andeq;
+STR_ENC *lsl;
+  
 /* Function defintions */
 
 
+/* Setsup structs containing function pointers */
+void setUPFuncStructs(void);
 
+/* Frees all funcStructs */
+void destroyFuncStructs(void);
 
 /* char *source is the string of words of the instructions */
 

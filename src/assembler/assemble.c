@@ -46,42 +46,51 @@ DICTIONARY *setUPcode_binarycode(void){
 }
 
 DICTIONARY *setUPopcode_function(void){
+
+  //SetUp structs containing function pointers  
+  setUPFuncStructs();
+
   DICTIONARY *d = createDictionary();
 
   //Functions for data Processing
-  putElem(d,"and",(void *) dataProcessing1);
-  putElem(d,"eor",(void *) dataProcessing1);
-  putElem(d,"sub",(void *) dataProcessing1);
-  putElem(d,"rsb",(void *) dataProcessing1);
-  putElem(d,"add",(void *) dataProcessing1);
-  putElem(d,"orr",(void *) dataProcessing1);
-  putElem(d,"mov",(void *) dataProcessing2);
-  putElem(d,"tst",(void *) dataProcessing3);
-  putElem(d,"teq",(void *) dataProcessing3);
-  putElem(d,"cmp",(void *) dataProcessing3);
+  putElem(d,"and", (void *) dp1);
+  putElem(d,"eor",(void *) dp1);
+  putElem(d,"sub",(void *) dp1);
+  putElem(d,"rsb",(void *) dp1);
+  putElem(d,"add",(void *) dp1);
+  putElem(d,"orr",(void *) dp1);
+  putElem(d,"mov",(void *) dp2);
+  putElem(d,"tst",(void *) dp3);
+  putElem(d,"teq",(void *) dp3);
+  putElem(d,"cmp",(void *) dp3);
 
   //Functions for Multiply
-  putElem(d,"mul",(void *) multiply);
-  putElem(d,"mla",(void *) multiplyAccum);
+  putElem(d,"mul",(void *) m);
+  putElem(d,"mla",(void *) ma);
 
   //Functions for single data transfer
-  putElem(d,"ldr",(void *) sdt_ldr);
-  putElem(d,"str",(void *) sdt_str);
+  putElem(d,"ldr",(void *) ldr);
+  putElem(d,"str",(void *) str);
 
   //Functions for branching
-  putElem(d,"beq",(void *) branch);
-  putElem(d,"bne",(void *) branch);
-  putElem(d,"bge",(void *) branch);
-  putElem(d,"blt",(void *) branch);
-  putElem(d,"bgt",(void *) branch);
-  putElem(d,"ble",(void *) branch);
-  putElem(d,"b",(void *) branch);
+  putElem(d,"beq",(void *) b);
+  putElem(d,"bne",(void *) b);
+  putElem(d,"bge",(void *) b);
+  putElem(d,"blt",(void *) b);
+  putElem(d,"bgt",(void *) b);
+  putElem(d,"ble",(void *) b);
+  putElem(d,"b",(void *) b);
 
   //Functions for specials
-  putElem(d,"andeq",(void *) spec_andeq);
-  putElem(d,"lsl",(void *) spec_lsl);
+  putElem(d,"andeq",(void *) andeq);
+  putElem(d,"lsl",(void *) lsl);
 
   return d;
+}
+
+void destroyDictionaryfunctions(DICTIONARY *d){
+  destroyFuncStructs();
+  destroyDictionary(d);
 }
 
 
@@ -90,6 +99,28 @@ char *getLabel(char *source){
   char s[2] = ":";
   return strtok(source,s);
 }
+
+
+/*prints the bits to file, return 1 on success, 0 otherwise */
+void writeBits(uint32_t *bits , FILE *out_file){
+  assert(out_file != NULL);
+  int i;
+  uint32_t mask = 1 << 31;
+
+  for(i=0 ; i<32 ; ++i){
+    if((*bits & mask) == 0){
+      fprintf(out_file , "0");
+    }else{
+      fprintf(out_file , "1");
+    }
+      
+    *bits <<= 1;
+  }
+  fprintf(out_file , "\n");
+}
+
+
+/* MAIN Program loop */
 
 int main(int argc, char **argv) {
   assert(argc == 2);
@@ -143,7 +174,7 @@ int main(int argc, char **argv) {
   /* Reads Opcode and generate Binary Encoding */
   while (fgets(buff,MAX_LINE_LENGTH, ptr_SourceFile)!=NULL){
     
-    uint32_t output; 
+    uint32_t *output; 
     const char s[2] = " ";  
     char *token;
     
@@ -156,18 +187,14 @@ int main(int argc, char **argv) {
       continue;
     }
 
-    uint32_t (*func_ptr)(char *);
-    if((func_ptr = getElem(opcode_function , (void *)token)) == NULL){
+    STR_ENC *encodingStruct;
+    if((encodingStruct = (STR_ENC *)getElem(opcode_function , (void *)token)) == NULL){
       printf("FAILURE FROM DICTIONARY, OPCODE DOES NOT EXIST: %s" , token);
     }
     
-    output = func_ptr(buff);
+    output = encodingStruct->encFunc(buff);
 
-    //will return negative number if failed
-    if((fprintf(ptr_WriteFile , "%x" , output)) < 0){
-      printf("WRITE FAILURE on %x" , output);
-      break;
-    }
+    writeBits(output, ptr_WriteFile); 
   }
 
 
@@ -176,7 +203,7 @@ int main(int argc, char **argv) {
   
   destroyDictionary(label_address);
   destroyDictionary(code_binarycode);
-  destroyDictionary(opcode_function);
+  destroyDictionaryfunctions(opcode_function);
 
 
   return EXIT_SUCCESS;

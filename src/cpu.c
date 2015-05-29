@@ -1,4 +1,4 @@
-#include "cpu.h"
+#include "common_instances.h"
 
 #define BITS_DATA_PROC_MASK           0x0C000000
 #define BITS_MULT_PTRN_MASK_1         0x000000F0
@@ -40,7 +40,7 @@
 int carry_out_flag = 0;
 
 /* Pointer definitions */
-struct cpu *cpu_ptr;
+cpu *cpu_ptr;
 instr_flags *instr_flags_ptr;
 uint32_t pc = 0;                      /* Program counter will act as a pointer to memory*/
 
@@ -445,7 +445,6 @@ shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val
 		default  :
 			printf("Given shift type not supported");
 	}
-	return EXIT_FAILURE;
 }
 
 
@@ -485,7 +484,6 @@ least_significant_bit(uint32_t test){
         }
     return 31;
     }
-	return EXIT_FAILURE;
 }
 
 
@@ -542,7 +540,7 @@ execute_logical_shift_right(uint32_t shift_amount, uint32_t reg_val){
  */
 uint32_t
 execute_arithmetic_shift_right(uint32_t shift_amount, uint32_t reg_val){
-    int i, return_val, bit31;
+    uint32_t i, return_val, bit31;
     shift_right_flag_check(shift_amount, reg_val);
     bit31 = reg_val & 0x80000000;
     return_val = reg_val;
@@ -617,7 +615,6 @@ opcode_dispatch(uint32_t opcode, uint32_t left_operand, uint32_t right_operand){
 		default :
 			printf("Unsupported opcode selected");
 	}
-	return EXIT_FAILURE;
 }
 
 
@@ -651,20 +648,6 @@ execute_op_code_eor(uint32_t reg, uint32_t operand2){
  * @param reg is a uint32_t which is added
  * @param operand2 is a uint32_t which is added
  */
-uint32_t
-bitwise_add(uint32_t reg, uint32_t operand2){
-    uint32_t x, y, sum, carry;
-    sum = reg ^ operand2;
-    carry = reg & operand2;
-    while(carry != 0){
-        carry <<= 1;
-        x = sum;
-        y = carry;
-        sum = x ^ y;
-        carry = x & y;
-    }
-    return sum;
-}
 
 
 /**
@@ -675,23 +658,29 @@ bitwise_add(uint32_t reg, uint32_t operand2){
  */
 uint32_t
 execute_op_code_sub(uint32_t reg, uint32_t operand2){
-    if(S_flag_set()){
-        int i;
-        for(i = 0; i < 31; i++){
-             if(most_significant_bit(reg) < 
-                most_significant_bit(operand2)){
-                carry_out_flag = 1; break;
-             } else if(most_significant_bit(reg) > 
-                most_significant_bit(operand2)){
-                break;
-             }
-         }
-/*the loop reaching the end means that they are equal*/
-         return 0;
-         }
-	return EXIT_FAILURE;
-}
 
+	if (reg == operand2) {
+		if (S_flag_set()) {
+			instr_flags_ptr->flag_Z = 1;
+			carry_out_flag = 1;
+		}
+		return (uint32_t) 0;
+	}
+	uint32_t op2compl = ~operand2;  
+	uint32_t result = reg + op2compl;
+	if (reg > operand2) {
+		result++;
+		if (S_flag_set()) {
+			carry_out_flag = 1;
+		}
+		return result;
+	} else {
+		if (S_flag_set()) {
+			carry_out_flag = 0;
+		}
+		return ~result;
+	}
+}
 
 /**
  * Executes the RSB operation 
@@ -712,15 +701,17 @@ execute_op_code_rsb(uint32_t reg, uint32_t operand2){
  */
 uint32_t
 execute_op_code_add(uint32_t reg, uint32_t operand2){
-    if(S_flag_set()){
-        if((most_significant_bit(reg) == 31 
-          && (most_significant_bit(operand2)) == 31)){
-            carry_out_flag = 1;
-        }
-    }
-    return bitwise_add(reg, operand2);
+	uint32_t result = reg+operand2;
+	/* if addition exceeds max of 32-bit val, then result wraps around */
+	if (S_flag_set()) {
+		if (result < reg || result < operand2) {
+			carry_out_flag = 1;
+		} else {
+			carry_out_flag = 0;
+		}
+	}
+	return result;
 }
-
 
 /**
  * Executes the TST operation 
@@ -801,7 +792,7 @@ execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
 /**
  * Checks whether I flag is set
  */
-int
+static int
 I_flag_set(){
 	if(instr_data_proc_ptr->I_flag == 1){
 		return EXIT_SUCCESS;
@@ -821,7 +812,7 @@ execute_mult(){
 	if(A_flag_set()){
 		/* Perform a multiply and accumulate */
 		multiply_rm_rs();
-    	accumulate_rm_rs_rn();
+         	accumulate_rm_rs_rn();
 	}
 	else{
 		/* Perform only multiply */
@@ -844,11 +835,15 @@ execute_mult(){
 	}
 }
 
+bitwise_multiply(uint32_t op1, uint32_t op2){
+    uint64_t toTruncate = op1 * op2;
+    return (toTruncate & 0xFFFFFFFF);
+}
 
 /**
  * Multiplies the contents of two registers
  */
-void 
+static void 
 multiply_rm_rs(){
 
 	/* TODO : check which value is larger */
@@ -860,7 +855,7 @@ multiply_rm_rs(){
 	uint32_t rm_reg_contents = register_select_read(rm_reg);
 	uint32_t rs_reg_contents = register_select_read(rs_reg);
  
-	uint32_t result_mult = rm_reg_contents * rs_reg_contents;
+	uint32_t result_mult = bitwise_multiply(rm_reg_contents, rs_reg_contents);
 
 	register_select_write(result_mult, rd_reg);
 }
@@ -869,7 +864,7 @@ multiply_rm_rs(){
 /**
  * Adds the contents of a register the the destination register
  */
-void
+static void
 accumulate_rm_rs_rn(){
 	
 	uint32_t rn_reg = instr_mult_ptr->rn_reg;
@@ -931,14 +926,13 @@ register_select_read(uint32_t reg){
 		case R12 : return cpu_ptr->r12; 
 		default :printf("Invalid reg");
 	}
-	return EXIT_FAILURE;
 }
 
 
 /**
  * Checks if the A flag is set
  */
-int
+static int
 A_flag_set(void){
 	if(instr_mult_ptr->A_flag == 1){
 		return EXIT_SUCCESS;
@@ -952,7 +946,7 @@ A_flag_set(void){
 /**
  * Checks if the S flag is set
  */
-int
+static int
 S_flag_set(void){
 	if(instr_mult_ptr->S_flag == 1){
 		return EXIT_SUCCESS;
@@ -1047,7 +1041,7 @@ execute_single_data_trans(){
 /**
  * Checks if the L falg is set
  */
-int
+static int
 L_flag_set(){
 	if(instr_single_data_trans_ptr->L_flag == 1){
 		return EXIT_SUCCESS;
@@ -1061,7 +1055,7 @@ L_flag_set(){
 /**
  * Checks if the P falg is set
  */
-int
+static int
 P_flag_set(){
 	if(instr_single_data_trans_ptr->P_flag == 1){
 		return EXIT_SUCCESS;
@@ -1075,7 +1069,7 @@ P_flag_set(){
 /**
  * Checks if the U falg is set
  */
-int
+static int
 U_flag_set(){
 	if(instr_single_data_trans_ptr->U_flag == 1){
 		return EXIT_SUCCESS;
