@@ -89,7 +89,7 @@ void
 memory_cpu_init(){
 	/* Need to implement with calloc to initialise to zero*/
 	/* source of error in calloc due to size of 1 as it can change */
-	cpu_ptr = calloc(1, sizeof(cpu));
+	cpu_ptr = calloc(1, sizeof(struct cpu));
 }
 
 
@@ -188,7 +188,16 @@ memory_instr_branch_destroy(){
 }
 
 
+void
+memory_instr_flags_init(){
+	/* source of error in calloc due to size of 1 as it can change */
+	instr_flags_ptr = calloc(1, sizeof(instr_flags));
+}
 
+void
+memory_instr_flags_destroy(){
+	free(instr_flags_ptr);
+}
 
 
 /**
@@ -213,13 +222,19 @@ check_file_error(FILE *file){
 void 
 memory_load_file(FILE *file){
 
-    memory_machine *memory = NULL;
+    memory = NULL;
 	memory_machine_init(&memory);
+	memory_instr_flags_init();
+	memory_cpu_init();
+	memory_instr_data_proc_init();
+	memory_instr_mult_init();
+	memory_instr_single_data_transfer_init();
+	memory_instr_branch_init();
 	
+
 	for(int i = 0; i < MEM_SIZE; i++){
 		if(fread(&memory->byte[i], BYTES, 1, file) == 1){
-	
-		printf("here\n");
+			printf("Line 222 in mem_proc.c\n");
 			continue;
 		}
 		else{
@@ -228,7 +243,18 @@ memory_load_file(FILE *file){
 		}
 
 	}
+
+	cpu_cycle();
+
 	//Possible deallocation of memory here
+
+//	memory_machine_destroy(&memory);
+//	memory_cpu_destroy();
+//	memory_instr_data_proc_destroy();
+//	memory_instr_mult_destroy();
+//	memory_instr_single_data_transfer_destroy();
+//	memory_instr_branch_destroy();
+
 	fclose(file);
 }
 

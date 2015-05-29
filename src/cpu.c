@@ -6,30 +6,30 @@
 #define BITS_SINGLE_DATA_TRANS_MASK_1 0x00600000
 #define BITS_SINGLE_DATA_TRANS_MASK_2 0x0C000000
 #define BITS_BRANCH_MASK              0x0F000000
-#define BITS_COND_MASK		      0xF0000000
+#define BITS_COND_MASK		          0xF0000000
 
-#define FLAG_I_MASK		      0x02000000
-#define FLAG_A_MASK 		      0x00200000
-#define FLAG_P_MASK 		      0x01000000
+#define FLAG_I_MASK		              0x02000000
+#define FLAG_A_MASK 		          0x00200000
+#define FLAG_P_MASK 		          0x01000000
 #define FLAG_U_MASK                   0x00800000 
-#define OPCODE_MASK		      0x01E00000
-#define FLAG_S_MASK		      0x00100000
-#define FLAG_L_MASK		      0x00100000
-#define REG_1_MASK  		      0x000F0000
-#define REG_2_MASK 		      0x0000F000
-#define REG_3_MASK 		      0x00000F00
-#define REG_4_MASK 		      0x0000000F	
+#define OPCODE_MASK		              0x01E00000
+#define FLAG_S_MASK		              0x00100000
+#define FLAG_L_MASK		              0x00100000
+#define REG_1_MASK  		          0x000F0000
+#define REG_2_MASK 		              0x0000F000
+#define REG_3_MASK 		              0x00000F00
+#define REG_4_MASK 		              0x0000000F
 #define OPERAND_MASK                  0x00000FFF 
 #define OFFSET_1_MASK                 0x00000FFF 
 #define OFFSET_2_MASK                 0x00FFFFFF
 
 #define IMMEDIATE_VALUE_MASK	      0x000000FF
 #define ROTATE_FIELD_MASK             0x00000F00
-#define BIT_4_MASK 		      0x00000010
-#define RM_REG_MASK 		      0x0000000F	
-#define SHIFT_VALUE_MASK 	      0x00000F80
+#define BIT_4_MASK 		              0x00000010
+#define RM_REG_MASK 		          0x0000000F
+#define SHIFT_VALUE_MASK 	          0x00000F80
 #define SHIFT_TYPE_MASK               0x00000060
-#define RS_REG_MASK 		      0x00000F00
+#define RS_REG_MASK 		          0x00000F00
 #define RS_VAL_MASK                   0x000000FF
 #define RESULT_BIT_MASK               0x80000000
 
@@ -1164,16 +1164,11 @@ cpu_cycle(void){
 	/* Before cpu struct pointer is passed in we need to initialise it */
 
 	uint32_t instr = 0;
-        pc = cpu_ptr->pc;
+    pc = cpu_ptr->pc;
 	/* Fetch one instruction from memory */
 	instr = memory_fetch_word(pc);
 	cpu_ptr->pc = pc + 4;
 
-	/* Check if all-0 instruction first */
-
-	if(instr == 0){
-		/* Upon termination output the state of all the registers */
-	}
 	
 	instr_decode(instr);
 	instr_execute(instr);
@@ -1187,54 +1182,23 @@ cpu_cycle(void){
  */
 void
 print_registers(){
-    printf("%s", "The register r0 contains: ");
-    printf("%x", cpu_ptr->r0);
-   
-    printf("%s", "The register r1 contains: ");
-    printf("%x", cpu_ptr->r1);
-   
-    printf("%s", "The register r2 contains: ");
-    printf("%x", cpu_ptr->r2);  
-  
-    printf("%s", "The register r3 contains: ");
-    printf("%x", cpu_ptr->r3);  
-  
-    printf("%s", "The register r4 contains: ");
-    printf("%x", cpu_ptr->r4);
+	printf("%s", "Registers:\n");
+	printf("$0  :         %d (%x)\n", cpu_ptr->r0, cpu_ptr->r0);
+	printf("$1  :         %d (%x)\n", cpu_ptr->r1, cpu_ptr->r1);
+	printf("$2  :         %d (%x)\n", cpu_ptr->r2, cpu_ptr->r2);
+	printf("$3  :         %d (%x)\n", cpu_ptr->r3, cpu_ptr->r3);
+	printf("$4  :         %d (%x)\n", cpu_ptr->r4, cpu_ptr->r4);
+	printf("$5  :         %d (%x)\n", cpu_ptr->r5, cpu_ptr->r5);
+	printf("$6  :         %d (%x)\n", cpu_ptr->r6, cpu_ptr->r6);
+	printf("$7  :         %d (%x)\n", cpu_ptr->r7, cpu_ptr->r7);
+	printf("$8  :         %d (%x)\n", cpu_ptr->r8, cpu_ptr->r8);
+	printf("$9  :         %d (%x)\n", cpu_ptr->r9, cpu_ptr->r9);
+	printf("$10 :         %d (%x)\n", cpu_ptr->r10, cpu_ptr->r10);
+	printf("$11 :         %d (%x)\n", cpu_ptr->r11, cpu_ptr->r11);
+	printf("$12 :         %d (%x)\n", cpu_ptr->r12, cpu_ptr->r12);
+	printf("PC  :         %d (%x)\n", cpu_ptr->pc, cpu_ptr->pc);
+	printf("CPSR:         %d (%x)\n", cpu_ptr->cpsr, cpu_ptr->cpsr);
+    printf("Non-zero memory:");
 
-    printf("%s", "The register r5 contains: ");
-    printf("%x", cpu_ptr->r5);
 
-    printf("%s", "The register r6 contains: ");
-    printf("%x", cpu_ptr->r6);
-
-    printf("%s", "The register r7 contains: ");
-    printf("%x", cpu_ptr->r7);
-
-    printf("%s", "The register r8 contains: ");
-    printf("%x", cpu_ptr->r8);
-
-    printf("%s", "The register r9 contains: ");
-    printf("%x", cpu_ptr->r9);
-
-    printf("%s", "The register r10 contains: ");
-    printf("%x", cpu_ptr->r10);
-
-    printf("%s", "The register r11 contains: ");
-    printf("%x", cpu_ptr->r11);
-
-    printf("%s", "The register r12 contains: ");
-    printf("%x", cpu_ptr->r12);
-
-    printf("%s", "The register rsp contains: ");
-    printf("%x", cpu_ptr->rsp);
-
-    printf("%s", "The register lr contains: ");
-    printf("%x", cpu_ptr->lr);
-
-    printf("%s", "The register pc contains: ");
-    printf("%x", cpu_ptr->pc);
-
-    printf("%s", "The register cpsr contains: ");
-    printf("%x", cpu_ptr->cpsr);
 }

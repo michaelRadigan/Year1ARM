@@ -50,9 +50,10 @@ main(int argc, char **argv){
 	else{
 		FILE *binFile = fopen(argv[1], "rb");
 		memory_load_file(binFile);
-       	memory_cpu_init();
-                while(memory != 0x0){
+       			uint32_t curr = 0;
+                while(memory_fetch_word(curr * 4) != 0x0){
                   cpu_cycle();
+                  curr++;
                }
                print_registers();
 	}
