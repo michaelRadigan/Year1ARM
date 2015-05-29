@@ -5,15 +5,19 @@
 #include "common_instances.h"
 
 /* Declaring the variable */
+
+/* Possible error with this pointer TODO*/
 extern int numBytes;
 
 typedef struct{
 	uint8_t *byte; 
 }memory_machine;
 
+extern memory_machine *memory;
 
 /* Declare all function prototypes here */
 uint32_t memory_fetch_word(uint32_t pc);
+void memory_write_word(uint16_t memory_index, uint32_t word_to_write);
 void memory_machine_init(memory_machine **memptr);
 void memory_machine_destroy(memory_machine *memptr);
 void memory_cpu_init(cpu *cpuptr);

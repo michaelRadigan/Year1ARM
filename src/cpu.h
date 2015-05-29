@@ -186,6 +186,11 @@ static int S_flag_set(void);
 
 
 void execute_single_data_trans();
+static int L_flag_set(void);
+static int P_flag_set(void);
+static int U_flag_set(void);
+
+
 
 
 void execute_branch();

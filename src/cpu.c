@@ -295,6 +295,11 @@ execute_data_proc(){
 	register_select_write_opcode(op_code, result, rd_reg);
 }
 
+
+/**
+ * Return the result depending on the I flag
+ * @param I_flag_set One or zero depending on whether flag is set
+ */
 uint32_t
 result_set_I_flag(int I_flag_set){	
 	
@@ -350,6 +355,7 @@ result_set_I_flag(int I_flag_set){
 	}
 	return operand_2_val;
 }
+
 
 /**
  * Sets the C flag 
@@ -481,7 +487,12 @@ least_significant_bit(uint32_t test){
 }
 
 
-
+/**
+ * Returns the result of executing this operaion
+ * @param shift_amount The amount value will be shifted by
+ * @param reg_val      The value stored in register to be manipulated
+ * @return             The result of this operation 
+ */
 uint32_t
 execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
     if(S_flag_set()){
@@ -628,12 +639,15 @@ execute_op_code_eor(uint32_t reg, uint32_t operand2){
 	return reg ^ operand2; 
 }
 
-/*This is simply a bitwise add function, the algorithm is from wikipedia
- *it is in a helper method as the checks for carry flags are different in
- *subtract and add, possible to improve efficiency by checking which is larger
- *but I don't feel that this is necessary
- *@param reg is a uint32_t which is added
- *@param operand2 is a uint32_t which is added*/
+
+/**
+ * This is simply a bitwise add function, the algorithm is from wikipedia
+ * it is in a helper method as the checks for carry flags are different in
+ * subtract and add, possible to improve efficiency by checking which is larger
+ * but I don't feel that this is necessary
+ * @param reg is a uint32_t which is added
+ * @param operand2 is a uint32_t which is added
+ */
 uint32_t
 bitwise_add(uint32_t reg, uint32_t operand2){
     uint32_t x, y, sum, carry;
@@ -648,6 +662,7 @@ bitwise_add(uint32_t reg, uint32_t operand2){
     }
     return sum;
 }
+
 
 /**
  * Executes the SUB operation 
@@ -943,15 +958,132 @@ S_flag_set(void){
 }
 
 
-/* Carries out the Single Data Transfer Instruction */
+/**
+ * Carries out the Single Data Transfer Instruction 
+ */
 void
 execute_single_data_trans(){
 
+	/* The opposite is true for data processing instructions*/
+	uint32_t offset_value = result_set_I_flag(!I_flag_set());
 
+
+	uint32_t base_reg = instr_single_data_trans_ptr->rn_reg;
+    uint32_t base_reg_contents = register_select_read(base_reg);
+	
+	uint32_t s_or_d_reg = instr_single_data_trans_ptr->rd_reg;
+	uint32_t s_or_d_reg_contents = register_select_read(s_or_d_reg);
+	
+	
+	uint32_t memory_access_index = 0;
+
+	if(P_flag_set()){
+		/* Pre-Indexing*/
+		/* Offset is added/subtracted to the 
+		 * base register before transferring the data.*/
+
+        if(U_flag_set()){
+			/* Offset is added to base register */
+			memory_access_index = base_reg_contents + offset_value;
+		}
+		else{
+			/* Offset is subtracted from base register */
+			memory_access_index = base_reg_contents - offset_value;
+		}
+
+        /* Transfer data */
+
+		if(L_flag_set()){
+			/* Load word from memory */
+			uint32_t word_load = memory_fetch_word(memory_access_index);
+			register_select_write(word_load, s_or_d_reg);
+		}
+		else{
+			/* Store word in memory */
+			uint32_t word_store = s_or_d_reg_contents;
+			memory_write_word(memory_access_index, word_store);
+		}
+
+	}
+	else{
+		/* Post-Indexing*/
+		/* Offset is added/subtracted to the 
+		 * base register after transferring the data.*/
+        
+		/* Transfer data */
+
+		if(L_flag_set()){
+			/* Load word from memory */
+			uint32_t word_load = memory_fetch_word(memory_access_index);
+			register_select_write(word_load, s_or_d_reg);
+		}
+		else{
+			/* Store word in memory */
+			uint32_t word_store = s_or_d_reg_contents;
+			memory_write_word(memory_access_index, word_store);
+		}
+
+
+
+		if(U_flag_set()){
+			/* Offset is added to base register */
+			memory_access_index = base_reg_contents + offset_value;
+		}
+		else{
+			/* Offset is subtracted from base register */
+			memory_access_index = base_reg_contents - offset_value;
+		}
+		
+		instr_single_data_trans_ptr->rn_reg += offset_value; 
+	}
 }
 
 
-/* Carries out the Branch Instruction */
+/**
+ * Checks if the L falg is set
+ */
+static int
+L_flag_set(){
+	if(instr_single_data_trans_ptr->L_flag == 1){
+		return EXIT_SUCCESS;
+	}
+	else{
+		return EXIT_FAILURE;
+	}
+}
+
+
+/**
+ * Checks if the P falg is set
+ */
+static int
+P_flag_set(){
+	if(instr_single_data_trans_ptr->P_flag == 1){
+		return EXIT_SUCCESS;
+	}
+	else{
+		return EXIT_FAILURE;
+	}
+}
+
+
+/**
+ * Checks if the U falg is set
+ */
+static int
+U_flag_set(){
+	if(instr_single_data_trans_ptr->U_flag == 1){
+		return EXIT_SUCCESS;
+	}
+	else{
+		return EXIT_FAILURE;
+	}
+}
+
+
+/**
+ * Carries out the Branch Instruction
+ */
 void
 execute_branch(){
 	uint32_t offset = instr_branch_ptr->offset;
@@ -1041,6 +1173,7 @@ cpu_cycle(void){
 	instr_decode(instr);
 	instr_execute(instr);
 }
+
 
 /**
  * Prints the values of each of the registers
