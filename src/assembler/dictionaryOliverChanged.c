@@ -117,7 +117,8 @@ ENTRY deleteElemAux(ENTRY *d,
 //Creates an Empty dictioary structure
 DICTIONARY *createDictionary(void){
 	DICTIONARY tree;
-	bst_init(&tree, &string_compare)
+	bst_init(&tree, &string_compare);
+	return tree;
 }
 
 //Returns 1 if empty, 0 otherwise
@@ -139,9 +140,10 @@ VALUE *getElem(DICTIONARY *d , KEY *searchkey){
 
 
 //Returns 1 if put successful, 0 otherwise
-void putElem(DICTIONARY *d , KEY *key , VALUE *value) {
+int putElem(DICTIONARY *d , KEY *key , VALUE *value) {
 	printf("KEY: %s , VALUE: %d" , (char *) key , *((int *) value));
 	d->tree = bst_insert_elem(d->tree, d->compare, key, value);
+	return d->tree != NULL;
 }
 
 //Returns 1 if remove of key in d is successful, 0 otherwise
@@ -152,8 +154,9 @@ void removeElem(DICTIONARY *d , KEY *key){
 }
 */
 //Returns 1 if all dictioary memory elemnts have been freed, 0 otherwise;
-void destroyDictionary(DICTIONARY *d){
+int destroyDictionary(DICTIONARY *d){
 	bst_destroy_elem(handle->tree);
+	return d->tree != NULL;
 }
 
 
