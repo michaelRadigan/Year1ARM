@@ -479,7 +479,6 @@ least_significant_bit(uint32_t test){
     return 31;
     }
 
-
 uint32_t
 execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
     if(S_flag_set()){
@@ -626,15 +625,51 @@ execute_op_code_eor(uint32_t reg, uint32_t operand2){
 	return reg ^ operand2; 
 }
 
+/*This is simply a bitwise add function, the algorithm is from wikipedia
+ *it is in a helper method as the checks for carry flags are different in
+ *subtract and add, possible to improve efficiency by checking which is larger
+ *but I don't feel that this is necessary
+ *@param reg is a uint32_t which is added
+ *@param operand2 is a uint32_t which is added*/
+uint32_t
+bitwise_add(uint32_t reg, uint32_t operand2){
+    uint32_t x, y, sum, carry;
+    sum = reg ^ operand2;
+    carry = reg & operand2;
+    while(carry != 0){
+        carry <<= 1;
+        x = sum;
+        y = carry;
+        sum = x ^ y;
+        carry = x & y;
+    }
+    return sum;
+}
 
 /**
  * Executes the SUB operation 
+ * **Not sure if this is correct**
  * @param reg The value stored in the register
  * @param operand2 The value after doing rotate/shift operation
  */
 uint32_t
 execute_op_code_sub(uint32_t reg, uint32_t operand2){
-	//TODO
+    if(S_flag_set()){
+        int i;
+        for(i = 0; i < 31; i++){
+             if(most_significant_bit(reg) < 
+                most_significant_bit(operand2){
+                carry_out_flag = 1; break;
+             } else if(most_significant_bit(reg) > 
+                most_significant_bit(operand2)){
+                break;
+             }
+         }
+/*the loop reaching the end means that they are equal*/
+         return 0;
+         }
+    
+          
 
 }
 
@@ -646,20 +681,25 @@ execute_op_code_sub(uint32_t reg, uint32_t operand2){
  */
 uint32_t
 execute_op_code_rsb(uint32_t reg, uint32_t operand2){
-/* need to swap the two operands */
-//TODO
-
+    execute_op_code_sub(operand2, reg);
 }
 
 
 /**
- * Executes the ADD operation 
+ * Executes the ADD operation
+ * Algorithm from wikipedia pageon bitwise operations 
  * @param reg The value stored in the register
  * @param operand2 The value after doing rotate/shift operation
  */
 uint32_t
 execute_op_code_add(uint32_t reg, uint32_t operand2){
-	//TODO
+    if(S_flag_set()){
+        if((most_significant_bit(reg) == 31 
+          && (most_significant_bit(operand2)) == 31){
+            carry_out_flag = 1;
+        }
+    }
+    return bitwise_add(reg, operand2);
 }
 
 
@@ -686,13 +726,17 @@ execute_op_code_teq(uint32_t reg, uint32_t operand2){
 
 
 /**
+ ***I have assumed that the lack of saving is done at a higher level and so** 
+  ** have just called sub here THE ALTERNATIVE is that we set the bit flag 
+     and do not need to calculate the result, in which case move the 
+     "carry_out_flag check" section of sub to a helper method and just call this
  * Executes the CMP operation 
  * @param reg The value stored in the register
  * @param operand2 The value after doing rotate/shift operation
  */
 uint32_t
 execute_op_code_cmp(uint32_t reg, uint32_t operand2){
-	//TODO
+    return execute_op_code_sub(reg, operand);	
 }
 
 
