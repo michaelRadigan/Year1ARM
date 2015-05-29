@@ -32,11 +32,6 @@ typedef struct{
 
 extern cpu *cpu_ptr;
 
-<<<<<<< HEAD
-=======
-    uint32_t reg[14]; 
-
->>>>>>> df4b1bd62e0b67133df5ee21337ffc3610cfebcd
 
 /**
  * ARM Condition Codes
@@ -77,7 +72,6 @@ typedef enum{
  * ARM Shift Types
  */
 typedef enum{
-
 	LSL = 0x0,
 	LSR = 0x1,
 	ASR = 0x2,

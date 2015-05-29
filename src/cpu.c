@@ -35,11 +35,9 @@
 
 /* Global variables */
 
-<<<<<<< HEAD
-=======
+
 /*This variable will always either be a 0 or a 1, it will be set and checked
  * as appropriate throughout the program */
->>>>>>> df4b1bd62e0b67133df5ee21337ffc3610cfebcd
 int carry_out_flag = 0;
 
 /* Pointer definitions */
@@ -280,7 +278,7 @@ execute_data_proc(){
 		uint32_t rotate_amount = rotate_field << 1;
 		
 		/* Rotate right */
-		uint32_t rotated_result = rotate_right(immediate_value, rotate_amount);
+		uint32_t rotated_result = execute_rotate_right(rotate_amount, immediate_value);
 
 		operand_2_val = rotated_result;
 	}
@@ -305,7 +303,7 @@ execute_data_proc(){
 			uint32_t reg_rs_val = register_select_read(reg_rs);
 
 			/* Extract bottom byte of Rs register */
-			uint32_t bottom_byte = extract_bits(reg_rs_val, RS_VAL_MASK, 0)
+			uint32_t bottom_byte = extract_bits(reg_rs_val, RS_VAL_MASK, 0);
 
 			operand_2_val = shift_type_dispatch(shift_type, bottom_byte, reg_val);
 
@@ -314,7 +312,7 @@ execute_data_proc(){
 			/* Else shift by a constant amount */
 
 			/* Integer shift value */
-			uint32_t shift_amount = extract_bits(instr_data_proc_ptr->operand_2, SHIFT_VALUE_MASK, 7)
+			uint32_t shift_amount = extract_bits(instr_data_proc_ptr->operand_2, SHIFT_VALUE_MASK, 7);
 
 			operand_2_val = shift_type_dispatch(shift_type, shift_amount, reg_val);
 		}
@@ -437,14 +435,12 @@ shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val
 }
 
 
-<<<<<<< HEAD
 /**
  * Executes the Logical Shift Left operation
  * @param shift_amount The amount the value will be shifted by
  * @param reg_val      The value stored in the register
  * @return The result of carrying out the operation
  */
-=======
 /*Note, we could find the msb using log2 if we can work out how to cast*/
 int
 most_significant_bit(uint32_t test){
@@ -473,8 +469,8 @@ least_significant_bit(uint32_t test){
         }
     return 31;
     }
+}
 
->>>>>>> df4b1bd62e0b67133df5ee21337ffc3610cfebcd
 uint32_t
 execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
     if(S_flag_set()){
@@ -544,7 +540,7 @@ execute_arithmetic_shift_right(uint32_t shift_amount, uint32_t reg_val){
 uint32_t
 execute_rotate_right(uint32_t shift_amount, uint32_t reg_val){
     shift_right_flag_check(shift_amount, reg_val);
-    return((reg_value >> shift_amount) | (reg_value << (32 - shift_amount))); /*possible bug*/
+    return((reg_val >> shift_amount) | (reg_val << (32 - shift_amount))); /*possible bug*/
     
 }
 
@@ -564,7 +560,6 @@ execute_shift_type(uint32_t (*execute_shift_type_ptr)(uint32_t, uint32_t),
 	return (*execute_shift_type_ptr)(shift_amount, reg_val);
 }
 
-<<<<<<< HEAD
 
 /**
  * Selects which opcode should be carried out
@@ -572,8 +567,6 @@ execute_shift_type(uint32_t (*execute_shift_type_ptr)(uint32_t, uint32_t),
  * @param left_operand  Used to carry out opcode
  * @param right_operand Used to carry out opcode
  */
-=======
->>>>>>> df4b1bd62e0b67133df5ee21337ffc3610cfebcd
 uint32_t
 opcode_dispatch(uint32_t opcode, uint32_t left_operand, uint32_t right_operand){
 
@@ -733,14 +726,9 @@ execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
 }
 
 
-<<<<<<< HEAD
 /**
  * Checks whether I flag is set
  */
-=======
-
-
->>>>>>> df4b1bd62e0b67133df5ee21337ffc3610cfebcd
 static int
 I_flag_set(){
 	if(instr_data_proc_ptr->I_flag == 1){
