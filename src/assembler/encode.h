@@ -15,6 +15,7 @@ typedef struct storeEncode{
     Encode encFunc;
 }STR_ENC;
 
+DICTIONARY *code_binarycode;
 
 /* The structs required to store the functions */
 STR_ENC *dp1;
@@ -29,6 +30,13 @@ STR_ENC *andeq;
 STR_ENC *lsl;
   
 /* Function defintions */
+
+
+void setUPcode_binarycode(void);
+
+void destroycode_binarycode(void);
+
+
 
 
 /* Setsup structs containing function pointers */

@@ -6,7 +6,6 @@
 If getting from dictionary, remember to cast back to the right type afterwards
 
 DICTIONARY *label_address := (char *str , uint32_t *location);
-DICTIONARY *code_binarycode := (char *code , uint32_t binaryVal);
 DICTIONARY *opcode_function := (char *code , (*ptr_func) (char *source));
 
 */
@@ -18,32 +17,6 @@ DICTIONARY *setUPlabel_address(void){
   return d;
 }
 
-DICTIONARY *setUPcode_binarycode(void){
-  DICTIONARY *d = createDictionary();
-
-  //Opcodes for binaryConditions
-  putElem(d,"eq",(void *) 0x0);
-  putElem(d,"ne",(void *)0x1);
-  putElem(d,"ge",(void *)0xa);
-  putElem(d,"lt",(void *)0xb);
-  putElem(d,"gt",(void *)0xc);
-  putElem(d,"le",(void *)0xd);
-  putElem(d,"al",(void *)0xe);
-
-  //Opcodes for Data Processing
-  putElem(d,"and",(void *)0x0);
-  putElem(d,"eor",(void *)0x1);
-  putElem(d,"sub",(void *)0x2);
-  putElem(d,"rsb",(void *)0x3);
-  putElem(d,"add",(void *)0x4);
-  putElem(d,"orr",(void *)0xc);
-  putElem(d,"mov",(void *)0xd);
-  putElem(d,"tst",(void *)0x8);
-  putElem(d,"teq",(void *)0x9);
-  putElem(d,"cmp",(void *)0xa);
-   
-  return d;
-}
 
 DICTIONARY *setUPopcode_function(void){
 
@@ -130,7 +103,7 @@ int main(int argc, char **argv) {
 
   //Setup Dictionaries
   label_address = setUPlabel_address();
-  code_binarycode = setUPcode_binarycode();
+  setUPcode_binarycode();
   opcode_function = setUPopcode_function();
   
 
@@ -202,7 +175,7 @@ int main(int argc, char **argv) {
   fclose(ptr_WriteFile);
   
   destroyDictionary(label_address);
-  destroyDictionary(code_binarycode);
+  destroycode_binarycode();
   destroyDictionaryfunctions(opcode_function);
 
 
