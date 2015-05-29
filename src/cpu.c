@@ -1,4 +1,4 @@
-#include "common_instances.h"
+#include "cpu.h"
 
 #define BITS_DATA_PROC_MASK           0x0C000000
 #define BITS_MULT_PTRN_MASK_1         0x000000F0
@@ -40,7 +40,7 @@
 int carry_out_flag = 0;
 
 /* Pointer definitions */
-cpu *cpu_ptr;
+struct cpu *cpu_ptr;
 instr_flags *instr_flags_ptr;
 uint32_t pc = 0;                      /* Program counter will act as a pointer to memory*/
 
@@ -445,6 +445,7 @@ shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val
 		default  :
 			printf("Given shift type not supported");
 	}
+	return EXIT_FAILURE;
 }
 
 
@@ -484,6 +485,7 @@ least_significant_bit(uint32_t test){
         }
     return 31;
     }
+	return EXIT_FAILURE;
 }
 
 
@@ -615,6 +617,7 @@ opcode_dispatch(uint32_t opcode, uint32_t left_operand, uint32_t right_operand){
 		default :
 			printf("Unsupported opcode selected");
 	}
+	return EXIT_FAILURE;
 }
 
 
@@ -686,6 +689,7 @@ execute_op_code_sub(uint32_t reg, uint32_t operand2){
 /*the loop reaching the end means that they are equal*/
          return 0;
          }
+	return EXIT_FAILURE;
 }
 
 
@@ -797,7 +801,7 @@ execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
 /**
  * Checks whether I flag is set
  */
-static int
+int
 I_flag_set(){
 	if(instr_data_proc_ptr->I_flag == 1){
 		return EXIT_SUCCESS;
@@ -844,7 +848,7 @@ execute_mult(){
 /**
  * Multiplies the contents of two registers
  */
-static void 
+void 
 multiply_rm_rs(){
 
 	/* TODO : check which value is larger */
@@ -865,7 +869,7 @@ multiply_rm_rs(){
 /**
  * Adds the contents of a register the the destination register
  */
-static void
+void
 accumulate_rm_rs_rn(){
 	
 	uint32_t rn_reg = instr_mult_ptr->rn_reg;
@@ -927,13 +931,14 @@ register_select_read(uint32_t reg){
 		case R12 : return cpu_ptr->r12; 
 		default :printf("Invalid reg");
 	}
+	return EXIT_FAILURE;
 }
 
 
 /**
  * Checks if the A flag is set
  */
-static int
+int
 A_flag_set(void){
 	if(instr_mult_ptr->A_flag == 1){
 		return EXIT_SUCCESS;
@@ -947,7 +952,7 @@ A_flag_set(void){
 /**
  * Checks if the S flag is set
  */
-static int
+int
 S_flag_set(void){
 	if(instr_mult_ptr->S_flag == 1){
 		return EXIT_SUCCESS;
@@ -1042,7 +1047,7 @@ execute_single_data_trans(){
 /**
  * Checks if the L falg is set
  */
-static int
+int
 L_flag_set(){
 	if(instr_single_data_trans_ptr->L_flag == 1){
 		return EXIT_SUCCESS;
@@ -1056,7 +1061,7 @@ L_flag_set(){
 /**
  * Checks if the P falg is set
  */
-static int
+int
 P_flag_set(){
 	if(instr_single_data_trans_ptr->P_flag == 1){
 		return EXIT_SUCCESS;
@@ -1070,7 +1075,7 @@ P_flag_set(){
 /**
  * Checks if the U falg is set
  */
-static int
+int
 U_flag_set(){
 	if(instr_single_data_trans_ptr->U_flag == 1){
 		return EXIT_SUCCESS;

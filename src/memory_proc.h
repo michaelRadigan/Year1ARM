@@ -20,8 +20,8 @@ uint32_t memory_fetch_word(uint32_t pc);
 void memory_write_word(uint16_t memory_index, uint32_t word_to_write);
 void memory_machine_init(memory_machine **memptr);
 void memory_machine_destroy(memory_machine *memptr);
-void memory_cpu_init(cpu *cpuptr);
-void memory_cpu_destroy(cpu *cpuptr);
+void memory_cpu_init();
+void memory_cpu_destroy();
 void check_file_error(FILE *file);
 void memory_load_file(FILE *file);
 
