@@ -4,8 +4,12 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 O_SRCS += \
+<<<<<<< HEAD
 ../src/cpu.o \
 ../src/memory_proc.o 
+=======
+../src/assemble.o 
+>>>>>>> c3c8fe1ee2350412ee2bd124dc3639571f0c9a50
 
 C_SRCS += \
 ../src/cpu.c \

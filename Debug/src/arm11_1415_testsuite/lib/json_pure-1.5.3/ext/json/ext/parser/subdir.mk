@@ -17,7 +17,7 @@ C_DEPS += \
 src/arm11_1415_testsuite/lib/json_pure-1.5.3/ext/json/ext/parser/%.o: ../src/arm11_1415_testsuite/lib/json_pure-1.5.3/ext/json/ext/parser/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C Compiler'
-	gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	gcc -std=c99 -O0 -g3 -Wall -Werror -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
