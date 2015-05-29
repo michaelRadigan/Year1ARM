@@ -22,5 +22,7 @@ DICTIONARY *opcode_function;
 DICTIONARY *setUPlabel_address(void);
 DICTIONARY *setUPcode_binarycode(void);
 DICTIONARY *setUPopcode_function(void);
+void destroyDictionaryfunctions(DICTIONARY *d);
 char *getLabel(char *source);
+void writeBits(uint32_t *bits,FILE *out_file);
 #endif

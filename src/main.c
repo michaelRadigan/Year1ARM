@@ -50,7 +50,7 @@ main(int argc, char **argv){
 	else{
 		FILE *binFile = fopen(argv[1], "rb");
 		memory_load_file(binFile);
-                memory_cpu_init();
+       	memory_cpu_init();
                 while(memory != 0x0){
                   cpu_cycle();
                }
