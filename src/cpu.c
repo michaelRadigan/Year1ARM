@@ -136,9 +136,9 @@ instr_branch(uint32_t instr){
  * @return EXIT_SUCCESS if all ok
  */
 int 
-check_instr_cond_code(uint32_t instr){
+check_instr_cond_code(uint32_t cond_res){
 	uint32_t cpsr_reg = cpu_ptr->cpsr;
-	return check_bits(instr, BITS_COND_MASK, 28, cpsr_reg);
+	return cond_res == cpsr_reg;
 }
 
 
@@ -151,6 +151,11 @@ check_instr_cond_code(uint32_t instr){
  */
 void 
 decode_data_proc(uint32_t instr){
+
+	//get cond
+	uint32_t cond_val = extract_bits(instr, BITS_COND_MASK, 28);
+	instr_data_proc_ptr->cond = cond_val;
+
 	//get I flag
 	uint32_t I_flag = extract_bits(instr, FLAG_I_MASK, 25);
 	instr_data_proc_ptr->I_flag = I_flag;
@@ -183,6 +188,11 @@ decode_data_proc(uint32_t instr){
  */
 void
 decode_mult(uint32_t instr){
+
+	//get cond
+	uint32_t cond_val = extract_bits(instr, BITS_COND_MASK, 28);
+	instr_mult_ptr->cond = cond_val;
+	
 	//get A flag
 	uint32_t A_flag = extract_bits(instr, FLAG_A_MASK, 21);
 	instr_mult_ptr->A_flag = A_flag;
@@ -215,6 +225,11 @@ decode_mult(uint32_t instr){
  */
 void
 decode_single_data_trans(uint32_t instr){
+
+	//get cond
+	uint32_t cond_val = extract_bits(instr, BITS_COND_MASK, 28);
+	instr_single_data_trans_ptr->cond = cond_val;
+
 	//get I flag
 	uint32_t I_flag = extract_bits(instr, FLAG_I_MASK, 25); 
 	instr_single_data_trans_ptr->I_flag = I_flag;
@@ -251,6 +266,11 @@ decode_single_data_trans(uint32_t instr){
  */
 void
 decode_branch(uint32_t instr){
+
+	//get cond
+	uint32_t cond_val = extract_bits(instr, BITS_COND_MASK, 28);
+	instr_branch_ptr->cond = cond_val;
+
 	//get offset
 	uint32_t offset = extract_bits(instr, OFFSET_1_MASK, 0);
 	instr_branch_ptr->offset = offset;
@@ -267,8 +287,6 @@ void
 execute_data_proc(){
 
     uint32_t operand_2_val = result_set_I_flag(I_flag_set());
-
-
 
     uint32_t left_operand = instr_data_proc_ptr->rn_reg;
     uint32_t op_code = instr_data_proc_ptr->op_code;
@@ -815,7 +833,7 @@ execute_mult(){
 	if(A_flag_set()){
 		/* Perform a multiply and accumulate */
 		multiply_rm_rs();
-         	accumulate_rm_rs_rn();
+        accumulate_rm_rs_rn();
 	}
 	else{
 		/* Perform only multiply */
@@ -1072,7 +1090,7 @@ P_flag_set(){
 
 
 /**
- * Checks if the U falg is set
+ * Checks if the U flag is set
  */
 int
 U_flag_set(){
@@ -1113,6 +1131,8 @@ instr_decode(uint32_t instr){
 		decode_data_proc(instr);
 	}
 	else if(instr_mult(instr)){
+		//TODO
+		printf("We are in decode\n");
 		decode_mult(instr);
 	}
 	else if(instr_single_data_trans(instr)){
@@ -1122,7 +1142,7 @@ instr_decode(uint32_t instr){
 			decode_branch(instr);
 	}
 	else{
-	
+		printf("Cannot decode unsupported instruction");
 	}
 }
 
@@ -1134,20 +1154,20 @@ instr_decode(uint32_t instr){
 void
 instr_execute(uint32_t instr){
 	
-	if(instr_data_proc(instr) && check_instr_cond_code(instr)){
+	if(instr_data_proc(instr) && check_instr_cond_code(instr_data_proc_ptr->cond)){
 		execute_data_proc();
 	}
-	else if(instr_mult(instr) && check_instr_cond_code(instr)){
+	else if(instr_mult(instr) && check_instr_cond_code(instr_mult_ptr->cond)){
 		execute_mult();
 	}
-	else if(instr_single_data_trans(instr) && check_instr_cond_code(instr)){
+	else if(instr_single_data_trans(instr) && check_instr_cond_code(instr_single_data_trans_ptr->cond)){
 		execute_single_data_trans();
 	}
-	else if(instr_branch(instr) && check_instr_cond_code(instr)){
+	else if(instr_branch(instr) && check_instr_cond_code(instr_branch_ptr->cond)){
         execute_branch();
 	}
 	else{
-	
+		printf("Cannot execute unsupported instruction");
 	}
 }
 
@@ -1168,6 +1188,7 @@ cpu_cycle(void){
 	instr = memory_fetch_word(pc);
 	cpu_ptr->pc = pc + 4;
 
+	printf("we are in cpu cycle:  pc  %d\n", cpu_ptr->pc);
 	
 	instr_decode(instr);
 	instr_execute(instr);
@@ -1197,7 +1218,7 @@ print_registers(){
 	printf("$12 :         %d (%x)\n", cpu_ptr->r12, cpu_ptr->r12);
 	printf("PC  :         %d (%x)\n", cpu_ptr->pc, cpu_ptr->pc);
 	printf("CPSR:         %d (%x)\n", cpu_ptr->cpsr, cpu_ptr->cpsr);
-    printf("Non-zero memory:");
+    printf("Non-zero memory:\n");
 
 
 }
