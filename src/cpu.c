@@ -6,30 +6,30 @@
 #define BITS_SINGLE_DATA_TRANS_MASK_1 0x00600000
 #define BITS_SINGLE_DATA_TRANS_MASK_2 0x0C000000
 #define BITS_BRANCH_MASK              0x0F000000
-#define BITS_COND_MASK		          0xF0000000
+#define BITS_COND_MASK		      0xF0000000
 
-#define FLAG_I_MASK		              0x02000000
-#define FLAG_A_MASK 		          0x00200000
-#define FLAG_P_MASK 		          0x01000000
+#define FLAG_I_MASK		      0x02000000
+#define FLAG_A_MASK 		      0x00200000
+#define FLAG_P_MASK 		      0x01000000
 #define FLAG_U_MASK                   0x00800000 
-#define OPCODE_MASK		              0x01E00000
-#define FLAG_S_MASK		              0x00100000
-#define FLAG_L_MASK		              0x00100000
-#define REG_1_MASK  		          0x000F0000
-#define REG_2_MASK 		              0x0000F000
-#define REG_3_MASK 		              0x00000F00
-#define REG_4_MASK 		              0x0000000F
+#define OPCODE_MASK		      0x01E00000
+#define FLAG_S_MASK		      0x00100000
+#define FLAG_L_MASK		      0x00100000
+#define REG_1_MASK  		      0x000F0000
+#define REG_2_MASK 		      0x0000F000
+#define REG_3_MASK 		      0x00000F00
+#define REG_4_MASK 		      0x0000000F
 #define OPERAND_MASK                  0x00000FFF 
 #define OFFSET_1_MASK                 0x00000FFF 
 #define OFFSET_2_MASK                 0x00FFFFFF
 
 #define IMMEDIATE_VALUE_MASK	      0x000000FF
 #define ROTATE_FIELD_MASK             0x00000F00
-#define BIT_4_MASK 		              0x00000010
-#define RM_REG_MASK 		          0x0000000F
-#define SHIFT_VALUE_MASK 	          0x00000F80
+#define BIT_4_MASK 		      0x00000010
+#define RM_REG_MASK 		      0x0000000F
+#define SHIFT_VALUE_MASK 	      0x00000F80
 #define SHIFT_TYPE_MASK               0x00000060
-#define RS_REG_MASK 		          0x00000F00
+#define RS_REG_MASK 		      0x00000F00
 #define RS_VAL_MASK                   0x000000FF
 #define RESULT_BIT_MASK               0x80000000
 
@@ -91,6 +91,13 @@ extract_bits(uint32_t instr, uint32_t mask, uint32_t shift){
  * @param instr The instruction word
  * @return EXIT_SUCCESS if all ok
  */
+
+void update_CPSR(void) {
+//TODO
+
+
+}
+
 int
 instr_data_proc(uint32_t instr){
 	return check_bits(instr, BITS_DATA_PROC_MASK, 26, 0x00000000);
@@ -1131,6 +1138,7 @@ execute_branch(){
 
 	uint32_t result = 0;
 	uint32_t offset = instr_branch_ptr->offset;
+<<<<<<< HEAD
 
 	/* Shift offset left 2 bits */
 	uint32_t offset_shift = offset << 2;
@@ -1147,6 +1155,14 @@ execute_branch(){
 		result = offset_shift;
 	}
 
+=======
+/* !!!!!!!!does this deal with the fact that the offset is in 2's complement???? */
+	/* Shift offset left 2 bits, 
+	 * and sign extend to 32 bits
+	 */
+	uint32_t result = offset << 2;
+	
+>>>>>>> 5603882855ec73503641be5db89d15110ea4c2d6
 	/* Add result to pc */
 	pc += result; 
 }
