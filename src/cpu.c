@@ -1275,18 +1275,14 @@ print_registers(){
 	printf("$10 : %10d (0x%08x)\n", cpu_ptr->r10, cpu_ptr->r10);
 	printf("$11 : %10d (0x%08x)\n", cpu_ptr->r11, cpu_ptr->r11);
 	printf("$12 : %10d (0x%08x)\n", cpu_ptr->r12, cpu_ptr->r12);
-	printf("PC  : %10d (0x%08x)\n", cpu_ptr->pc + 8, cpu_ptr->pc);
+	printf("PC  : %10d (0x%08x)\n", cpu_ptr->pc + 8, cpu_ptr->pc + 8);
 	printf("CPSR: %10d (0x%08x)\n", cpu_ptr->cpsr, cpu_ptr->cpsr);
     printf("Non-zero memory:\n");
 
 	for(int i = 0; i < MEM_SIZE; i += 4){
-		uint32_t mem_contents = memory_fetch_word(i);
-		uint32_t mem_contents_converted = memory_swap_word_be_to_le(mem_contents);
-		if(mem_contents_converted){
-		}
-		else{
-		}
-
+                uint32_t mem_contents = memory_fetch_word(i);
+                uint32_t mem_contents_converted = memory_swap_word_be_to_le(mem_contents);
+                if(mem_contents_converted) printf("0x%08x: 0x%08x\n", i, mem_contents_converted);
 	}
 
 
