@@ -560,7 +560,7 @@ execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
 void shift_right_flag_check(uint32_t shift_amount, uint32_t reg_val){
     if(S_flag_set()){
         int lsb = least_significant_bit(reg_val);
-        if(lsb - shift_amount < 0){
+        if((int32_t)lsb - (int32_t)shift_amount < 0){
             carry_out_flag = 1;   
         }
     }
@@ -1138,7 +1138,6 @@ execute_branch(){
 
 	uint32_t result = 0;
 	uint32_t offset = instr_branch_ptr->offset;
-<<<<<<< HEAD
 
 	/* Shift offset left 2 bits */
 	uint32_t offset_shift = offset << 2;
@@ -1155,14 +1154,6 @@ execute_branch(){
 		result = offset_shift;
 	}
 
-=======
-/* !!!!!!!!does this deal with the fact that the offset is in 2's complement???? */
-	/* Shift offset left 2 bits, 
-	 * and sign extend to 32 bits
-	 */
-	uint32_t result = offset << 2;
-	
->>>>>>> 5603882855ec73503641be5db89d15110ea4c2d6
 	/* Add result to pc */
 	pc += result; 
 }
