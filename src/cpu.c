@@ -33,6 +33,8 @@
 #define RS_VAL_MASK                   0x000000FF
 #define RESULT_BIT_MASK               0x80000000
 
+#define BIT_26_MASK                   0x02000000
+
 /* Global variables */
 
 /*This variable will always either be a 0 or a 1, it will be set and checked
@@ -62,10 +64,10 @@ check_bits(uint32_t instr, uint32_t mask, int shift, uint32_t expected){
     uint32_t result = instr & mask;
 	
 	if ((result >> shift) == expected){
-		return EXIT_SUCCESS;
+		return 1;
 	}
 	else{
-		return EXIT_FAILURE;
+		return 0;
 	}
 }
 
@@ -131,14 +133,28 @@ instr_branch(uint32_t instr){
 
 
 /**
- * Checks if Condition field is satisfied by CPSR register
- * @param instr The instruction word
+ * Checks if Condition field of instruction is 
+ * satisfied by CPSR register or if field is 1110 (al)
+ * @param instr The instruction condition
  * @return EXIT_SUCCESS if all ok
  */
 int 
-check_instr_cond_code(uint32_t cond_res){
-	uint32_t cpsr_reg = cpu_ptr->cpsr;
-	return cond_res == cpsr_reg;
+check_instr_cond_code(uint32_t cond_instr){
+
+	switch(cond_instr){
+		case CC_EQ : return instr_flags_ptr->flag_Z == 1;
+		case CC_NE : return instr_flags_ptr->flag_Z == 0;
+	    case CC_GE : return instr_flags_ptr->flag_N == instr_flags_ptr->flag_V;
+  		case CC_LT : return instr_flags_ptr->flag_N != instr_flags_ptr->flag_V;
+	    case CC_GT : return instr_flags_ptr->flag_Z == 0 && (instr_flags_ptr->flag_N 
+							 == instr_flags_ptr->flag_V);		
+		case CC_LE : return instr_flags_ptr->flag_Z == 1 || (instr_flags_ptr->flag_N 
+							 != instr_flags_ptr->flag_V);
+		case CC_AL : return 1;
+		default : 
+			printf("Condition Code not supported\n");
+	}
+	return 0;
 }
 
 
@@ -161,7 +177,9 @@ decode_data_proc(uint32_t instr){
 	instr_data_proc_ptr->I_flag = I_flag;
 
 	//get opcode
-	uint32_t op_code = extract_bits(instr, OPCODE_MASK, 21); 
+	uint32_t op_code = extract_bits(instr, OPCODE_MASK, 21);
+	//TODO
+	//printf("decoded op_code is     %x", op_code);
 	instr_data_proc_ptr->op_code = op_code;
 	
 	//get s flag
@@ -290,7 +308,9 @@ execute_data_proc(){
 
     uint32_t left_operand = instr_data_proc_ptr->rn_reg;
     uint32_t op_code = instr_data_proc_ptr->op_code;
-    uint32_t result = opcode_dispatch(op_code, left_operand, operand_2_val);
+  //TODO
+	// printf("data proc   %x\n", op_code);
+	uint32_t result = opcode_dispatch(op_code, left_operand, operand_2_val);
 
     if(S_flag_set()){
 		/* Update CPSR flags */
@@ -309,7 +329,8 @@ execute_data_proc(){
 	}
 
 	uint32_t rd_reg = instr_data_proc_ptr->rd_reg;
-
+//TODO
+	
 	register_select_write_opcode(op_code, result, rd_reg);
 }
 
@@ -463,7 +484,7 @@ shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val
 		default  :
 			printf("Given shift type not supported");
 	}
-	return EXIT_FAILURE;
+	return 0;
 }
 
 
@@ -503,7 +524,7 @@ least_significant_bit(uint32_t test){
         }
     return 31;
     }
-    return EXIT_FAILURE;
+    return 0;
 }
 
 
@@ -635,7 +656,7 @@ opcode_dispatch(uint32_t opcode, uint32_t left_operand, uint32_t right_operand){
 		default :
 			printf("Unsupported opcode selected");
 	}
-	return EXIT_FAILURE;
+	return 0;
 }
 
 
@@ -816,10 +837,10 @@ execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
 int
 I_flag_set(){
 	if(instr_data_proc_ptr->I_flag == 1){
-		return EXIT_SUCCESS;
+		return 1;
 	}
 	else{
-		return EXIT_FAILURE;
+		return 0;
 	}
 }
 
@@ -830,6 +851,7 @@ I_flag_set(){
 void
 execute_mult(){
 
+	//TODO
 	if(A_flag_set()){
 		/* Perform a multiply and accumulate */
 		multiply_rm_rs();
@@ -841,6 +863,7 @@ execute_mult(){
 	}
 
 	/* If S bit is set, update N and Z flags of CPSR*/
+	//TODO
 	if(S_flag_set()){
 		uint32_t rd_reg = instr_mult_ptr->rd_reg;
 		uint32_t result = register_select_read(rd_reg);
@@ -856,11 +879,6 @@ execute_mult(){
 	}
 }
 
-uint32_t
-bitwise_multiply(uint32_t op1, uint32_t op2){
-    uint64_t toTruncate = op1 * op2;
-    return (toTruncate & 0xFFFFFFFF);
-}
 
 /**
  * Multiplies the contents of two registers
@@ -877,7 +895,7 @@ multiply_rm_rs(){
 	uint32_t rm_reg_contents = register_select_read(rm_reg);
 	uint32_t rs_reg_contents = register_select_read(rs_reg);
  
-	uint32_t result_mult = bitwise_multiply(rm_reg_contents, rs_reg_contents);
+	uint32_t result_mult = rm_reg_contents * rs_reg_contents; 
 
 	register_select_write(result_mult, rd_reg);
 }
@@ -948,7 +966,7 @@ register_select_read(uint32_t reg){
 		case R12 : return cpu_ptr->r12; 
 		default :printf("Invalid reg");
 	}
-	return EXIT_FAILURE;
+	return 0;
 }
 
 
@@ -957,11 +975,12 @@ register_select_read(uint32_t reg){
  */
 int
 A_flag_set(void){
+	//TODO
 	if(instr_mult_ptr->A_flag == 1){
-		return EXIT_SUCCESS;
+		return 1;
 	}
 	else{
-		return EXIT_FAILURE;
+		return 0;
 	}
 }
 
@@ -969,13 +988,14 @@ A_flag_set(void){
 /**
  * Checks if the S flag is set
  */
- int
+int
 S_flag_set(void){
+	//TODO
 	if(instr_mult_ptr->S_flag == 1){
-		return EXIT_SUCCESS;
+		return 1;
 	}
 	else{
-		return EXIT_FAILURE;
+		return 0;
 	}
 }
 
@@ -1067,10 +1087,10 @@ execute_single_data_trans(){
  int
 L_flag_set(){
 	if(instr_single_data_trans_ptr->L_flag == 1){
-		return EXIT_SUCCESS;
+		return 1;
 	}
 	else{
-		return EXIT_FAILURE;
+		return 0;
 	}
 }
 
@@ -1081,10 +1101,10 @@ L_flag_set(){
  int
 P_flag_set(){
 	if(instr_single_data_trans_ptr->P_flag == 1){
-		return EXIT_SUCCESS;
+		return 1;
 	}
 	else{
-		return EXIT_FAILURE;
+		return 0;
 	}
 }
 
@@ -1095,10 +1115,10 @@ P_flag_set(){
 int
 U_flag_set(){
 	if(instr_single_data_trans_ptr->U_flag == 1){
-		return EXIT_SUCCESS;
+		return 1;
 	}
 	else{
-		return EXIT_FAILURE;
+		return 0;
 	}
 }
 
@@ -1108,13 +1128,25 @@ U_flag_set(){
  */
 void
 execute_branch(){
+
+	uint32_t result = 0;
 	uint32_t offset = instr_branch_ptr->offset;
 
-	/* Shift offset left 2 bits, 
-	 * and sign extend to 32 bits
-	 */
-	uint32_t result = offset << 2;
-	
+	/* Shift offset left 2 bits */
+	uint32_t offset_shift = offset << 2;
+
+	/* Sign extend shifted offset*/
+	uint32_t ms_bit = extract_bits(offset_shift, BIT_26_MASK, 25);
+
+	//TODO
+	if(ms_bit == 1){
+		uint32_t sign_extend_1_mask = 0xFC000000; 
+		result = sign_extend_1_mask | offset_shift; 	
+	}
+	else{
+		result = offset_shift;
+	}
+
 	/* Add result to pc */
 	pc += result; 
 }
@@ -1128,11 +1160,15 @@ void
 instr_decode(uint32_t instr){
 	
 	if(instr_data_proc(instr)){
+	
+	//	printf("We are in decode data proc\n");
 		decode_data_proc(instr);
+	
 	}
 	else if(instr_mult(instr)){
 		//TODO
-		printf("We are in decode\n");
+		
+	//	printf("We are in decode mult\n");
 		decode_mult(instr);
 	}
 	else if(instr_single_data_trans(instr)){
@@ -1142,7 +1178,7 @@ instr_decode(uint32_t instr){
 			decode_branch(instr);
 	}
 	else{
-		printf("Cannot decode unsupported instruction");
+		printf("Cannot decode unsupported instruction\n");
 	}
 }
 
@@ -1155,6 +1191,7 @@ void
 instr_execute(uint32_t instr){
 	
 	if(instr_data_proc(instr) && check_instr_cond_code(instr_data_proc_ptr->cond)){
+		//printf("excute data proc\n");
 		execute_data_proc();
 	}
 	else if(instr_mult(instr) && check_instr_cond_code(instr_mult_ptr->cond)){
@@ -1167,7 +1204,9 @@ instr_execute(uint32_t instr){
         execute_branch();
 	}
 	else{
-		printf("Cannot execute unsupported instruction");
+		//TODO
+	//	printf("%x\n", instr);
+		printf("Cannot execute unsupported instruction\n");
 	}
 }
 
@@ -1186,12 +1225,25 @@ cpu_cycle(void){
     pc = cpu_ptr->pc;
 	/* Fetch one instruction from memory */
 	instr = memory_fetch_word(pc);
-	cpu_ptr->pc = pc + 4;
-
-	printf("we are in cpu cycle:  pc  %d\n", cpu_ptr->pc);
+	//printf("the instr is    %x\n", instr);
 	
-	instr_decode(instr);
-	instr_execute(instr);
+	while(instr != 0x0){
+//uint32_t count = 0;
+//	while(count < 1){
+	//printf("we are in cpu cycle:  pc  %d\n", cpu_ptr->pc);
+		
+		cpu_ptr->pc = pc + 4;
+		//TODO
+	//	printf("%x\n", instr);
+        instr_decode(instr);
+	    instr_execute(instr);
+		pc += 4;
+        instr = memory_fetch_word(pc);
+//		count++;
+    }
+
+
+    print_registers();	
 }
 
 
@@ -1203,22 +1255,32 @@ cpu_cycle(void){
 void
 print_registers(){
 	printf("%s", "Registers:\n");
-	printf("$0  :         %d (%x)\n", cpu_ptr->r0, cpu_ptr->r0);
-	printf("$1  :         %d (%x)\n", cpu_ptr->r1, cpu_ptr->r1);
-	printf("$2  :         %d (%x)\n", cpu_ptr->r2, cpu_ptr->r2);
-	printf("$3  :         %d (%x)\n", cpu_ptr->r3, cpu_ptr->r3);
-	printf("$4  :         %d (%x)\n", cpu_ptr->r4, cpu_ptr->r4);
-	printf("$5  :         %d (%x)\n", cpu_ptr->r5, cpu_ptr->r5);
-	printf("$6  :         %d (%x)\n", cpu_ptr->r6, cpu_ptr->r6);
-	printf("$7  :         %d (%x)\n", cpu_ptr->r7, cpu_ptr->r7);
-	printf("$8  :         %d (%x)\n", cpu_ptr->r8, cpu_ptr->r8);
-	printf("$9  :         %d (%x)\n", cpu_ptr->r9, cpu_ptr->r9);
-	printf("$10 :         %d (%x)\n", cpu_ptr->r10, cpu_ptr->r10);
-	printf("$11 :         %d (%x)\n", cpu_ptr->r11, cpu_ptr->r11);
-	printf("$12 :         %d (%x)\n", cpu_ptr->r12, cpu_ptr->r12);
-	printf("PC  :         %d (%x)\n", cpu_ptr->pc, cpu_ptr->pc);
-	printf("CPSR:         %d (%x)\n", cpu_ptr->cpsr, cpu_ptr->cpsr);
+	printf("$0  : %10d (0x%08x)\n", cpu_ptr->r0, cpu_ptr->r0);
+	printf("$1  : %10d (0x%08x)\n", cpu_ptr->r1, cpu_ptr->r1);
+	printf("$2  : %10d (0x%08x)\n", cpu_ptr->r2, cpu_ptr->r2);
+	printf("$3  : %10d (0x%08x)\n", cpu_ptr->r3, cpu_ptr->r3);
+	printf("$4  : %10d (0x%08x)\n", cpu_ptr->r4, cpu_ptr->r4);
+	printf("$5  : %10d (0x%08x)\n", cpu_ptr->r5, cpu_ptr->r5);
+	printf("$6  : %10d (0x%08x)\n", cpu_ptr->r6, cpu_ptr->r6);
+	printf("$7  : %10d (0x%08x)\n", cpu_ptr->r7, cpu_ptr->r7);
+	printf("$8  : %10d (0x%08x)\n", cpu_ptr->r8, cpu_ptr->r8);
+	printf("$9  : %10d (0x%08x)\n", cpu_ptr->r9, cpu_ptr->r9);
+	printf("$10 : %10d (0x%08x)\n", cpu_ptr->r10, cpu_ptr->r10);
+	printf("$11 : %10d (0x%08x)\n", cpu_ptr->r11, cpu_ptr->r11);
+	printf("$12 : %10d (0x%08x)\n", cpu_ptr->r12, cpu_ptr->r12);
+	printf("PC  : %10d (0x%08x)\n", cpu_ptr->pc + 8, cpu_ptr->pc);
+	printf("CPSR: %10d (0x%08x)\n", cpu_ptr->cpsr, cpu_ptr->cpsr);
     printf("Non-zero memory:\n");
+
+	for(int i = 0; i < MEM_SIZE; i += 4){
+		uint32_t mem_contents = memory_fetch_word(i);
+		uint32_t mem_contents_converted = memory_swap_word_be_to_le(mem_contents);
+		if(mem_contents_converted){
+		}
+		else{
+		}
+
+	}
 
 
 }
