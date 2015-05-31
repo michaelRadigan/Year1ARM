@@ -1,21 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-
-typedef char *KEY;
-typedef uint16_t VALUE;
-
-typedef struct treeNode {
-  VALUE value;
-  KEY key;
-  struct treeNode *left;
-  struct treeNode *right;
-} treeNode;
-
-typedef struct dictionary{
-    treeNode *tree;
-} DICTIONARY;
+#include "dictionary.h"
 
 /*-------------------------AUXLIARY FUNCTIONS--------------------------------*/
 
