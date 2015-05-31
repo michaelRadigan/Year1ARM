@@ -1,162 +1,208 @@
-#include "dictionary.h"
-
-/*--------------------STRUCTURES FOR BST AND BST_ELEMS--------------------*/
-/*------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------*/
-
-/*
-typedef void KEY;   
-typedef void VALUE;  
-
-typedef int (*bst_compare_t) (void *val1, void *val2);
-
-struct bst_elem;
-
-struct bst {
-	bst_compare_t compare;   
-	struct bst_elem *tree;
-};
-
-struct bst_elem {
-
-	KEY *key; 
-	VALUE *value;
-	struct bst_elem *left;
-	struct bst_elem *right;
-
-};
-
-*/
-
-/*--------------------------AUXILIARY FUNCTIONS---------------------------*/
-/*------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------*/
-
-ENTRY *bst_alloc_elem(void) {
-	ENTRY *elem = malloc(sizeof(ENTRY));
-	if (elem == NULL) {
-		perror("bst_alloc_elem");
-		exit(EXIT_FAILURE);
-	}
-	return elem;
-}
-
-void dictionary_free_entry(ENTRY *elem) {
-	free(elem);
-}
-
-void bst_init(DICTIONARY *handle, bst_compare_t compare) {
-	handle->compare = compare;
-	handle->tree = NULL;
-}
-
-void bst_insert(DICTIONARY *handle, void *value) {
-	handle->tree = bst_insert_elem(handle->tree,handle->compare,value);
-}
-
-int string_compare(void *val1, void *val2) {
-	return strcmp((const char*) val1, (const char*) val2);
-}
-
-ENTRY *bst_insert_elem(ENTRY *const elem,
-		DICTIONARY_compare_t compare,KEY *key, VALUE *value) {
-	if (elem==NULL) {
-		struct bst_elem *new_elem =  bst_alloc_elem();
-		new_elem->left = NULL;
-		new_elem->right = NULL;
-		new_elem->key = key;
-		new_elem->value = value;
-		return new_elem;
-	} else {
-		const int comparison  = compare(value, elem->value);
-		if (comparison < 0 ) {
-			elem->left =  bst_insert_elem(elem->left, compare, key, value);
-		} else if (comparison > 0 ){
-			elem->right = bst_insert_elem(elem->right,compare,key,value);        
-		} 
-		return elem;
-	}
-}
-
-void bst_destroy_elem(ENTRY *elem) {
-	if (elem == NULL)
-		return;
-	bst_destroy_elem(elem->left);
-	bst_destroy_elem(elem->right);
-	bst_free_elem(elem);
-}
-
-
-ENTRY getElemAux(ENTRY *d,
-		DICTIONARY_compare_t compare, KEY *searchkey) {
-	if (d->tree != NULL)	{
-		void *keyptr = d->key;
-		if (*keyptr == *searchkey) {
-			return d->value;
-		} else if (compare(searchkey, d->key) < 0){
-			return getElemAux(d->tree->left, compare, searchkey); 
-		} else {
-			return getElemAux(d->tree->right, compare, searchkey);
-		}
-	} else {
-		return NULL;
-	}
-}
-
-/*
-ENTRY deleteElemAux(ENTRY *d,
-	 	bst_compare_t compare, KEY *searchkey) {
-
-}
-*/
-
-/*----------------------------MAIN FUNCTIONS------------------------------*/
-/*------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------*/
-
-//Creates an Empty dictioary structure
-DICTIONARY *createDictionary(void){
-	DICTIONARY tree;
-	bst_init(&tree, &string_compare);
-	return tree;
-}
-
-//Returns 1 if empty, 0 otherwise
-int isEmpty(DICTIONARY *d) {
-	return d->tree == NULL;
-}
-
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdint.h>
 
-//Returns value at key in d
-VALUE *getElem(DICTIONARY *d , KEY *searchkey){
-	if (d->tree != NULL)	{
-		return getElemAux(d->tree, d->compare, searchkey)->value;
-	} else {
-		return NULL;
-	}
+typedef char *KEY;
+typedef uint16_t VALUE;
+
+typedef struct treeNode {
+  VALUE value;
+  KEY key;
+  struct treeNode *left;
+  struct treeNode *right;
+} treeNode;
+
+typedef struct dictionary{
+    treeNode *tree;
+} DICTIONARY;
+
+/*-------------------------AUXLIARY FUNCTIONS--------------------------------*/
+
+
+/* returns 1 if 1st arg > 2nd arg, -1 if vice versa and 0 if equal */
+int compare(void *fst, void *snd) {
+  return strcmp((const char*) fst, (const char*) snd); 
+} 
+
+/* key compatible */
+treeNode *findMin(treeNode *node) {
+  while (node->left != NULL) {
+    node = node->left;
+  }
+  return node;
 }
 
+treeNode *insert(treeNode *node, KEY key, VALUE value) {
+  if (node == NULL) {
+    treeNode *temp;
+    temp = malloc(sizeof(treeNode));
+    temp->key = key;
+    temp->value = value;
+    temp->left = NULL;
+    temp->right = NULL;
+  printf("temp pointer in insert = %p\n", (void *) temp);
+  return temp;
+  }
 
-//Returns 1 if put successful, 0 otherwise
-int putElem(DICTIONARY *d , KEY *key , VALUE *value) {
-	printf("KEY: %s , VALUE: %d" , (char *) key , *((int *) value));
-	d->tree = bst_insert_elem(d->tree, d->compare, key, value);
-	return d->tree != NULL;
+  if (compare(key, node->key) > 0) {
+    node->right = insert(node->right, key, value);
+  } else if (compare(key, node->key) < 0) {
+    node->left = insert(node->left, key, value);
+  } 
+
+  /* if reached here then value of a label/variable has changed */
+  else {
+    node->value = value;
+  }
+  return node;
 }
 
-//Returns 1 if remove of key in d is successful, 0 otherwise
+treeNode *delete(treeNode *node, KEY key) {
+  if (node == NULL) {
+    printf("Element not found\n");
+    return (void *) -1;
+  } else if (compare(key, node->key) < 0){
+    node->left = delete(node->left, key);
+  } else if (compare(key, node->key) > 0){
+    node->right = delete(node->right, key);
+  } else {
+
+    /* Case 1 : If no child */
+    if (node->left == NULL && node->right == NULL) {
+      free(node);
+      node = NULL;
+    }
+
+    /* Case 2 : if one child */
+    else if (node->left == NULL) {
+      treeNode *temp = node;
+      node = node->right;
+      free(temp);
+    } 
+    else if (node->right == NULL) {
+      treeNode *temp = node;
+      node = node->left;
+      free(temp);
+    }
+
+    /* Case 3 : two children */
+    else {
+      treeNode *temp = findMin(node->right);
+      node->key = temp->key;
+      node->value = temp->value;
+      node->right = delete(node->right,temp->key);
+    }
+
+  }
+  return node;
+}
+
+VALUE find(treeNode *node, KEY key) {
+  if (node == NULL) {
+    /* element not found */
+    return 0;
+  } 
+  else if (compare(key, node->key) > 0) {
+    return find(node->right, key);
+  } 
+  else if (compare(key, node->key) < 0) {
+    return find(node->left, key);
+  }  
+  else {
+    /* element found */
+    return node->value;
+  }
+}
+
+int destroyENTRY(treeNode *node) {
+  if(node == NULL) {
+    return 1;
+  } 
+  destroyENTRY(node->left);
+  destroyENTRY(node->right);
+  destroyENTRY(node);
+  return 0;
+}
+
+void inorder(treeNode *root) {
+  if(root == NULL) return;
+
+  inorder(root->left);       /*Visit left subtree */
+  printf(" %s: %d ",root->key, root->value);  /*Print value */
+  inorder(root->right);      /* Visit right subtree */
+}
+
+/*---------------------------------------------------------------------------*/
+/*----------------------------MAIN FUNCTIONS---------------------------------*/
+
+DICTIONARY *createDictionary(void) {
+  DICTIONARY *dictionary;
+  dictionary = malloc(sizeof(DICTIONARY));
+  dictionary->tree = NULL;
+  return dictionary;
+}
+
+int isEmpty(DICTIONARY *d) {
+ return d->tree == NULL;
+}
+
+int putElem(DICTIONARY *d , KEY key , VALUE value) {
+  d->tree = insert(d->tree, key, value);
+  printf("d->tree pointer in putElem after insert = %p\n", (void *) d->tree);
+  return d->tree != NULL;
+}
+
+VALUE getElem(DICTIONARY *d , KEY key) {
+  return find(d->tree, key); 
+}
+
+int removeElem(DICTIONARY *d , KEY key) {
+  treeNode *ptr = delete(d->tree, key);
+  return ptr != (void *)-1;
+}
+
+int destroyDictionary(DICTIONARY *d) {
+  return destroyENTRY(d->tree);
+}
+
 /*
-void removeElem(DICTIONARY *d , KEY *key){
-   if ()	
-	return 0;
-}
-*/
-//Returns 1 if all dictioary memory elemnts have been freed, 0 otherwise;
-int destroyDictionary(DICTIONARY *d){
-	bst_destroy_elem(handle->tree);
-	return d->tree != NULL;
-}
+int main() {
+  int a; */
+  /*Code To Test the logic
+    Creating an example tree
+     5
+    / \
+   3  10
+  / \   \
+ 1   4   11
+    */
+/*  DICTIONARY *dict = createDictionary();
+  printf("dict pointer = %p\n", (void*) dict);
+  printf("dict->tree pointer = %p\n", (void *) dict->tree);
+  a = putElem(dict,"a",5);
+  printf("dict->tree pointer = %p\n", (void *) dict->tree);
 
+
+  a = putElem(dict,"b",10);
+  a = putElem(dict,"c",3); a = putElem(dict,"d",4);
+  a = putElem(dict,"e",1); a = putElem(dict,"f",11);
+  a = putElem(dict, "b", 30);
+
+
+  printf(" a = %d\n", a);   */
+  /* Deleting node with value 5, change this value to test other cases */
+/*  a = removeElem(dict,"c");
+  a = removeElem(dict, "e");   */
+
+  /* Print Nodes in Inorder */
+/*  printf("Inorder: ");
+  inorder(dict->tree);
+  printf("\n");
+  
+  printf("\"a\" is : %x\n",getElem(dict,"a"));
+  printf("\"d\" is : %x\n",getElem(dict,"d"));
+  printf("\"b\" is : %x\n",getElem(dict,"b"));
+  return 0;  
+}  */
 
