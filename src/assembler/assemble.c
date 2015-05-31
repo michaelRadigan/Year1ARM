@@ -123,7 +123,7 @@ void writeBits(uint32_t *bits , FILE *out_file){
 /* MAIN Program loop */
 
 int main(int argc, char **argv) {
-  assert(argc == 2);
+  assert(argc == 3);
 
   const int MAX_LINE_LENGTH = 511;
   
