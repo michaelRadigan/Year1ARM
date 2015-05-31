@@ -10,13 +10,13 @@
 
 /* Define objects for dictionary objects */
 
-typedef char *KEY;
-typedef uint16_t VALUE;
+typedef void KEY;
+typedef void VALUE;
 
 typedef struct treeNode {
 
-  KEY key; 
-  VALUE value;
+  KEY *key; 
+  VALUE *value;
   struct treeNode *left;
   struct treeNode *right;
 
@@ -38,7 +38,7 @@ int isEmpty(DICTIONARY *d);
 int putElem(DICTIONARY *d , KEY key , VALUE value);
 
 //Returns value at key in d
-VALUE getElem(DICTIONARY *d , KEY key);
+VALUE *getElem(DICTIONARY *d , KEY key);
 
 //Returns 1 if remove of key in d is successful, 0 otherwise
 int removeElem(DICTIONARY *d , KEY key);
