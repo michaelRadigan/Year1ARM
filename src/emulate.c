@@ -9,10 +9,10 @@ int
 argc_check(int argc){
 	
 	if(argc == 2){
-		return EXIT_SUCCESS;
+		return 1;
 	}
 	else{
-		return EXIT_FAILURE;
+		return 0;
 	}
 }
 
@@ -24,13 +24,14 @@ argc_check(int argc){
  */
 int
 argv_check(char **argv){
+
 	FILE *binFile = fopen(argv[1], "rb");
 
 	if(binFile == NULL){
-		return EXIT_FAILURE;
+		return 0;
 	}
 	else{
-		return EXIT_SUCCESS;
+		return 1;
 	}
 }
 
@@ -45,17 +46,12 @@ int
 main(int argc, char **argv){
 
 	if(argc_check(argc) || argv_check(argv)){
-		return EXIT_FAILURE;
-	}
-	else{
 		FILE *binFile = fopen(argv[1], "rb");
 		memory_load_file(binFile);
-       			uint32_t curr = 0;
-                while(memory_fetch_word(curr * 4) != 0x0){
-                  cpu_cycle();
-                  curr++;
-               }
-               print_registers();
+	}
+	else{
+		return EXIT_FAILURE;
+
 	}
 	return EXIT_SUCCESS;
 }
