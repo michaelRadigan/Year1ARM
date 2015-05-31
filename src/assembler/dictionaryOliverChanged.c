@@ -1,5 +1,128 @@
 #include "dictionary.h"
 
+/*------------AUX FUNCTIONS FOR PRINTING TREE PATHS--------------------------*/
+
+
+/* Prototypes for funtions needed in printPaths() */
+void printPathsRecur(treeNode *node, int path[], int pathLen);
+void printArray(int ints[], int len);
+ 
+/*Given a binary tree, print out all of its root-to-leaf
+ paths, one per line. Uses a recursive helper to do the work.*/
+void printPaths(treeNode *node) 
+{
+  int path[1000];
+  printPathsRecur(node, path, 0);
+}
+ 
+/* Recursive helper function -- given a node, and an array containing
+ the path from the root node up to but not including this node,
+ print out all the root-leaf paths.*/
+void printPathsRecur( treeNode* node, int path[], int pathLen) 
+{
+  if (node==NULL) 
+    return;
+ 
+  /* append this node to the path array */
+  path[pathLen] = node->value;
+  pathLen++;
+ 
+  /* it's a leaf, so print the path that led to here  */
+  if (node->left==NULL && node->right==NULL) 
+  {
+    printArray(path, pathLen);
+  }
+  else
+  {
+    /* otherwise try both subtrees */
+    printPathsRecur(node->left, path, pathLen);
+    printPathsRecur(node->right, path, pathLen);
+  }
+}
+ 
+ 
+/* UTILITY FUNCTIONS */
+/* Utility that prints out an array on a line. */
+void printArray(int ints[], int len) 
+{
+  int i;
+  for (i=0; i<len; i++) 
+  {
+    printf("%d ", ints[i]);
+  }
+  printf("\n");
+}    
+ 
+
+/*---------------------AUXLIARY FUNCTIONS FOR AVL----------------------------*/
+
+treeNode *rotateRight(treeNode *nodeN) {
+  treeNode *nodeC = nodeN->left;
+  nodeN->left = nodeC->right;
+  nodeC->right = nodeN;
+  return nodeC;
+}
+
+treeNode *rotateLeft(treeNode *nodeN) {
+  treeNode *nodeC = nodeN->right;
+  nodeN->right = nodeC->left;
+  nodeC->left = nodeN;
+  return nodeC;
+}
+
+treeNode *rotateLeftRight(treeNode *nodeN) {
+  treeNode *nodeC = nodeN->left;
+  treeNode *newLeft = rotateLeft(nodeC);
+  nodeN->left = newLeft;
+  return rotateRight(nodeN);
+}
+
+treeNode *rotateRightLeft(treeNode *nodeN) {
+  treeNode *nodeC = nodeN->right;
+  treeNode *newRight = rotateRight(nodeC);
+  nodeN->right = newRight;
+  return rotateLeft(nodeN);
+}
+
+int max(int a, int b) {
+  if (a > b) {
+    return a;
+  } else {
+    return b;
+  }
+}
+
+int findHeight(treeNode *node) {
+  if (node == NULL) {
+      return -1;
+  }
+  return max(findHeight(node->left), findHeight(node->right))+1;
+}
+
+treeNode *reBalance(treeNode *nodeN) {
+  if (findHeight(nodeN->left) - findHeight(nodeN-> right) > 1) {
+    if (findHeight(nodeN->left->left) > findHeight(nodeN->left->right)) {
+      nodeN = rotateRight(nodeN);
+    }
+    else {
+     nodeN = rotateLeftRight(nodeN);
+    }
+  }
+  else {
+    if (findHeight(nodeN->right) - findHeight(nodeN-> left) > 1) {
+      if (findHeight(nodeN->right->right) > findHeight(nodeN->right->left)) {
+       nodeN = rotateLeft(nodeN);
+      }
+      else {
+       nodeN = rotateRightLeft(nodeN);
+      } /* else node is balanced  */
+    }
+  }
+  return nodeN;
+}
+
+/*---------------------------------------------------------------------------*/
+
 /*-------------------------AUXLIARY FUNCTIONS--------------------------------*/
 
 
@@ -24,14 +147,15 @@ treeNode *insert(treeNode *node, KEY key, VALUE value) {
     temp->value = value;
     temp->left = NULL;
     temp->right = NULL;
-  printf("temp pointer in insert = %p\n", (void *) temp);
-  return temp;
+    return temp;
   }
 
   if (compare(key, node->key) > 0) {
     node->right = insert(node->right, key, value);
+    node = reBalance(node);
   } else if (compare(key, node->key) < 0) {
     node->left = insert(node->left, key, value);
+    node = reBalance(node);
   } 
 
   /* if reached here then value of a label/variable has changed */
@@ -47,8 +171,10 @@ treeNode *delete(treeNode *node, KEY key) {
     return (void *) -1;
   } else if (compare(key, node->key) < 0){
     node->left = delete(node->left, key);
+    node = reBalance(node);
   } else if (compare(key, node->key) > 0){
     node->right = delete(node->right, key);
+    node = reBalance(node);
   } else {
 
     /* Case 1 : If no child */
@@ -75,6 +201,7 @@ treeNode *delete(treeNode *node, KEY key) {
       node->key = temp->key;
       node->value = temp->value;
       node->right = delete(node->right,temp->key);
+      node = reBalance(node);
     }
 
   }
@@ -116,6 +243,7 @@ void inorder(treeNode *root) {
   inorder(root->right);      /* Visit right subtree */
 }
 
+
 /*---------------------------------------------------------------------------*/
 /*----------------------------MAIN FUNCTIONS---------------------------------*/
 
@@ -132,7 +260,6 @@ int isEmpty(DICTIONARY *d) {
 
 int putElem(DICTIONARY *d , KEY key , VALUE value) {
   d->tree = insert(d->tree, key, value);
-  printf("d->tree pointer in putElem after insert = %p\n", (void *) d->tree);
   return d->tree != NULL;
 }
 
@@ -149,9 +276,8 @@ int destroyDictionary(DICTIONARY *d) {
   return destroyENTRY(d->tree);
 }
 
-/*
+
 int main() {
-  int a; */
   /*Code To Test the logic
     Creating an example tree
      5
@@ -160,32 +286,39 @@ int main() {
   / \   \
  1   4   11
     */
-/*  DICTIONARY *dict = createDictionary();
-  printf("dict pointer = %p\n", (void*) dict);
-  printf("dict->tree pointer = %p\n", (void *) dict->tree);
-  a = putElem(dict,"a",5);
-  printf("dict->tree pointer = %p\n", (void *) dict->tree);
+  DICTIONARY *dict = createDictionary();
+  
+  putElem(dict,"a",1);
+  putElem(dict,"b",2);
+  putElem(dict,"c",3);
+  putElem(dict,"d",4);
+  putElem(dict,"e",5);
+  putElem(dict,"f",6);
+  putElem(dict,"g",7);
+  putElem(dict,"h",8);
+  putElem(dict,"i",9);
+  putElem(dict,"j",10);
+  putElem(dict,"k",11);
+  putElem(dict,"l",12);
 
+  /* test variable change */
+  putElem(dict,"i", 0);
 
-  a = putElem(dict,"b",10);
-  a = putElem(dict,"c",3); a = putElem(dict,"d",4);
-  a = putElem(dict,"e",1); a = putElem(dict,"f",11);
-  a = putElem(dict, "b", 30);
-
-
-  printf(" a = %d\n", a);   */
-  /* Deleting node with value 5, change this value to test other cases */
-/*  a = removeElem(dict,"c");
-  a = removeElem(dict, "e");   */
+  removeElem(dict,"c");  
+  removeElem(dict, "e");   
 
   /* Print Nodes in Inorder */
-/*  printf("Inorder: ");
+  printf("Inorder: ");
   inorder(dict->tree);
   printf("\n");
   
   printf("\"a\" is : %x\n",getElem(dict,"a"));
   printf("\"d\" is : %x\n",getElem(dict,"d"));
   printf("\"b\" is : %x\n",getElem(dict,"b"));
+
+  printf("\n");
+  printPaths(dict->tree);
+
   return 0;  
-}  */
+}  
 
