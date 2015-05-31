@@ -8,9 +8,10 @@ typedef struct cpu {
 	
 	//uint32_t *cpu;
 
+	//TODO Unneccessary?/
 	uint32_t decoded;
 	uint32_t fetched;
-
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	uint32_t r0;
 	uint32_t r1;
 	uint32_t r2;
@@ -24,13 +25,41 @@ typedef struct cpu {
 	uint32_t r10;
 	uint32_t r11;
 	uint32_t r12;
-	uint32_t rsp;
-	uint32_t lr;
+	uint32_t rsp;// Is ignored in this implementation
+	uint32_t rlr;// Is ignored in this implementation
 	uint32_t pc;
-	uint32_t cpsr;
+	uint32_t cpsr; //TODO not used -> use flag struct instead
 }cpu;
 
 extern cpu *cpu_ptr;
+
+
+/**
+ * Flags
+ */
+typedef struct{
+	/* All flags are 1 bit wide */ 
+	
+	/* Instruction Flags */
+	int flag_I;
+	int flag_S;
+	int flag_A;
+	int flag_P;
+	int flag_U;
+	int flag_L;
+
+	/* CSPR register flags */
+	int flag_N;//The last result was negative
+	int flag_Z;//The last result was zero
+	int flag_C;//The last result caused a bit to be carried out
+	int flag_V;//The last result overflowed
+
+	/* Carry flag used in arithmetic and shift operation */
+	int flag_carry : 1;
+
+}instr_flags;
+
+extern instr_flags *instr_flags_ptr;
 
 
 /**
@@ -80,53 +109,25 @@ typedef enum{
 
 
 /**
- * Flags
- */
-typedef struct{
-	/* All flags are 1 bit wide */ 
-	
-	/* Instruction Flags */
-	int flag_I;// : 1;
-	int flag_S;// : 1;
-	int flag_A;// : 1;
-	int flag_P;// : 1;
-	int flag_U;// : 1;
-	int flag_L;// : 1;
-
-	/* CSPR register flags */
-	int flag_N;// : 1;
-	int flag_Z;// : 1;
-	int flag_C;// : 1;
-	int flag_V;// : 1;
-
-	/* Carry flag used in arithmetic and shift operation */
-	int flag_carry : 1;
-
-}instr_flags;
-
-extern instr_flags *instr_flags_ptr;
-
-
-/**
  * CPU registers
  */
 typedef enum{
-	R0 = 0x0,
-	R1 = 0x1,
-	R2 = 0x2,
-	R3 = 0x3,
-	R4 = 0x4,
-	R5 = 0x5,
-	R6 = 0x6,
-	R7 = 0x7,
-	R8 = 0x8,
-	R9 = 0x9,
-	R10 = 0xA,
-	R11 = 0xB,
-	R12 = 0xC,
-	RSP = 0xD,
-	RLR = 0xE,
-	RPC = 0xF,
+	R0   = 0x0,
+	R1   = 0x1,
+	R2   = 0x2,
+	R3   = 0x3,
+	R4   = 0x4,
+	R5   = 0x5,
+	R6   = 0x6,
+	R7   = 0x7,
+	R8   = 0x8,
+	R9   = 0x9,
+	R10  = 0xA,
+	R11  = 0xB,
+	R12  = 0xC,
+	RSP  = 0xD,// Is ignored in this implementation
+	RLR  = 0xE,// Is ignored in this implementation
+	PC   = 0xF,
 	CPSR = 0x10
 }cpu_reg;
 
@@ -177,6 +178,8 @@ int I_flag_set();
 
 
 void execute_mult();
+
+
 void multiply_rm_rs();
 void accumulate_rm_rs_rn();
 void register_select_write(uint32_t calc, uint32_t reg);
@@ -194,6 +197,8 @@ int U_flag_set(void);
 
 
 void execute_branch();
+
+
 
 void instr_decode(uint32_t instr);
 void instr_execute(uint32_t instr);

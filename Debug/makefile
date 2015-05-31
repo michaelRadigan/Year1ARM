@@ -9,6 +9,8 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include src/subdir.mk
+-include .metadata/.plugins/org.eclipse.cdt.managedbuilder.core/subdir.mk
+-include .metadata/.plugins/org.eclipse.cdt.make.core/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -23,19 +25,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: arm11_16
+all: arm11
 
 # Tool invocations
-arm11_16: $(OBJS) $(USER_OBJS)
+arm11: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc  -o "arm11_16" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc  -o "arm11" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C_DEPS)$(EXECUTABLES) arm11_16
+	-$(RM) $(OBJS)$(C_DEPS)$(EXECUTABLES) arm11
 	-@echo ' '
 
 .PHONY: all clean dependents

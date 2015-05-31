@@ -10,6 +10,7 @@
 
 typedef struct{
 
+	uint32_t cond;
 	uint32_t I_flag;
 	uint32_t op_code;
 	uint32_t S_flag;
@@ -24,6 +25,7 @@ extern instr_data_proc_struct *instr_data_proc_ptr;
 
 typedef struct{
 
+	uint32_t cond;
 	uint32_t A_flag;
 	uint32_t S_flag;
 	uint32_t rd_reg;
@@ -38,6 +40,7 @@ extern instr_mult_struct *instr_mult_ptr;
 
 typedef struct{
 
+	uint32_t cond;
 	uint32_t I_flag;
 	uint32_t P_flag;
 	uint32_t U_flag;
@@ -53,6 +56,7 @@ extern instr_single_data_trans_struct *instr_single_data_trans_ptr;
 
 typedef struct{
 
+	uint32_t cond;
 	uint32_t offset;
 
 }instr_branch_struct;

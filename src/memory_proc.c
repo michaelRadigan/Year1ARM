@@ -1,29 +1,21 @@
 #include "common_instances.h"
 
-#define MEM_SIZE 65536
-#define BYTES    4
+
+#define BYTES    1
 
 
 memory_machine *memory;
 
 
-/**
- * Performs Little to Big endian swapping
- * when reading from Little endian file
- * @param word Little endian word from memory
- * @return word in Big endian ready for processing
- */
+
 uint32_t
-memory_fetch_word_le_to_be(uint32_t word){
-     return (((word >> 24) & 0x000000ff)| /* move byte 3 to byte 0*/
-             ((word >> 8)  & 0x0000ff00)| /* move byte 2 to byte 1*/
-             ((word << 8)  & 0x00ff0000)| /* move byte 1 to byte 2*/
-			 ((word << 24) & 0xff000000)); /* byte 0 to byte 3*/
+memory_swap_word_be_to_le(uint32_t word){
+	word = ((word << 8) & 0xFF00FF00) | ((word >> 8) & 0x00FF00FF);
+	return (word << 16) | (word >> 16);
 }
 
-
 /**
- * Fetches 4 bytes from memory and concatenates in 1 word
+ * Fetches 4 bytes from memory and concatenates into 1 word
  * @param pc Program counter acts as index to memory
  */
 uint32_t
@@ -32,16 +24,11 @@ memory_fetch_word(uint32_t pc){
 	uint8_t byteTwo   = memory->byte[pc + 1];
 	uint8_t byteThree = memory->byte[pc + 2];
 	uint8_t byteFour  = memory->byte[pc + 3];
-
 	/* Do bit-wise shifting to concatenate the four bytes
-	 * Input is little endian, hence shift like so
+	 * Does automatic conversion from Little to Big Endian
 	 */
-	/*Possible source of bugs here*/
 	uint32_t result = byteOne | (byteTwo << 8) | (byteThree << 16) | (byteFour << 24);
-
-	uint32_t word_in_be = memory_fetch_word_le_to_be(result);
-
-	return word_in_be;
+    return result;
 }
 
 
@@ -207,7 +194,8 @@ memory_instr_flags_destroy(){
 void
 check_file_error(FILE *file){
 	if(feof(file)){
-		printf("Reached end of file\n");
+		//TODO
+		//printf("Reached end of file\n");
 	}
 	else if(ferror(file)){
 		printf("File error\n");
@@ -233,8 +221,8 @@ memory_load_file(FILE *file){
 	
 
 	for(int i = 0; i < MEM_SIZE; i++){
-		if(fread(&memory->byte[i], BYTES, 1, file) == 1){
-			printf("Line 222 in mem_proc.c\n");
+		if(fread(memory->byte + i, BYTES, 1, file) == 1){
+			//printf("Line 222 in mem_proc.c\n");
 			continue;
 		}
 		else{
@@ -257,4 +245,3 @@ memory_load_file(FILE *file){
 
 	fclose(file);
 }
-

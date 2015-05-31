@@ -13,6 +13,7 @@
 *.dvi
 *.ps
 *.syntex.gz
+.cproject
 
 #ignore junk files from compiling C code
 *.o
