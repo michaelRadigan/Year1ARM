@@ -86,18 +86,6 @@ extract_bits(uint32_t instr, uint32_t mask, uint32_t shift){
 }
 
 
-/**
- * Checks if instruction is Data Processing
- * @param instr The instruction word
- * @return EXIT_SUCCESS if all ok
- */
-
-void update_CPSR(void) {
-//TODO
-
-
-}
-
 int
 instr_data_proc(uint32_t instr){
 	return check_bits(instr, BITS_DATA_PROC_MASK, 26, 0x00000000);
@@ -303,7 +291,184 @@ decode_branch(uint32_t instr){
  
 
 /* Execution of instructions */
+/**
+ * Checks whether I flag is set for Data Processing
+ */
+int
+I_flag_set_data_proc(){
+	if(instr_data_proc_ptr->I_flag == 1){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
 
+/**
+ * Checks if the A flag is set
+ */
+int
+A_flag_set(void){
+	//TODO
+	if(instr_mult_ptr->A_flag == 1){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+
+/**
+ * Checks if the S flag is set in Data Processing
+ */
+int
+S_flag_set_data_proc(void){
+	//TODO
+	if(instr_data_proc_ptr->S_flag == 1){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+
+/**
+ * Checks if the S flag is set in Multiply
+ */
+int
+S_flag_set_mult(void){
+	//TODO
+	if(instr_mult_ptr->S_flag == 1){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+/**
+ * Checks whether I flag is set for Single Data Transfer
+ */
+int
+I_flag_set_single_data_trans(){
+	//TODO
+	if(instr_single_data_trans_ptr->I_flag == 1){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+
+/**
+ * Checks if the L falg is set
+ */
+ int
+L_flag_set(){
+	if(instr_single_data_trans_ptr->L_flag == 1){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+
+/**
+ * Checks if the P falg is set
+ */
+ int
+P_flag_set(){
+	if(instr_single_data_trans_ptr->P_flag == 1){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+
+/**
+ * Checks if the U flag is set
+ */
+int
+U_flag_set(){
+	if(instr_single_data_trans_ptr->U_flag == 1){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+
+/**
+ * Sets the C flag 
+ * @param op_code The opcode depends on 
+ *                how the C flag is set
+ */
+void
+C_flag_set(uint32_t op_code){
+
+	switch(op_code){
+		case OC_AND : case OC_EOR : case OC_ORR : 
+		case OC_TEQ : case OC_TST : case OC_MOV : 
+			instr_flags_ptr->flag_C = carry_out_flag; break;
+        
+		case OC_ADD : 
+		
+			if(carry_out_flag){
+				instr_flags_ptr->flag_C = 1;
+			}
+			else{
+				instr_flags_ptr->flag_C = 0;
+			}
+			; break;
+
+		case OC_SUB : case OC_RSB : case OC_CMP : 
+			
+			if(carry_out_flag){
+				instr_flags_ptr->flag_C = 0;
+			}
+			else{
+				instr_flags_ptr->flag_C = 1;
+			}
+			; break;
+			
+		default : 
+			printf("c flag set");
+	}
+}
+
+
+
+void
+update_CPSR(){
+    //printf("%x", instr_flags_ptr->flag_N);
+    //printf("%x", instr_flags_ptr->flag_Z);
+    //printf("%x", instr_flags_ptr->flag_C);
+    //printf("%x", instr_flags_ptr->flag_V);
+
+
+
+
+	/* Concatenate all four flags together */
+	uint32_t cpsr_flag = (instr_flags_ptr->flag_N) << 3 | 
+		                 (instr_flags_ptr->flag_Z) << 2 |
+						 (instr_flags_ptr->flag_C) << 1 |
+						 (instr_flags_ptr->flag_V);
+
+	/* Left shift bottom four bits by 28 bits */
+	uint32_t cpsr_val = cpsr_flag << 28;
+
+	//printf("%x\n", cpsr_val);
+	/* Assign the flag */
+	cpu_ptr->cpsr = cpsr_val;
+
+}
 
 /**
  * Executes Data Processing Instruction
@@ -311,15 +476,17 @@ decode_branch(uint32_t instr){
 void
 execute_data_proc(){
 
-    uint32_t operand_2_val = result_set_I_flag(I_flag_set());
+    uint32_t operand_2_val = result_set_I_flag(I_flag_set_data_proc());
+    
+	uint32_t reg_val = instr_data_proc_ptr->rn_reg;
+    uint32_t reg_contents = register_select_read(reg_val);
 
-    uint32_t left_operand = instr_data_proc_ptr->rn_reg;
     uint32_t op_code = instr_data_proc_ptr->op_code;
   //TODO
 	// printf("data proc   %x\n", op_code);
-	uint32_t result = opcode_dispatch(op_code, left_operand, operand_2_val);
+	uint32_t result = opcode_dispatch(op_code, reg_contents, operand_2_val);
 
-    if(S_flag_set()){
+    if(S_flag_set_data_proc()){
 		/* Update CPSR flags */
 
 		/* Set C flag */
@@ -330,8 +497,14 @@ execute_data_proc(){
 		    instr_flags_ptr->flag_Z = 1;
 		}
 
+		//TODO
+		//TODO
+		//printf("%x\n", result);
 		/* Set N flag */
 		uint32_t result_bit_31 = extract_bits(result, RESULT_BIT_MASK, 31);
+		//TODO
+		//TODO
+	//	printf("%x\n", result_bit_31);
 		instr_flags_ptr->flag_N = result_bit_31;
 	}
 
@@ -339,6 +512,8 @@ execute_data_proc(){
 //TODO
 	
 	register_select_write_opcode(op_code, result, rd_reg);
+
+	update_CPSR();
 }
 
 
@@ -350,8 +525,9 @@ uint32_t
 result_set_I_flag(int I_flag_set){	
 	
         uint32_t operand_2_val = 0;
-      
-        if(I_flag_set){
+     
+		//TODO
+        if(I_flag_set == 1){
 		/* Operand2 is an immediate constant */
 		uint32_t immediate_value = extract_bits(instr_data_proc_ptr->operand_2, IMMEDIATE_VALUE_MASK, 0);
 		uint32_t rotate_field    = extract_bits(instr_data_proc_ptr->operand_2, ROTATE_FIELD_MASK, 8);
@@ -403,43 +579,7 @@ result_set_I_flag(int I_flag_set){
 }
 
 
-/**
- * Sets the C flag 
- * @param op_code The opcode depends on 
- *                how the C flag is set
- */
-void
-C_flag_set(uint32_t op_code){
 
-	switch(op_code){
-		case OC_AND : case OC_EOR : case OC_ORR : 
-		case OC_TEQ : case OC_TST : case OC_MOV : 
-			instr_flags_ptr->flag_C = carry_out_flag; break;
-        
-		case OC_ADD : 
-		
-			if(carry_out_flag){
-				instr_flags_ptr->flag_C = 1;
-			}
-			else{
-				instr_flags_ptr->flag_C = 0;
-			}
-			; break;
-
-		case OC_SUB : case OC_RSB : case OC_CMP : 
-			
-			if(carry_out_flag){
-				instr_flags_ptr->flag_C = 0;
-			}
-			else{
-				instr_flags_ptr->flag_C = 1;
-			}
-			; break;
-			
-		default : 
-			printf("c flag set");
-	}
-}
 
 
 /**
@@ -543,7 +683,8 @@ least_significant_bit(uint32_t test){
  */
 uint32_t
 execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
-    if(S_flag_set()){
+    //TODO
+	if(S_flag_set_data_proc() == 1){
         int msb = most_significant_bit(reg_val);
         if(msb + shift_amount > 31){
             carry_out_flag = 1;
@@ -558,7 +699,10 @@ execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
  * @param shift_amount is the number of places that reg_val should be shifted
  * @param reg_val is the value upon which the shift is to occur. */
 void shift_right_flag_check(uint32_t shift_amount, uint32_t reg_val){
-    if(S_flag_set()){
+    //TODO
+	//TODO
+	//TODO ---> possible bugs here
+	if(S_flag_set_data_proc()){
         int lsb = least_significant_bit(reg_val);
         if((int32_t)lsb - (int32_t)shift_amount < 0){
             carry_out_flag = 1;   
@@ -641,7 +785,7 @@ opcode_dispatch(uint32_t opcode, uint32_t left_operand, uint32_t right_operand){
 
 	switch(opcode){
 		case OC_AND : 
-			return execute_op_code(&execute_op_code_add, left_operand, right_operand);	
+			return execute_op_code(&execute_op_code_and, left_operand, right_operand);
 		case OC_EOR :
 			return execute_op_code(&execute_op_code_eor, left_operand, right_operand);
 		case OC_SUB :
@@ -709,7 +853,8 @@ uint32_t
 execute_op_code_sub(uint32_t reg, uint32_t operand2){
 
 	if (reg == operand2) {
-		if (S_flag_set()) {
+		//TODO
+		if (S_flag_set_data_proc() == 1) {
 			instr_flags_ptr->flag_Z = 1;
 			carry_out_flag = 1;
 		}
@@ -719,12 +864,14 @@ execute_op_code_sub(uint32_t reg, uint32_t operand2){
 	uint32_t result = reg + op2compl;
 	if (reg > operand2) {
 		result++;
-		if (S_flag_set()) {
+		//TODO
+		if (S_flag_set_data_proc() == 1) {
 			carry_out_flag = 1;
 		}
 		return result;
 	} else {
-		if (S_flag_set()) {
+		//TODO
+		if (S_flag_set_data_proc() == 1) {
 			carry_out_flag = 0;
 		}
 		return ~result;
@@ -752,7 +899,10 @@ uint32_t
 execute_op_code_add(uint32_t reg, uint32_t operand2){
 	uint32_t result = reg+operand2;
 	/* if addition exceeds max of 32-bit val, then result wraps around */
-	if (S_flag_set()) {
+	//TODO
+	//TODO
+	//TODO --> looks like there are bugs here
+	if (S_flag_set_data_proc() == 1) {
 		if (result < reg || result < operand2) {
 			carry_out_flag = 1;
 		} else {
@@ -838,18 +988,6 @@ execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
 }
 
 
-/**
- * Checks whether I flag is set
- */
-int
-I_flag_set(){
-	if(instr_data_proc_ptr->I_flag == 1){
-		return 1;
-	}
-	else{
-		return 0;
-	}
-}
 
 
 /**
@@ -859,7 +997,7 @@ void
 execute_mult(){
 
 	//TODO
-	if(A_flag_set()){
+	if(A_flag_set() == 1){
 		/* Perform a multiply and accumulate */
 		multiply_rm_rs();
         accumulate_rm_rs_rn();
@@ -871,7 +1009,7 @@ execute_mult(){
 
 	/* If S bit is set, update N and Z flags of CPSR*/
 	//TODO
-	if(S_flag_set()){
+	if(S_flag_set_mult() == 1){
 		uint32_t rd_reg = instr_mult_ptr->rd_reg;
 		uint32_t result = register_select_read(rd_reg);
 
@@ -884,6 +1022,7 @@ execute_mult(){
 		uint32_t flag_N_result = extract_bits(result, 0x40000000, 30);
 		instr_flags_ptr->flag_N = flag_N_result;
 	}
+	update_CPSR();
 }
 
 
@@ -977,34 +1116,6 @@ register_select_read(uint32_t reg){
 }
 
 
-/**
- * Checks if the A flag is set
- */
-int
-A_flag_set(void){
-	//TODO
-	if(instr_mult_ptr->A_flag == 1){
-		return 1;
-	}
-	else{
-		return 0;
-	}
-}
-
-
-/**
- * Checks if the S flag is set
- */
-int
-S_flag_set(void){
-	//TODO
-	if(instr_mult_ptr->S_flag == 1){
-		return 1;
-	}
-	else{
-		return 0;
-	}
-}
 
 
 /**
@@ -1014,7 +1125,7 @@ void
 execute_single_data_trans(){
 
 	/* The opposite is true for data processing instructions*/
-	uint32_t offset_value = result_set_I_flag(!I_flag_set());
+	uint32_t offset_value = result_set_I_flag(!I_flag_set_single_data_trans());
 
 
 	uint32_t base_reg = instr_single_data_trans_ptr->rn_reg;
@@ -1085,49 +1196,9 @@ execute_single_data_trans(){
 		
 		instr_single_data_trans_ptr->rn_reg += offset_value; 
 	}
+	update_CPSR();
 }
 
-
-/**
- * Checks if the L falg is set
- */
- int
-L_flag_set(){
-	if(instr_single_data_trans_ptr->L_flag == 1){
-		return 1;
-	}
-	else{
-		return 0;
-	}
-}
-
-
-/**
- * Checks if the P falg is set
- */
- int
-P_flag_set(){
-	if(instr_single_data_trans_ptr->P_flag == 1){
-		return 1;
-	}
-	else{
-		return 0;
-	}
-}
-
-
-/**
- * Checks if the U flag is set
- */
-int
-U_flag_set(){
-	if(instr_single_data_trans_ptr->U_flag == 1){
-		return 1;
-	}
-	else{
-		return 0;
-	}
-}
 
 
 /**
@@ -1154,9 +1225,14 @@ execute_branch(){
 		result = offset_shift;
 	}
 
-	/* Add result to pc */
-	pc += result; 
+	/* Add result to pc 8 is for pipeline offset cheeky fix*/
+	pc += result + 4;
+	update_CPSR();
 }
+
+
+
+
 
 
 /**
@@ -1243,6 +1319,8 @@ cpu_cycle(void){
 		//TODO
 	//	printf("%x\n", instr);
         instr_decode(instr);
+        //TODO
+        //printf("%x\n", instr);
 	    instr_execute(instr);
 		pc += 4;
         instr = memory_fetch_word(pc);
