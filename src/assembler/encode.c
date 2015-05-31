@@ -115,15 +115,13 @@ uint32_t *binaryConcat(uint32_t *b1, uint32_t *b2 , int pos){
 */
 
 uint32_t *binaryReplace(uint32_t *b1, int numberOfBits,uint32_t *b2, int pos){
-  if(param == 1){
     //replaces the bit of b2 to be replaced with 0s
     uint32_t mask = 1;
     for(int i = 0 ; i <  numberOfBits; i++){
-      mask = 1 + (mask << 1); // put 1s in correct place
+        mask = 1 + (mask << 1); // put 1s in correct place
     }
     b2 =  *b2 & ((~mask) << pos); // and so 0s are in swap position
-  }
-  return binaryConcat(b1,b2,pos);
+    return binaryConcat(b1,b2,pos);
 }
 
 cpu_reg *toCpuReg(char *str){
