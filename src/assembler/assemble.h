@@ -17,7 +17,6 @@ DICTIONARY *opcode_function;
 
 
 /* Function definitions */
-
 DICTIONARY *setUPlabel_address(void);
 DICTIONARY *setUPopcode_function(void);
 void destroyDictionaryfunctions(DICTIONARY *d);
