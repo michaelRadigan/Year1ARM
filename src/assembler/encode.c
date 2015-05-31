@@ -139,10 +139,88 @@ uint32_t *dataProcessing1(char *source){
   return NULL;  
 }
 
+
+ /*Takes two ints and returns the larger*/
+int
+max(int a, int b){
+    if(a > b){
+        return a;
+    } else {
+    return b;
+    }
+    
+}
+
+
+/*Takes in a 64 bit unisgned vlaue and returns a 32 bit unsigned int
+ *which represents the rotate-Immediate value representation of the input as
+ *descried on page 7 of the spec. (the first 20 bits of the return value will 
+ *be 0
+ *@Param extractedExp is the value to be converted*/
+uint32_t
+convertToImm(uint32_t extractdExp){
+   /*To test whether thi is possible find th difference between the most 
+    *and the least significant bit*/
+    if(extractedExp = 0){
+        return 0;
+    }
+    /*Check condition 1: There must be atleast 24 0s in a row*/
+    int i, count, max; 
+    count = 0;  //The current number f 0s in a row
+    max = 0;    //The max number of 0s in a row
+    uint32_t mask  = 0x1; 
+    for(i = 0; i < 32; i++){
+        if((mask & extractedExp) == 0){ //the "i"th bit of extractedExp is 0
+            count++;
+        } else {
+        max = max(max, count);
+        count = 0; 
+        }
+    mask <<= 1;
+    }
+    if( max < 24){
+    /*Throw some kind of error, this number isn't able to be transferred
+     *immediate and rotate format*/
+    }
+    /*There are three scenarios, either the immediate is all together and msb
+     *is less than 8, all together and msb > 8 or it is split between
+     *from 31 to 0, we can find out which is the case by checking the most 
+     *and least significant bits*/
+    int msb = most_significant_bit(extractedExp);
+    int lsb = east_significant_bit(extractedExp);
+    if(msb > 8){ 
+        /*check whether split or not*/
+        if((msb - lsb) < 8){//it's all together, just need to find the rotation
+        
+        } else {
+
+        }
+
+
+    } else { //We can move this to the start and say if < 2*8...
+        return extractedExp;
+    }
+     
+}
+
 /* Translates mov */
 uint32_t *dataProcessing2(char *source){
-  //TODO
-  return NULL;
+    assert(source != NULL);
+    uint32_t binary;
+    const char delim[3] = " ,";
+    strtok(source, delim);
+    char *reg = strtok(NULL, delim);
+    if(reg == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+
+    char *operand2 = strtok(NULL, delim);
+    /*May want to add the optional shift here*/
+    if (operand2[0] == '#'){ //has the form #expression 
+        uint32_t extractedExp = sscanf(operand2[1], "%" SCNx32, &int32);
+        /*Now need to convert to from described in emulate*/
+        convertToImm(extractedExp);
+    }
 }
 
 /* Translates tst, teq, cmp */
@@ -165,7 +243,7 @@ uint32_t *multiply(char *source){
   char *rs;
 
   if((rd = strtok(NULL , p)) == NULL){
-    printf("OPCODE PARAMETER NONEXISTANT")
+    printf("OPCODE PARAMETER NONEXISTANT");
     exit(EXIT_FAILURE);
   }
   if((rm = strtok(NULL , p)) == NULL){
