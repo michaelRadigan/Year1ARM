@@ -2,9 +2,13 @@
 #define ENCODE_H
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlin.h>
+#include <ctype.h>
 #include "dictionary.h"
 
-
+//For access to cpu registers enum
+#include "../cpu.h"
 
 /* Struct for storing function pointers */
 
@@ -36,6 +40,11 @@ void setUPcode_binarycode(void);
 
 void destroycode_binarycode(void);
 
+/* Auxiliary functions defintions*/
+
+
+uint32_t *binaryConcat(int param , uint32_t *b1 , int numberOfBits,
+                              uint32_t *b2 , int pos);
 
 
 
