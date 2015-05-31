@@ -1138,7 +1138,6 @@ execute_branch(){
 
 	uint32_t result = 0;
 	uint32_t offset = instr_branch_ptr->offset;
-<<<<<<< HEAD
 
 	/* Shift offset left 2 bits */
 	uint32_t offset_shift = offset << 2;
@@ -1155,14 +1154,6 @@ execute_branch(){
 		result = offset_shift;
 	}
 
-=======
-/* !!!!!!!!does this deal with the fact that the offset is in 2's complement???? */
-	/* Shift offset left 2 bits, 
-	 * and sign extend to 32 bits
-	 */
-	uint32_t result = offset << 2;
-	
->>>>>>> 5603882855ec73503641be5db89d15110ea4c2d6
 	/* Add result to pc */
 	pc += result; 
 }
@@ -1292,11 +1283,7 @@ print_registers(){
 		uint32_t mem_contents = memory_fetch_word(i);
 		uint32_t mem_contents_converted = memory_swap_word_be_to_le(mem_contents);
 		if(mem_contents_converted){
+            printf("0x%08x: 0x%08x\n", i, mem_contents_converted);
 		}
-		else{
-		}
-
 	}
-
-
 }
