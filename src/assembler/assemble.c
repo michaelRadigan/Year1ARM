@@ -129,17 +129,19 @@ int main(int argc, char **argv) {
 
   /* Program Loop 1*/
   /* Creates Dictionary for Labels and Memory Locations */
+  file_line = 0;
   while (fgets(buff,MAX_LINE_LENGTH, ptr_SourceFile)!=NULL){
          
     char *label;
 
     if((label = getLabel(buff)) !=NULL){
-      putElem(label_address , label , (void *) &label);
+      putElem(label_address , label , &file_line);
     }
-
+    file_line++;
   }
 
   rewind(ptr_SourceFile);
+  file_line = 0;
 
   /* Program Loop 2*/
   /* Reads Opcode and generate Binary Encoding */
@@ -150,11 +152,10 @@ int main(int argc, char **argv) {
     char *token;
     
     if(getLabel(buff)!=NULL){
-      const char p[2] = ":";
-      strtok(buff,p);
+      strtok(buff,":");
     }
 
-    if((token = strtok(buff,s))==NULL){
+    if((token = strtok(NULL,s))==NULL){
       continue;
     }
 
@@ -166,6 +167,8 @@ int main(int argc, char **argv) {
     output = encodingStruct->encFunc(buff);
 
     writeBits(output, ptr_WriteFile); 
+
+    file_line++;
   }
 
 

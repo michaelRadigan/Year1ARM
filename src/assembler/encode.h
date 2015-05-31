@@ -7,6 +7,9 @@
 #include <ctype.h>
 #include "dictionary.h"
 
+//For Access to label_address Dictionary
+#include "assemble.h"
+
 //For access to cpu registers enum
 #include "../cpu.h"
 
@@ -43,10 +46,9 @@ void destroycode_binarycode(void);
 /* Auxiliary functions defintions*/
 
 
-uint32_t *binaryConcat(int param , uint32_t *b1 , int numberOfBits,
-                              uint32_t *b2 , int pos);
+uint32_t *binaryConcat( uint32_t *b1, uint32_t *b2 , int pos);
 
-
+uint32_t *binaryConcat( uint32_t *b1 , int numberOfBits, uint32_t *b2 , int pos);
 
 /* Setsup structs containing function pointers */
 void setUPFuncStructs(void);
