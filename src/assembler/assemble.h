@@ -18,7 +18,6 @@ DICTIONARY *opcode_function;
 extern uint32_t file_line;
 
 /* Function definitions */
-
 DICTIONARY *setUPlabel_address(void);
 DICTIONARY *setUPopcode_function(void);
 void destroyDictionaryfunctions(DICTIONARY *d;)
