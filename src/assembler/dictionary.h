@@ -6,31 +6,25 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <stdint.h>
 
 /* Define objects for dictionary objects */
 
-typedef void KEY;
-typedef void VALUE;
+typedef char *KEY;
+typedef uint16_t VALUE;
 
-typedef int (*DICTIONARY_compare_t) (void *val1, void *val2);
+typedef struct treeNode {
 
-typedef struct dictionary_entry{
-  
-  KEY *key; 
-  VALUE *value;
-	dictionary_entry *left;
-	dictionary_entry *right;
+  KEY key; 
+  VALUE value;
+  struct treeNode *left;
+  struct treeNode *right;
 
-} ENTRY;
+} treeNode;
 
 typedef struct dictionary{
-    DICTIONARY_compare_t compare;
-    ENTRY *tree;
-
+  treeNode *tree;
 } DICTIONARY;
-
-
-
 
 /* Function definitions */
 
@@ -41,13 +35,13 @@ DICTIONARY *createDictionary(void);
 int isEmpty(DICTIONARY *d);
 
 //Returns 1 if put successful, 0 otherwise
-int putElem(DICTIONARY *d , KEY *key , VALUE *value);
+int putElem(DICTIONARY *d , KEY key , VALUE value);
 
 //Returns value at key in d
-VALUE *getElem(DICTIONARY *d , KEY *key);
+VALUE getElem(DICTIONARY *d , KEY key);
 
 //Returns 1 if remove of key in d is successful, 0 otherwise
-//int removeElem(DICTIONARY *d , KEY *key);
+int removeElem(DICTIONARY *d , KEY key);
 
 //Returns 1 if all dictioary memory elemnts have been freed, 0 otherwise;
 int destroyDictionary(DICTIONARY *d);

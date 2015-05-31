@@ -560,7 +560,7 @@ execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val){
 void shift_right_flag_check(uint32_t shift_amount, uint32_t reg_val){
     if(S_flag_set()){
         int lsb = least_significant_bit(reg_val);
-        if(lsb - shift_amount < 0){
+        if((int32_t)lsb - (int32_t)shift_amount < 0){
             carry_out_flag = 1;   
         }
     }
@@ -1275,7 +1275,7 @@ print_registers(){
 	printf("$10 : %10d (0x%08x)\n", cpu_ptr->r10, cpu_ptr->r10);
 	printf("$11 : %10d (0x%08x)\n", cpu_ptr->r11, cpu_ptr->r11);
 	printf("$12 : %10d (0x%08x)\n", cpu_ptr->r12, cpu_ptr->r12);
-	printf("PC  : %10d (0x%08x)\n", cpu_ptr->pc + 8, cpu_ptr->pc);
+	printf("PC  : %10d (0x%08x)\n", cpu_ptr->pc + 8, cpu_ptr->pc + 8);
 	printf("CPSR: %10d (0x%08x)\n", cpu_ptr->cpsr, cpu_ptr->cpsr);
     printf("Non-zero memory:\n");
 

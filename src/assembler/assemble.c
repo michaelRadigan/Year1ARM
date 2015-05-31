@@ -11,8 +11,6 @@ DICTIONARY *opcode_function := (char *code , (*ptr_func) (char *source));
 
 */
 
-
-
 DICTIONARY *setUPlabel_address(void){
   DICTIONARY *d = createDictionary();
   return d;
