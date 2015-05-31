@@ -1,6 +1,5 @@
 #include "assemble.h"
 
-
 /* Structures
 
 If getting from dictionary, remember to cast back to the right type afterwards
@@ -11,6 +10,7 @@ DICTIONARY *opcode_function := (char *code , (*ptr_func) (char *source));
 
 */
 
+DICTIONARY *createDictionary(void);
 
 
 DICTIONARY *setUPlabel_address(void){

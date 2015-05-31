@@ -1,4 +1,4 @@
-p include "dictionary.h"
+#include "dictionary.h"
 /* Define objects for dictionary objects */
 /*
 typedef void KEY;
@@ -25,7 +25,7 @@ typedef struct dictionary{
 
 /* Function definitions */
 
-//Creates an Empty dictioary structure
+//Creates an Empty dictionary structure
 DICTIONARY *createDictionary(void){
   return NULL;
 }

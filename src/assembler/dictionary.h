@@ -14,21 +14,20 @@ typedef void VALUE;
 
 typedef int (*DICTIONARY_compare_t) (void *val1, void *val2);
 
-typedef struct dictionary_entry{
+struct dictionary_entry{
   
   KEY *key; 
   VALUE *value;
-	dictionary_entry *left;
-	dictionary_entry *right;
+	struct dictionary_entry *left;
+	struct dictionary_entry *right;
 
-} ENTRY;
+};
 
 typedef struct dictionary{
     DICTIONARY_compare_t compare;
-    ENTRY *tree;
+    struct dictionary_entry *tree;
 
 } DICTIONARY;
-
 
 
 

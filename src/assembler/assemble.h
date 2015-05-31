@@ -18,7 +18,6 @@ DICTIONARY *opcode_function;
 
 
 /* Function definitions */
-
 DICTIONARY *setUPlabel_address(void);
 DICTIONARY *setUPcode_binarycode(void);
 DICTIONARY *setUPopcode_function(void);
