@@ -5,7 +5,7 @@
 #define BITS_MULT_PTRN_MASK_2         0x0FC00000
 #define BITS_SINGLE_DATA_TRANS_MASK_1 0x00600000
 #define BITS_SINGLE_DATA_TRANS_MASK_2 0x0C000000
-#define BITS_BRANCH_MASK              0x0F000000
+#define BITS_BRANCH_MASK              0x0A000000
 #define BITS_COND_MASK		      0xF0000000
 
 #define FLAG_I_MASK		      0x02000000
@@ -430,15 +430,16 @@ C_flag_set(uint32_t op_code){
 
 		case OC_SUB : case OC_RSB : case OC_CMP : 
 			
-			if(carry_out_flag){
+			/*if(carry_out_flag){
 				instr_flags_ptr->flag_C = 0;
 			}
 			else{
 				instr_flags_ptr->flag_C = 1;
 			}
-			; break;
+			; break;*/
 			
 		default : 
+			break;
 			printf("c flag set");
 	}
 }
@@ -486,6 +487,7 @@ execute_data_proc(){
 	// printf("data proc   %x\n", op_code);
 	uint32_t result = opcode_dispatch(op_code, reg_contents, operand_2_val);
 
+	//instr_flags_ptr->flag_N = result_bit_31;
     if(S_flag_set_data_proc()){
 		/* Update CPSR flags */
 
@@ -501,11 +503,12 @@ execute_data_proc(){
 		//TODO
 		//printf("%x\n", result);
 		/* Set N flag */
-		uint32_t result_bit_31 = extract_bits(result, RESULT_BIT_MASK, 31);
+		//uint32_t result_bit_31 = extract_bits(result, RESULT_BIT_MASK, 31);
 		//TODO
 		//TODO
 	//	printf("%x\n", result_bit_31);
-		instr_flags_ptr->flag_N = result_bit_31;
+		//instr_flags_ptr->flag_N = result_bit_31;
+		update_CPSR();
 	}
 
 	uint32_t rd_reg = instr_data_proc_ptr->rd_reg;
@@ -513,7 +516,7 @@ execute_data_proc(){
 	
 	register_select_write_opcode(op_code, result, rd_reg);
 
-	update_CPSR();
+
 }
 
 
@@ -598,9 +601,9 @@ register_select_write_opcode(uint32_t op_code, uint32_t result, uint32_t rd_reg)
 		case OC_SUB : register_select_write(result, rd_reg); break;
 		case OC_RSB : register_select_write(result, rd_reg); break;
 		case OC_ADD : register_select_write(result, rd_reg); break;
-		case OC_TST : /* Don't write */ 
-		case OC_TEQ : /* Don't write */
-		case OC_CMP : /* Don't write */
+		case OC_TST : /* Don't write */ break;
+		case OC_TEQ : /* Don't write */ break;
+		case OC_CMP : /* Don't write */ break;
 		case OC_ORR : register_select_write(result, rd_reg); break;
 		case OC_MOV : register_select_write(result, rd_reg); break;
 		default : 
@@ -855,8 +858,10 @@ execute_op_code_sub(uint32_t reg, uint32_t operand2){
 	if (reg == operand2) {
 		//TODO
 		if (S_flag_set_data_proc() == 1) {
+			//TODO -> remove the z flag stuff
 			instr_flags_ptr->flag_Z = 1;
-			carry_out_flag = 1;
+			instr_flags_ptr->flag_C = 1;
+			//carry_out_flag = 1;
 		}
 		return (uint32_t) 0;
 	}
@@ -866,13 +871,17 @@ execute_op_code_sub(uint32_t reg, uint32_t operand2){
 		result++;
 		//TODO
 		if (S_flag_set_data_proc() == 1) {
-			carry_out_flag = 1;
+			instr_flags_ptr->flag_C = 1;
+			instr_flags_ptr->flag_N = 0;
+			//carry_out_flag = 1;
 		}
 		return result;
 	} else {
 		//TODO
 		if (S_flag_set_data_proc() == 1) {
-			carry_out_flag = 0;
+			//carry_out_flag = 0;
+			instr_flags_ptr->flag_N = reg == operand2? 0: 1;
+			instr_flags_ptr->flag_C = 0;
 		}
 		return ~result;
 	}
@@ -1085,7 +1094,7 @@ register_select_write(uint32_t calc, uint32_t reg){
 		case R10 : cpu_ptr->r10 = calc; break;
 		case R11 : cpu_ptr->r11 = calc; break;
 		case R12 : cpu_ptr->r12 = calc; break;
-		default :printf("Invalid reg");
+		default :printf("Invalid reg write\n");
 	}
 }
 
@@ -1110,7 +1119,8 @@ register_select_read(uint32_t reg){
 		case R10 : return cpu_ptr->r10; 
 		case R11 : return cpu_ptr->r11; 
 		case R12 : return cpu_ptr->r12; 
-		default :printf("Invalid reg");
+		case PC : return cpu_ptr->pc;
+		default :printf("Invalid reg read\n");
 	}
 	return 0;
 }
@@ -1289,7 +1299,7 @@ instr_execute(uint32_t instr){
 	else{
 		//TODO
 	//	printf("%x\n", instr);
-		printf("Cannot execute unsupported instruction\n");
+		//printf("Cannot execute unsupported instruction\n");
 	}
 }
 
