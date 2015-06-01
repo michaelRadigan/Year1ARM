@@ -167,14 +167,14 @@ treeNode *insert(treeNode *node, KEY *key, VALUE *value) {
 
 treeNode *delete(treeNode *node, KEY *key) {
   if (node == NULL) {
-    printf("Element not found\n");
-    return (void *) -1;
+    perror("Element not found in delete\n");
+    return NULL;
   } else if (compare((void *)key, (void *)node->key) < 0){
     node->left = delete(node->left, key);
-    node = reBalance(node);
+//    node = reBalance(node);
   } else if (compare((void *)key, (void *)node->key) > 0){
     node->right = delete(node->right, key);
-    node = reBalance(node);
+//    node = reBalance(node);
   } else {  
 
     /* Case 1 : If no child */
@@ -213,8 +213,8 @@ treeNode *delete(treeNode *node, KEY *key) {
 
 VALUE *find(treeNode *node, KEY *key) {
   if (node == NULL) {   
-    /* element not found */
-    return 0;
+     printf("KEY \"%s\"that was searched or attempted deleting not in dictionary\n", (char *)key);
+    return NULL;
   } 
   else if (compare((void *)key, (void *)node->key) > 0) {
     return find(node->right, key);
@@ -229,14 +229,14 @@ VALUE *find(treeNode *node, KEY *key) {
 }
 
 
-int destroyENTRY(treeNode *node) {
+void destroyENTRY(treeNode *node) {
   if(node == NULL) {
-    return 1;
+    return;
   } 
   destroyENTRY(node->left);
   destroyENTRY(node->right);
-  destroyENTRY(node);
-  return 0;
+  free(node);
+  node = NULL;
 }
 
 void inorder(treeNode *root) {
@@ -250,6 +250,7 @@ void inorder(treeNode *root) {
 
 /*---------------------------------------------------------------------------*/
 /*----------------------------MAIN FUNCTIONS---------------------------------*/
+
 
 DICTIONARY *createDictionary(void) {
   DICTIONARY *dictionary;
@@ -268,22 +269,35 @@ int putElem(DICTIONARY *d , KEY *key , VALUE *value) {
 }
 
 VALUE *getElem(DICTIONARY *d , KEY *key) {
-  return find(d->tree, key); 
+  VALUE *ptr = find(d->tree,key);
+  if (ptr == NULL) {
+    return NULL;
+  }
+  return ptr;
 }
 
 
 int removeElem(DICTIONARY *d , KEY *key) {
-  treeNode *ptr = delete(d->tree, key);
-  return ptr != (void *)-1;
+  if (getElem(d, key) == NULL) {
+    return 0;
+  }
+  delete(d->tree, key);
+  return 1;
 }
 
 
 int destroyDictionary(DICTIONARY *d) {
-  return destroyENTRY(d->tree);
+
+  destroyENTRY(d->tree);
+
+  if (d->tree == NULL) {
+    return 1;
+  }
+  d->tree = NULL;
+  return 1;
 }
 
 /*
-
 int main() {
   uint16_t a = 1;
   uint16_t b = 2;
@@ -300,6 +314,7 @@ int main() {
   uint16_t m = 0;
 
   DICTIONARY *dict = createDictionary();
+  printf("dictionary isEmpty? : %d\n", isEmpty(dict));
 
   putElem(dict,"a",&a);
   putElem(dict,"b",&b);
@@ -314,31 +329,40 @@ int main() {
   putElem(dict,"i",&i);
   putElem(dict,"l",&l);
 
-  */
+
+  int rem =removeElem(dict,"c");
+  printf("remvalue = %d\n", rem);
+  rem = removeElem(dict, "e");
+  printf("remvalue = %d\n", rem);
+
+
+  rem = removeElem(dict, "e");
+  printf("remvalue = %d\n", rem);   */
+  
 
   /* test variable change */
-/*  putElem(dict,"i", &m);
-
-  printf("\ndeleted \"c\" and \"e\" \n\n");
+/*  int put = putElem(dict,"i", &m);
+  printf("put = %d\n", put);
+  printf("\ndeleted \"c\" and \"e\" \n\n");  */
   
-  removeElem(dict,"c");  
-  removeElem(dict, "e");     
-  */
-
   /* Print Nodes in Inorder */
 /*  printf("Inorder: \n");
   inorder(dict->tree);
   printf("\n");
   
-  printf("\"a\" is : %x\n",*(uint16_t *)getElem(dict,"a"));
+  printf("\"f\" is : %x\n",*(uint16_t *)getElem(dict,"f"));
   printf("\"d\" is : %x\n",*(uint16_t *)getElem(dict,"d"));
-  printf("\"b\" is : %x\n",*(uint16_t *)getElem(dict,"b"));
+  printf("\"b\" is : %x\n",*(uint16_t *)getElem(dict,"b"));  
 
-  
+  treeNode *getfail = getElem(dict,"o");
+  printf("getfail = %p\n", (void *)getfail);
 
   printf("\n");
   printPaths(dict->tree);
-
+  int dest = destroyDictionary(dict);
+  printf("destroyed?: %d\n",dest);
+  printf("isEmpty? : %d\n", isEmpty(dict));
+  printf("dict->tree pointer = %p\n", (void *)dict->tree);
   return 0;  
-}  */
+}   */ 
 
