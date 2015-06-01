@@ -55,7 +55,7 @@ typedef struct{
 	int flag_V;//The last result overflowed
 
 	/* Carry flag used in arithmetic and shift operation */
-	int flag_carry : 1;
+	int flag_carry;
 
 }instr_flags;
 
@@ -149,9 +149,27 @@ void decode_mult(uint32_t instr);
 void decode_single_data_trans(uint32_t instr);
 void decode_branch(uint32_t instr);
 
+
+
+int I_flag_set_data_proc(); 
+int A_flag_set(void);
+int S_flag_set_data_proc(void);
+int S_flag_set_mult(void);
+int I_flag_set_single_data_trans();
+
+int L_flag_set(void);
+int P_flag_set(void);
+int U_flag_set(void);
+
+void C_flag_set(uint32_t op_code);
+
+void update_CPSR();
+
+
+
+
 void execute_data_proc();
 uint32_t result_set_I_flag(int I_flag_set);
-void C_flag_set(uint32_t op_code);
 void register_select_write_opcode(uint32_t opcode, uint32_t result, uint32_t rd_reg);
 uint32_t shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val);
 uint32_t execute_logical_shift_left(uint32_t shift_amount, uint32_t reg_val);
@@ -174,7 +192,6 @@ uint32_t execute_op_code_mov(uint32_t reg, uint32_t operand2);
 
 uint32_t execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
 	    uint32_t left_operand, uint32_t right_operand);
-int I_flag_set(); 
 
 
 void execute_mult();
@@ -184,20 +201,12 @@ void multiply_rm_rs();
 void accumulate_rm_rs_rn();
 void register_select_write(uint32_t calc, uint32_t reg);
 uint32_t register_select_read(uint32_t reg);
-int A_flag_set(void);
-int S_flag_set(void);
-
 
 void execute_single_data_trans();
-int L_flag_set(void);
-int P_flag_set(void);
-int U_flag_set(void);
-
 
 
 
 void execute_branch();
-
 
 
 void instr_decode(uint32_t instr);
