@@ -98,8 +98,10 @@ void destroycode_binarycode(void){
 * Note: Always build bit strings from the right to left
 */
 uint32_t *binaryConcat(uint32_t *b1, uint32_t *b2 , int pos){
-  //PRE: After pos in b2, there exist only 0 bits.  
-  return *b2 | (*b1 << pos);
+  //PRE: After pos in b2, there exist only 0 bits. 
+  uint32_t *ret; 
+  *ret =  (*b2 | (*b1 << pos));
+  return ret;
 }
 
 
@@ -115,25 +117,33 @@ uint32_t *binaryConcat(uint32_t *b1, uint32_t *b2 , int pos){
 */
 
 uint32_t *binaryReplace(uint32_t *b1, int numberOfBits,uint32_t *b2, int pos){
-  if(param == 1){
     //replaces the bit of b2 to be replaced with 0s
-    uint32_t mask = 1;
-    for(int i = 0 ; i <  numberOfBits; i++){
-      mask = 1 + (mask << 1); // put 1s in correct place
-    }
-    b2 =  *b2 & ((~mask) << pos); // and so 0s are in swap position
+  uint32_t mask = 1;
+  for(int i = 0 ; i <  numberOfBits; i++){
+    mask = 1 + (mask << 1); // put 1s in correct place
   }
+  *b2 = *b2 & ((~mask) << pos); // and so 0s are in swap position
   return binaryConcat(b1,b2,pos);
 }
 
+
+
+/*
+* Converts a lowerCase register name to the format 
+* specified in cpu_reg of cpu.h (reuse of code) 
+* @param str: the name of the register e.g. r2 or r8 
+* @return: pointer to the cpu_reg version of the register name.
+*/
+
 cpu_reg *toCpuReg(char *str){
   //only the beginning R will ever be lower/uppercase
-  str[0] = toUpper(str[0]);
-  return (cpu_reg *)str
+  str[0] = toupper(str[0]);
+  return (cpu_reg *)str;
 }
 
 
 /* char *source is the string of words of the instructions */
+
 
 /* Translates and, eor, sub, rsb, add ,orr instructions*/
 uint32_t *dataProcessing1(char *source){
@@ -159,6 +169,7 @@ uint32_t *multiply(char *source){
   uint32_t *binary;
 
   const char p[3] = " ,";
+  //Remove function name 'mul'
   strtok(source , p);
  
   //Parse source string
@@ -167,15 +178,15 @@ uint32_t *multiply(char *source){
   char *rs;
 
   if((rd = strtok(NULL , p)) == NULL){
-    printf("OPCODE PARAMETER NONEXISTANT")
+    printf("OPCODE PARAMETER NONEXISTANT");
     exit(EXIT_FAILURE);
   }
   if((rm = strtok(NULL , p)) == NULL){
-    printf("OPCODE PARAMETER NONEXISTANT")
+    printf("OPCODE PARAMETER NONEXISTANT");
     exit(EXIT_FAILURE);
   }
   if((rs = strtok(NULL , p)) == NULL){
-    printf("OPCODE PARAMETER NONEXISTANT")
+    printf("OPCODE PARAMETER NONEXISTANT");
     exit(EXIT_FAILURE);
   }
 
@@ -185,10 +196,14 @@ uint32_t *multiply(char *source){
   uint32_t *rsb = (uint32_t *) toCpuReg(rs);
   uint32_t *s = 0x0;
   uint32_t *a = 0x0;
-  uint32_t *cond = 0xE;
 
-  binary = binaryConcat(&0x9, rmb , 4);
-  binary = binaryConcat(rs , binary , 8);
+  uint32_t *cond;
+  *cond = 0xe;
+
+  uint32_t k_ = 0x9;
+
+  binary = binaryConcat(&k_, rmb , 4);
+  binary = binaryConcat(rsb , binary , 8);
   binary = binaryConcat(rdb, binary , 16);
   binary = binaryConcat(s, binary , 20);
   binary = binaryConcat(a, binary , 21);
@@ -200,17 +215,19 @@ uint32_t *multiply(char *source){
 /* Translates mla */
 uint32_t *multiplyAccum(char *source){
   assert(source!=NULL);
-  uint32_t binary = multiply(source);
+  uint32_t *binary = multiply(source);
   char *rn;
 
-  if((rn = strtok(NULL, " ,")==NULL)){
+  if((rn = strtok(NULL, " ,"))==NULL){
     printf("OPCODE PARAMETER NONEXISTANT");
     exit(EXIT_FAILURE);
   }
 
   uint32_t *rnb = (uint32_t *) toCpuReg(rn);
-  uint32_t *a = 0x1;
-  binary = binaryReplace(rn,4,binary,12);
+  uint32_t *a;
+  *a = 0x1;
+
+  binary = binaryReplace(rnb,4,binary,12);
   binary = binaryReplace(a,1,binary,21);
 
   return binary;
@@ -218,15 +235,41 @@ uint32_t *multiplyAccum(char *source){
 
 /* Translates ldr */
 uint32_t *sdt_ldr(char *source){
-  //TODO
+  
+  const char p[3] = " ,";
+  //Remove function name 'ldr'
+  strtok(source , p );
+
+  char *rd = strtok( NULL , p);
+  char *expr = strtok(NULL , p);
+  
+  //3 ways of interpreting expr
+
+  //1. Expr is numeric constant of form '=#'
+  if(expr[0] == '='){
+    
+
+
+
+
+  }
+
+  //2. A pre-indexed spec
+
+  //3. A post-index
+  
   return NULL;
 }
 
+
 /* Translates str */
 uint32_t *sdt_str(char *source){
-  //TODO
-  return NULL;
+  //Same as ldr but with 20th bit replaced with a 0;
+  uint32_t *binary = sdt_ldr(source);
+  binary = binaryReplace( 0x0 ,1, binary , 20 );
+  return binary;
 }
+
 
 /* Translates branch - beq, bne, bge, blt, bgt, ble, b, */
 uint32_t *branch(char *source){
@@ -241,37 +284,51 @@ uint32_t *branch(char *source){
 
   //Get Expression
   uint32_t *labelAddress;
-  if(token = strtok(NULL,p)==NULL){
+  if((token = strtok(NULL,p)) == NULL){
     printf("OPCODE PARAMETER NONEXISTANT");
     exit(EXIT_FAILURE);
   }
 
   //Get Label Value
-  if(labelAddress = (uint32_t *)getLabel(label_address) == NULL){
-    printf("LABEL NON-EXISTANT");
+  if((labelAddress = (uint32_t *)getElem(label_address,token)) == NULL){
+    printf("LABEL NONEXISTANT");
     exit(EXIT_FAILURE);
   }
   
-  uint32_t offset = file_line - *labelAddress;
+  uint32_t *offset;
+  *offset = file_line - *labelAddress;
    
+  //Calculate offset to add to the binary
+  //Must try Understand
+  //TODO
   
-  
-  
-  binary = binaryConcat(0,&0x5,3,binary,25);
-  binary = binaryConcat(0,cond_b,4,binary,28);
+  binary = offset;
+  uint32_t k = 0x5;
+  binary = binaryConcat(&k ,binary,25);
+  binary = binaryConcat(cond_b,binary,28);
   
   return binary;
 }
 
 /* Translates special - andeq */
 uint32_t *spec_andeq(char *source){
-  //TODO
-  return NULL;
+  //Returns value 0x0
+  return 0x0;
 }
 
 /* Translates special - lsl */
 uint32_t *spec_lsl(char *source){
-  //TODO
+  //Effectively a 'mov rn,<#expr>' with 'lsl <#expr>' 
+  const char p[3] = " ,";
+  strtok(source, p);
+
+  char *rn = strtok(NULL , p);
+  char *expr = strtok(NULL , p);
+  
+  //TODO 
+  //Problem: translates to 2 different instructions.
+  //Possible solution, make FILE objects global, so any method can write to them.
+  
   return NULL;
 }
 

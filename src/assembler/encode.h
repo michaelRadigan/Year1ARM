@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlin.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include "dictionary.h"
 
@@ -11,7 +11,7 @@
 #include "assemble.h"
 
 //For access to cpu registers enum
-#include "../cpu.h"
+//#include "../cpu.h"
 
 /* Struct for storing function pointers */
 
@@ -48,7 +48,7 @@ void destroycode_binarycode(void);
 
 uint32_t *binaryConcat( uint32_t *b1, uint32_t *b2 , int pos);
 
-uint32_t *binaryConcat( uint32_t *b1 , int numberOfBits, uint32_t *b2 , int pos);
+uint32_t *binaryReplace( uint32_t *b1 , int numberOfBits, uint32_t *b2 , int pos);
 
 /* Setsup structs containing function pointers */
 void setUPFuncStructs(void);

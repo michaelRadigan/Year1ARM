@@ -77,18 +77,16 @@ treeNode *rotateLeftRight(treeNode *nodeN) {
   return rotateRight(nodeN);
 }
 
-<<<<<<< HEAD
 treeNode *rotateRightLeft(treeNode *nodeN) {
   treeNode *nodeC = nodeN->right;
   treeNode *newRight = rotateRight(nodeC);
   nodeN->right = newRight;
   return rotateLeft(nodeN);
-=======
-//Creates an Empty dictionary structure
-DICTIONARY *createDictionary(void){
-  return NULL;
->>>>>>> Michael
 }
+//Creates an Empty dictionary structure
+//DICTIONARY *createDictionary(void){
+//  return NULL;
+//}
 
 int max(int a, int b) {
   if (a > b) {
