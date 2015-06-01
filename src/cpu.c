@@ -11,7 +11,7 @@
 #define FLAG_I_MASK		      0x02000000
 #define FLAG_A_MASK 		      0x00200000
 #define FLAG_P_MASK 		      0x01000000
-#define FLAG_U_MASK                   0x00800000 
+#define FLAG_U_MASK                   0x00800000
 #define OPCODE_MASK		      0x01E00000
 #define FLAG_S_MASK		      0x00100000
 #define FLAG_L_MASK		      0x00100000
@@ -378,7 +378,7 @@ L_flag_set(){
 
 
 /**
- * Checks if the P falg is set
+ * Checks if the P flag is set
  */
  int
 P_flag_set(){
@@ -865,10 +865,10 @@ execute_op_code_sub(uint32_t reg, uint32_t operand2){
 		}
 		return (uint32_t) 0;
 	}
-	uint32_t op2compl = ~operand2;  
-	uint32_t result = reg + op2compl;
+	int32_t op2compl = ~operand2 + 1; //Add 1 to get negative value because of 2's complement
+	int32_t result = reg + op2compl;
 	if (reg > operand2) {
-		result++;
+		//result++;
 		//TODO
 		if (S_flag_set_data_proc() == 1) {
 			instr_flags_ptr->flag_C = 1;
@@ -883,7 +883,7 @@ execute_op_code_sub(uint32_t reg, uint32_t operand2){
 			instr_flags_ptr->flag_N = reg == operand2? 0: 1;
 			instr_flags_ptr->flag_C = 0;
 		}
-		return ~result;
+		return result;
 	}
 }
 
@@ -1119,7 +1119,7 @@ register_select_read(uint32_t reg){
 		case R10 : return cpu_ptr->r10; 
 		case R11 : return cpu_ptr->r11; 
 		case R12 : return cpu_ptr->r12; 
-		case PC : return cpu_ptr->pc;
+		case PC : return cpu_ptr->pc + 8;
 		default :printf("Invalid reg read\n");
 	}
 	return 0;
@@ -1252,23 +1252,24 @@ execute_branch(){
 void
 instr_decode(uint32_t instr){
 	
-	if(instr_data_proc(instr)){
+	if(instr_mult(instr)){
 	
 	//	printf("We are in decode data proc\n");
-		decode_data_proc(instr);
+		decode_mult(instr);
+
 	
 	}
-	else if(instr_mult(instr)){
-		//TODO
-		
-	//	printf("We are in decode mult\n");
-		decode_mult(instr);
-	}
 	else if(instr_single_data_trans(instr)){
+		//TODO
 		decode_single_data_trans(instr);
+	//	printf("We are in decode mult\n");
+		
 	}
 	else if(instr_branch(instr)){
-			decode_branch(instr);
+		decode_branch(instr);
+	}
+	else if(instr_data_proc(instr)){
+		decode_data_proc(instr);
 	}
 	else{
 		printf("Cannot decode unsupported instruction\n");
@@ -1283,18 +1284,26 @@ instr_decode(uint32_t instr){
 void
 instr_execute(uint32_t instr){
 	
-	if(instr_data_proc(instr) && check_instr_cond_code(instr_data_proc_ptr->cond)){
+	if(instr_mult(instr)){
 		//printf("excute data proc\n");
-		execute_data_proc();
+		if (check_instr_cond_code(instr_mult_ptr->cond)){
+			execute_mult();
+		}
 	}
-	else if(instr_mult(instr) && check_instr_cond_code(instr_mult_ptr->cond)){
-		execute_mult();
+	else if(instr_single_data_trans(instr)){
+		if(check_instr_cond_code(instr_single_data_trans_ptr->cond)){
+			execute_single_data_trans();
+		}
 	}
-	else if(instr_single_data_trans(instr) && check_instr_cond_code(instr_single_data_trans_ptr->cond)){
-		execute_single_data_trans();
+	else if(instr_branch(instr)){
+		if(check_instr_cond_code(instr_branch_ptr->cond)){
+			execute_branch();
+		}
 	}
-	else if(instr_branch(instr) && check_instr_cond_code(instr_branch_ptr->cond)){
-        execute_branch();
+	else if(instr_data_proc(instr)){
+		if(check_instr_cond_code(instr_data_proc_ptr->cond)){
+			execute_data_proc();
+		}
 	}
 	else{
 		//TODO
@@ -1331,8 +1340,9 @@ cpu_cycle(void){
         instr_decode(instr);
         //TODO
         //printf("%x\n", instr);
-	    instr_execute(instr);
 		pc += 4;
+	    instr_execute(instr);
+
         instr = memory_fetch_word(pc);
 //		count++;
     }
