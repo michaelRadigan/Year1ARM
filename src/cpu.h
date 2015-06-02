@@ -169,7 +169,11 @@ void update_CPSR();
 
 
 void execute_data_proc();
-uint32_t result_set_I_flag(int I_flag_set);
+
+
+uint32_t result_set_I_flag(int I_flag_set, uint32_t operand_2_or_offset);
+
+
 void register_select_write_opcode(uint32_t opcode, uint32_t result, uint32_t rd_reg);
 uint32_t shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val);
 int most_significant_bit(uint32_t test);

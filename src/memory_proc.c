@@ -20,15 +20,20 @@ memory_swap_word_be_to_le(uint32_t word){
  */
 uint32_t
 memory_fetch_word(uint32_t pc){
-    uint8_t byteOne   = memory->byte[pc];
-	uint8_t byteTwo   = memory->byte[pc + 1];
-	uint8_t byteThree = memory->byte[pc + 2];
-	uint8_t byteFour  = memory->byte[pc + 3];
-	/* Do bit-wise shifting to concatenate the four bytes
-	 * Does automatic conversion from Little to Big Endian
-	 */
-	uint32_t result = byteOne | (byteTwo << 8) | (byteThree << 16) | (byteFour << 24);
-    return result;
+
+
+	/* Checking memory valid access*/
+
+		uint8_t byteOne   = memory->byte[pc];
+		uint8_t byteTwo   = memory->byte[pc + 1];
+		uint8_t byteThree = memory->byte[pc + 2];
+		uint8_t byteFour  = memory->byte[pc + 3];
+		/* Do bit-wise shifting to concatenate the four bytes
+		 * Does automatic conversion from Little to Big Endian
+		 */
+		uint32_t result = byteOne | (byteTwo << 8) | (byteThree << 16) | (byteFour << 24);
+
+		return result;
 }
 
 
@@ -37,10 +42,16 @@ memory_write_word(uint16_t memory_index, uint32_t word_to_write){
 	/* Does conversion from big to little endian for memory write */
 	uint32_t mask = 0x000000FF;
 
-	for(int i = 0; i < 4; i++){
-		memory->byte[memory_index + i] = (word_to_write & mask) >> i * 8;
-		mask <<= 8;
-	}
+//	if(memory->byte[memory_index] == NULL){
+//		printf("Error");
+//	}
+//	else{
+
+	    for(int i = 0; i < 4; i++){
+		    memory->byte[memory_index + i] = (word_to_write & mask) >> i * 8;
+		    mask <<= 8;
+	    }
+//	}
 }
 
 /**
