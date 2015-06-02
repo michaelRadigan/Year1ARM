@@ -135,7 +135,7 @@ uint32_t *binaryReplace(uint32_t *b1, int numberOfBits,uint32_t *b2, int pos){
 * @return: pointer to the cpu_reg version of the register name.
 */
 
-cpu_reg *toCpuReg(char *str){
+uint32_t *toCpuReg(char *str){
   //only the beginning R will ever be lower/uppercase
   str[0] = toupper(str[0]);
   return (cpu_reg *)str;
@@ -176,20 +176,20 @@ convertToImm(uint32_t extractdExp){
         return extractedExp;
     }
     /*Check condition 1: There must be atleast 24 0s in a row*/
-    int i, count, max; 
+    int i, count, max_; 
     count = 0;  //The current number f 0s in a row
-    max = 0;    //The max number of 0s in a row
+    max_ = 0;    //The max number of 0s in a row
     uint32_t mask  = 0x1; 
     for(i = 0; i < 32; i++){
         if((mask & extractedExp) == 0){ //the "i"th bit of extractedExp is 0
             count++;
         } else {
-            max = max(max, count);
+            max_ = max(max_, count);
             count = 0; 
         }
         mask <<= 1;
     }
-    if( max < 24){
+    if( max_ < 24){
     /*Throw some kind of error, this number isn't able to be transferred
      *immediate and rotate format*/
     }
@@ -200,7 +200,7 @@ convertToImm(uint32_t extractdExp){
     uint32_t rotate;
     uint32_t imm;
     int msb = most_significant_bit(extractedExp);
-    int lsb = east_significant_bit(extractedExp);
+    int lsb = least_significant_bit(extractedExp);
     if(msb > 8){ 
         /*check whether split or not*/
         if((msb - lsb) < 8){//it's all together, just need to find the rotation
@@ -236,7 +236,7 @@ convertToImm(uint32_t extractdExp){
            /*the rotation is an odd number, so check if the final it on the
             *hand-side is a 0, if it isn't then it can'tbe represented.*/
                if(((extractedExp >> (32 - (7 - posLastOne))) & 0x1) == 0){
-                   rotate = (7 - lastpos - 1)/2;
+                   rotate = (7 - posLastOne - 1)/2;
                    imm = execute_rotate_right((32 - posLastOne), extractedExp);
                } else {
                /*Throw error, this number can't be represented in this way*/
@@ -267,16 +267,17 @@ uint32_t *dataProcessing2(char *source){
     char *operand2 = strtok(NULL, delim);
     /*May want to add the optional shift here*/
     if (operand2[0] == '#'){ //has the form #expression 
-        uint32_t extractedExp = sscanf(operand2[1], "%" SCNx32, &int32);
+        uint32_t extractedExp = sscanf(operand2[1], "%" ,SCNx32, &int32);
         /*Now need to convert to from described in emulate*/
         uint32_t rotAndImm = convertToImm(extractedExp);
         uint32_t sameForAll = 0xE3A00000;
-        uint32_t reg = (uint32_t *) toCpuReg(reg);
-        return (sameForAll | (toCpuReg << 12) | rotAndImm);
+        uint32_t *regint = (uint32_t *) toCpuReg(reg);
+        return (sameForAll | (*regint << 12) | rotAndImm);
 
     } else {
         /*We can include the case for a shifted register her if we choose to*/
     }
+}
 }
 
 /* Translates tst, teq, cmp */
