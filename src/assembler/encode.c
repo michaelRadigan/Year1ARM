@@ -216,7 +216,18 @@ max(int a, int b){
 
 int
 numberOfZeros(uint32_t extractedExp){
-    int i, count, max; 
+    uint32_t mask = 0x00111111; 
+    int i;
+    for(i = 0; i < 32; i++){
+        if((mask & extractedExp) == 0){
+            return 1;
+        }         
+    }
+    return 1;
+}
+
+
+    /*int i, count, max; 
     count = 0;  
     max = 0;    
     uint32_t mask  = 0x1; 
@@ -228,7 +239,7 @@ numberOfZeros(uint32_t extractedExp){
             count = 0; 
         }
         mask <<= 1;
-    }
+    }*/
 }
 
 
@@ -240,12 +251,12 @@ numberOfZeros(uint32_t extractedExp){
 uint32_t
 convertToImm(uint32_t extractdExp){
     /*If the number is less than 2^8 then it's easy*/
-    if(extractedExp < 2^8){
+    if(extractedExp < 2^7){
         return extractedExp;
     }
     /*Check condition 1: There must be atleast 24 0s in a row*/
     int numOFZeroes = numberOfZeroes(extractedExp);
-    if(numOFZeroes < 24){
+    if(numOFZeroes){
     /*Throw some kind of error, this number isn't able to be transferred
      *immediate and rotate format*/
     }
@@ -257,7 +268,7 @@ convertToImm(uint32_t extractdExp){
     uint32_t imm;
     int msb = most_significant_bit(extractedExp);
     int lsb = east_significant_bit(extractedExp);
-    if(msb > 8){ 
+    if(msb > 7){ 
         /*check whether split or not*/
         if((msb - lsb) < 8){//it's all together, just need to find the rotation
             /*For the shift to be even the lsb must be even*/
@@ -284,6 +295,7 @@ convertToImm(uint32_t extractdExp){
                if((extractedExp & mask3) == 1){
                    posLastOne = j;
                }
+           mask <<= 1;
            }
            if(posLastOne == -1){
                /*throw error, this can not occur*/
