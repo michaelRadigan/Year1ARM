@@ -4,27 +4,25 @@
 
 
 /* Prototypes for funtions needed in printPaths() */
-void printPathsRecur(treeNode *node, char path[], int pathLen);
-void printArray(char ints[], int len);
+void printPathsRecur(treeNode *node, char *path[], int pathLen);
+void printArray(char *ints[], int len);
  
 /*Given a binary tree, print out all of its root-to-leaf
  paths, one per line. Uses a recursive helper to do the work.*/
-void printPaths(treeNode *node) 
-{
-  char path[1000];
+void printPaths(treeNode *node) {
+  char *path[1000];
   printPathsRecur(node, path, 0);
 }
  
 /* Recursive helper function -- given a node, and an array containing
  the path from the root node up to but not including this node,
  print out all the root-leaf paths.*/
-void printPathsRecur( treeNode* node, char path[], int pathLen) 
-{
+void printPathsRecur( treeNode* node, char *path[], int pathLen) {
   if (node==NULL) 
     return;
  
   /* append this node to the path array */
-  path[pathLen] = *(char *)node->key;
+  path[pathLen] = (char *)node->key;
   pathLen++;
  
   /* it's a leaf, so print the path that led to here  */
@@ -43,12 +41,11 @@ void printPathsRecur( treeNode* node, char path[], int pathLen)
  
 /* UTILITY FUNCTIONS */
 /* Utility that prints out an array on a line. */
-void printArray(char ints[], int len) 
-{
+void printArray(char *ints[], int len) {
   int i;
   for (i=0; i<len; i++) 
   {
-    printf("%c ", ints[i]);
+    printf("%s ", ints[i]);
   }
   printf("\n");
 }    
@@ -83,10 +80,6 @@ treeNode *rotateRightLeft(treeNode *nodeN) {
   nodeN->right = newRight;
   return rotateLeft(nodeN);
 }
-//Creates an Empty dictionary structure
-//DICTIONARY *createDictionary(void){
-//  return NULL;
-//}
 
 int max(int a, int b) {
   if (a > b) {
@@ -291,16 +284,14 @@ int removeElem(DICTIONARY *d , KEY *key) {
 
 
 int destroyDictionary(DICTIONARY *d) {
-
-  destroyENTRY(d->tree);
-
-  if (d->tree == NULL) {
-    return 1;
+  if (d == NULL) {
+    perror("Tried to destroy dictionary that does not exist");
+    return 0;
   }
+  destroyENTRY(d->tree);
   d->tree = NULL;
   return 1;
 }
-
 /*
 int main() {
   uint16_t a = 1;
@@ -316,6 +307,8 @@ int main() {
   uint16_t k = 11;
   uint16_t l = 12;
   uint16_t m = 0;
+  uint16_t n = 13;
+  uint16_t o = 14;
 
   DICTIONARY *dict = createDictionary();
   printf("dictionary isEmpty? : %d\n", isEmpty(dict));
@@ -332,7 +325,8 @@ int main() {
   putElem(dict,"h",&h);
   putElem(dict,"i",&i);
   putElem(dict,"l",&l);
-
+  putElem(dict,"bw",&n);
+  putElem(dict,"ae",&o);
 
   int rem =removeElem(dict,"c");
   printf("remvalue = %d\n", rem);
@@ -341,13 +335,13 @@ int main() {
 
 
   rem = removeElem(dict, "e");
-  printf("remvalue = %d\n", rem);   */
-  
+  printf("remvalue = %d\n", rem);
+  /*
 
   /* test variable change */
 /*  int put = putElem(dict,"i", &m);
   printf("put = %d\n", put);
-  printf("\ndeleted \"c\" and \"e\" \n\n");  */
+  printf("\ndeleted \"c\" and \"e\" \n\n");   */
   
   /* Print Nodes in Inorder */
 /*  printf("Inorder: \n");
@@ -358,7 +352,7 @@ int main() {
   printf("\"d\" is : %x\n",*(uint16_t *)getElem(dict,"d"));
   printf("\"b\" is : %x\n",*(uint16_t *)getElem(dict,"b"));  
 
-  treeNode *getfail = getElem(dict,"o");
+  treeNode *getfail = getElem(dict,"p");
   printf("getfail = %p\n", (void *)getfail);
 
   printf("\n");
@@ -368,5 +362,5 @@ int main() {
   printf("isEmpty? : %d\n", isEmpty(dict));
   printf("dict->tree pointer = %p\n", (void *)dict->tree);
   return 0;  
-}   */ 
+}  */
 

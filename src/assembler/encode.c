@@ -54,7 +54,6 @@ void destroyFuncStructs(void){
 }
 
 
-
 void setUPcode_binarycode(void){
   DICTIONARY *d = createDictionary();
 
@@ -141,6 +140,7 @@ uint32_t *toCpuReg(char *str){
   return (cpu_reg *)str;
 }
 
+
  /*Takes two ints and returns the larger*/
 int
 max(int a, int b){
@@ -151,6 +151,19 @@ max(int a, int b){
     } 
 }
 
+int
+numberOfZeros(uint32_t extractedExp){
+    uint32_t mask = 0x00111111; 
+    int i;
+    for(i = 0; i < 32; i++){
+        if((mask & extractedExp) == 0){
+            return 1;
+        }         
+    }
+    return 1;
+}
+
+
 /*Takes in a 32 bit unisgned vlaue and returns a 32 bit unsigned int
  *which represents the rotate-Immediate value representation of the input as
  *descried on page 7 of the spec. (the first 20 bits of the return value will 
@@ -159,12 +172,12 @@ max(int a, int b){
 uint32_t
 convertToImm(uint32_t extractedExp){
     /*If the number is less than 2^8 then it's easy*/
-    if(extractedExp < 2^8){
+    if(extractedExp < 2^7){
         return extractedExp;
     }
     /*Check condition 1: There must be atleast 24 0s in a row*/
     int numOFZeroes = numberOfZeroes(extractedExp);
-    if(numOFZeroes < 24){
+    if(numOFZeroes){
     /*Throw some kind of error, this number isn't able to be transferred
      *immediate and rotate format*/
     }
@@ -203,6 +216,7 @@ convertToImm(uint32_t extractedExp){
                if((extractedExp & mask3) == 1){
                    posLastOne = j;
                }
+           mask <<= 1;
            }
            if(posLastOne == -1){
                /*throw error, this can not occur*/
