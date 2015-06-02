@@ -872,7 +872,7 @@ execute_op_code_sub(uint32_t reg, uint32_t operand2){
 		//TODO
 		if (S_flag_set_data_proc() == 1) {
 			instr_flags_ptr->flag_C = 1;
-			instr_flags_ptr->flag_N = 0;
+			instr_flags_ptr->flag_Z = 0;
 			//carry_out_flag = 1;
 		}
 		return result;
@@ -880,7 +880,7 @@ execute_op_code_sub(uint32_t reg, uint32_t operand2){
 		//TODO
 		if (S_flag_set_data_proc() == 1) {
 			//carry_out_flag = 0;
-			instr_flags_ptr->flag_N = reg == operand2? 0: 1;
+			instr_flags_ptr->flag_Z = reg == operand2? 0: 1;
 			instr_flags_ptr->flag_C = 0;
 		}
 		return result;
@@ -1135,7 +1135,7 @@ void
 execute_single_data_trans(){
 
 	/* The opposite is true for data processing instructions*/
-	uint32_t offset_value = result_set_I_flag(!I_flag_set_single_data_trans());
+	uint32_t offset_value = result_set_I_flag(I_flag_set_single_data_trans());
 
 
 	uint32_t base_reg = instr_single_data_trans_ptr->rn_reg;
