@@ -147,8 +147,7 @@ max(int a, int b){
         return a;
     } else {
         return b;
-    }
-    
+    } 
 }
 
 
@@ -161,8 +160,8 @@ uint32_t
 convertToImm(uint32_t extractdExp){
    /*To test whether thi is possible find th difference between the most 
     *and the least significant bit*/
-    if(extractedExp = 0){
-        return 0;
+    if(extractedExp < 2^8){
+        return extractedExp;
     }
     /*Check condition 1: There must be atleast 24 0s in a row*/
     int i, count, max; 
@@ -221,16 +220,24 @@ convertToImm(uint32_t extractdExp){
            if(posLastOne == -1){
                /*throw error, this can not occur*/
            }
-           
-           
-           
-
+           if(posLastOne % 2 == 1){
+           /*the rotation is an odd number, so check if the final it on the
+            *hand-side is a 0, if it isn't then it can'tbe represented.*/
+               if(((extractedExp >> (32 - (7 - posLastOne))) & 0x1) == 0){
+                   rotate = (7 - lastpos - 1)/2;
+                   imm = execute_rotate_right((32 - posLastOne), extractedExp);
+               } else {
+               /*Throw error, this number can't be represented in this way*/
+               }
+           }
+           rotate = (7 - posLastOne)/2;
+           imm = execute_rotate_right((31 - posLastOne), extractedExp);
         }
-
-
-    } else { //We can move this to the start and say if < 2*8...
-        return extractedExp;
+    } else { 
+        /*this case should have been covered at the start, if it reaches here
+         *then throw an error*/
     }
+    return imm | (rotate << 8);
      
 }
 
@@ -250,7 +257,13 @@ uint32_t *dataProcessing2(char *source){
     if (operand2[0] == '#'){ //has the form #expression 
         uint32_t extractedExp = sscanf(operand2[1], "%" SCNx32, &int32);
         /*Now need to convert to from described in emulate*/
-        convertToImm(extractedExp);
+        uint32_t rotAndImm = convertToImm(extractedExp);
+        uint32_t sameForAll = 0xE3A00000;
+        uint32_t reg = (uint32_t *) toCpuReg(reg);
+        return (sameForAll | (toCpuReg << 12) | rotAndImm);
+
+    } else {
+        /*We can include the case for a shifted register her if we choose to*/
     }
 }
 

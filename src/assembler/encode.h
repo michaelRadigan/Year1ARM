@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlin.h>
+#include <stdlib.h> //This was "stdlin", I'm assuming that it was a typo
 #include <ctype.h>
 #include "dictionary.h"
 
