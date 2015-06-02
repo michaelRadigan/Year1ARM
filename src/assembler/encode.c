@@ -146,7 +146,7 @@ max(int a, int b){
     if(a > b){
         return a;
     } else {
-    return b;
+        return b;
     }
     
 }
@@ -173,10 +173,10 @@ convertToImm(uint32_t extractdExp){
         if((mask & extractedExp) == 0){ //the "i"th bit of extractedExp is 0
             count++;
         } else {
-        max = max(max, count);
-        count = 0; 
+            max = max(max, count);
+            count = 0; 
         }
-    mask <<= 1;
+        mask <<= 1;
     }
     if( max < 24){
     /*Throw some kind of error, this number isn't able to be transferred
@@ -186,13 +186,44 @@ convertToImm(uint32_t extractdExp){
      *is less than 8, all together and msb > 8 or it is split between
      *from 31 to 0, we can find out which is the case by checking the most 
      *and least significant bits*/
+    uint32_t rotate;
+    uint32_t imm;
     int msb = most_significant_bit(extractedExp);
     int lsb = east_significant_bit(extractedExp);
     if(msb > 8){ 
         /*check whether split or not*/
         if((msb - lsb) < 8){//it's all together, just need to find the rotation
-        
+            /*For the shift to be even the lsb must be even*/
+            if(lsb % 2 == 0){
+                rotate = (32 - lsb)/2;
+                imm = extractedExp >> lsb  ; 
+            } else {
+                if((msb - lsb) < 7){
+                /*The last bit can be 0!*/
+                rotate = (33 -lsb)/2; /*rotate right one further*/
+                imm = extractedExp >> (lsb - 1);
+                } else {
+                    /*throw error that it is not possible*/
+                }
+            }
         } else {
+           /*This is the case that it is split*/
+           /*Find how much to rotate based on where the last 1 in the right 
+             group is*/
+           int j;
+           int posLastOne = -1;
+           uint32_t mask3 = 0x1; //could reuse mask 1?
+           for(j = 0; j < 8; j++){
+               if((extractedExp & mask3) == 1){
+                   posLastOne = j;
+               }
+           }
+           if(posLastOne == -1){
+               /*throw error, this can not occur*/
+           }
+           
+           
+           
 
         }
 
