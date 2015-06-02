@@ -54,7 +54,6 @@ void destroyFuncStructs(void){
 }
 
 
-
 void setUPcode_binarycode(void){
   DICTIONARY *d = createDictionary();
 
@@ -140,7 +139,6 @@ cpu_reg *toCpuReg(char *str){
   str[0] = toupper(str[0]);
   return (cpu_reg *)str;
 }
-
 
 /* char *source is the string of words of the instructions */
 
