@@ -4,14 +4,7 @@
 #include "common_instances.h"
 
 
-typedef struct cpu {
-	
-	//uint32_t *cpu;
-
-	//TODO Unneccessary?/
-	uint32_t decoded;
-	uint32_t fetched;
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+typedef struct cpu{
 	uint32_t r0;
 	uint32_t r1;
 	uint32_t r2;
@@ -28,7 +21,7 @@ typedef struct cpu {
 	uint32_t rsp;// Is ignored in this implementation
 	uint32_t rlr;// Is ignored in this implementation
 	uint32_t pc;
-	uint32_t cpsr; //TODO not used -> use flag struct instead
+	uint32_t cpsr; 
 }cpu;
 
 extern cpu *cpu_ptr;
@@ -130,6 +123,21 @@ typedef enum{
 	PC   = 0xF,
 	CPSR = 0x10
 }cpu_reg;
+
+//TODO dont use so can elete
+#define PIPELINE_SIZE 2
+
+
+typedef struct {
+	uint32_t fetched;
+	uint32_t decoded;
+}pipeline;
+
+extern pipeline *pipeline_ptr;
+
+
+int pipeline_push(uint32_t pc);
+uint32_t pipeline_pop(void);
 
 
 /* Function prototypes */

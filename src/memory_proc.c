@@ -5,7 +5,7 @@
 
 
 memory_machine *memory;
-
+pipeline *pipeline_ptr;
 
 
 uint32_t
@@ -32,6 +32,7 @@ memory_fetch_word(uint32_t pc){
 		 * Does automatic conversion from Little to Big Endian
 		 */
 		uint32_t result = byteOne | (byteTwo << 8) | (byteThree << 16) | (byteFour << 24);
+
 
 		return result;
 }
@@ -87,7 +88,7 @@ void
 memory_cpu_init(){
 	/* Need to implement with calloc to initialise to zero*/
 	/* source of error in calloc due to size of 1 as it can change */
-	cpu_ptr = calloc(1, sizeof(struct cpu));
+	cpu_ptr = calloc(1, sizeof(cpu));
 }
 
 
@@ -125,7 +126,6 @@ void
 memory_instr_mult_init(){
 	/* source of error in calloc due to size of 1 as it can change */
 	instr_mult_ptr = calloc(1, sizeof(instr_mult_struct));
-
 }
 
 
@@ -198,6 +198,23 @@ memory_instr_flags_destroy(){
 }
 
 
+#define UNDEFINED 0xFFFFFFFF
+
+
+
+void
+memory_pipeline_init(){
+	pipeline_ptr = calloc(1, sizeof(pipeline));
+	pipeline_ptr->fetched = UNDEFINED;
+	pipeline_ptr->decoded = UNDEFINED;
+}
+
+void
+memoyr_pipeline_destroy(){
+	free(pipeline_ptr);
+}
+
+
 /**
  * Checks whether EOF or an error has occured
  * @param file Pointer to the binary file
@@ -229,6 +246,7 @@ memory_load_file(FILE *file){
 	memory_instr_mult_init();
 	memory_instr_single_data_transfer_init();
 	memory_instr_branch_init();
+	memory_pipeline_init();
 	
 
 	for(int i = 0; i < MEM_SIZE; i++){

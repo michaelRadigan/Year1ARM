@@ -35,6 +35,8 @@
 
 #define BIT_26_MASK                   0x02000000
 
+#define UNDEFINED 0xFFFFFFFF
+
 /* Global variables */
 
 /*This variable will always either be a 0 or a 1, it will be set and checked
@@ -44,7 +46,10 @@ int carry_out_flag = 0;
 /* Pointer definitions */
 cpu *cpu_ptr;
 instr_flags *instr_flags_ptr;
-uint32_t pc = 0;                      /* Program counter will act as a pointer to memory*/
+
+
+//uint32_t pc = 0;                     
+/* Program counter will act as a pointer to memory*/
 
 
 /* Boolean methods to check validity */
@@ -1175,15 +1180,15 @@ execute_single_data_trans(){
 
 			/* Pipeline offset */
 			/* Word aligned access is -4 unaligned is the same*/
-			if(memory_access_index % 4 == 0){
-				memory_access_index -= 4;
-			}
-			else if(memory_access_index % 4 > 0){
-				memory_access_index -= 4;
-			}
-			else{
-				memory_access_index += 4;
-			}
+//			if(memory_access_index % 4 == 0){
+//				memory_access_index -= 4;
+//			}
+//			else if(memory_access_index % 4 > 0){
+//				memory_access_index -= 4;
+//			}
+//			else{
+//				memory_access_index += 4;
+//			}
 
 
 			/* Memory access checking */
@@ -1217,15 +1222,15 @@ execute_single_data_trans(){
 
 			/* Pipeline offset */
 			/* Word aligned access is -4 unaligned is the same*/
-			if(memory_access_index % 4 == 0){
-				memory_access_index += 4;
-			}
-			else if(memory_access_index % 4 > 0){
-				memory_access_index += 4;
-			}
-			else{
-				memory_access_index -= 4;
-			}
+//			if(memory_access_index % 4 == 0){
+//				memory_access_index += 4;
+//			}
+//			else if(memory_access_index % 4 > 0){
+//				memory_access_index += 4;
+//			}
+//			else{
+//				memory_access_index -= 4;
+//			}
 
 
 			/* Memory access checking */
@@ -1240,7 +1245,10 @@ execute_single_data_trans(){
 		else{
 			/* Store word in memory */
 			uint32_t word_store = s_or_d_reg_contents;
-			memory_write_word(memory_access_index + 4, word_store);
+
+			//memory_write_word(memory_access_index + 4, word_store);
+
+			memory_write_word(memory_access_index, word_store);
 		}
 
 		if(U_flag_set()){
@@ -1285,8 +1293,9 @@ execute_branch(){
 	}
 
 	/* Add result to pc 8 is for pipeline offset cheeky fix*/
-	pc += result + 4;
+	cpu_ptr->pc += result + 4;
 	update_CPSR();
+	pipeline_ptr->fetched = UNDEFINED;
 }
 
 
@@ -1372,33 +1381,74 @@ cpu_cycle(void){
 
 	/* Before cpu struct pointer is passed in we need to initialise it */
 
-	uint32_t instr = 0;
-    pc = cpu_ptr->pc;
+//	uint32_t instr = 0;
+    //uint32_t pc = cpu_ptr->pc;
 	/* Fetch one instruction from memory */
-	instr = memory_fetch_word(pc);
-	//printf("the instr is    %x\n", instr);
+	//////////////////////////////////////////instr = memory_fetch_word(pc);
 	
-	while(instr != 0x0){
-//uint32_t count = 0;
-//	while(count < 1){
-	//printf("we are in cpu cycle:  pc  %d\n", cpu_ptr->pc);
-		
-		cpu_ptr->pc = pc + 4;
+//	while(instr != 0x0){
+
+
+
+		/////////////////////////////////////////////cpu_ptr->pc = pc + 4;
+//        instr_decode(instr);
+//		pc += 4;
+//	    instr_execute(instr);
+
+//        instr = memory_fetch_word(pc);
+//    }
+//    print_registers();
+
+
+
+	while(1){
 		//TODO
-	//	printf("%x\n", instr);
-        instr_decode(instr);
-        //TODO
-        //printf("%x\n", instr);
-		pc += 4;
-	    instr_execute(instr);
 
-        instr = memory_fetch_word(pc);
-//		count++;
-    }
-
-
-    print_registers();	
+		if(pipeline_push(cpu_ptr->pc) == 1){
+			uint32_t instr = pipeline_pop();
+			if(!instr){
+				print_registers();
+				instr_decode(pipeline_pop());
+				instr_execute(pipeline_pop());
+				break;
+			}
+			else{
+				instr_decode(instr);
+				instr_execute(instr);
+			}
+	cpu_ptr->pc += 4;
+		}
+	
+	}
 }
+
+
+
+int 
+pipeline_push(uint32_t pc){
+  pipeline_ptr->decoded = pipeline_ptr->fetched;
+
+
+  uint32_t instr = memory_fetch_word(pc);
+  //cpu_ptr->pc += 4;
+
+
+  pipeline_ptr->fetched = instr;
+  
+
+  return pipeline_ptr->decoded != UNDEFINED;
+}
+
+
+
+uint32_t 
+pipeline_pop(void) {
+  return pipeline_ptr->decoded;
+}
+
+
+
+
 
 
 /**
@@ -1422,7 +1472,7 @@ print_registers(){
 	printf("$10 : %10d (0x%08x)\n", cpu_ptr->r10, cpu_ptr->r10);
 	printf("$11 : %10d (0x%08x)\n", cpu_ptr->r11, cpu_ptr->r11);
 	printf("$12 : %10d (0x%08x)\n", cpu_ptr->r12, cpu_ptr->r12);
-	printf("PC  : %10d (0x%08x)\n", cpu_ptr->pc + 8, cpu_ptr->pc + 8);
+	printf("PC  : %10d (0x%08x)\n", cpu_ptr->pc + 4, cpu_ptr->pc + 4);
 	printf("CPSR: %10d (0x%08x)\n", cpu_ptr->cpsr, cpu_ptr->cpsr);
     printf("Non-zero memory:\n");
 
