@@ -151,10 +151,132 @@ uint32_t *dataProcessing1(char *source){
   return NULL;  
 }
 
+
+ /*Takes two ints and returns the larger*/
+int
+max(int a, int b){
+    if(a > b){
+        return a;
+    } else {
+        return b;
+    } 
+}
+
+
+/*Takes in a 64 bit unisgned vlaue and returns a 32 bit unsigned int
+ *which represents the rotate-Immediate value representation of the input as
+ *descried on page 7 of the spec. (the first 20 bits of the return value will 
+ *be 0
+ *@Param extractedExp is the value to be converted*/
+uint32_t
+convertToImm(uint32_t extractdExp){
+   /*To test whether thi is possible find th difference between the most 
+    *and the least significant bit*/
+    if(extractedExp < 2^8){
+        return extractedExp;
+    }
+    /*Check condition 1: There must be atleast 24 0s in a row*/
+    int i, count, max; 
+    count = 0;  //The current number f 0s in a row
+    max = 0;    //The max number of 0s in a row
+    uint32_t mask  = 0x1; 
+    for(i = 0; i < 32; i++){
+        if((mask & extractedExp) == 0){ //the "i"th bit of extractedExp is 0
+            count++;
+        } else {
+            max = max(max, count);
+            count = 0; 
+        }
+        mask <<= 1;
+    }
+    if( max < 24){
+    /*Throw some kind of error, this number isn't able to be transferred
+     *immediate and rotate format*/
+    }
+    /*There are three scenarios, either the immediate is all together and msb
+     *is less than 8, all together and msb > 8 or it is split between
+     *from 31 to 0, we can find out which is the case by checking the most 
+     *and least significant bits*/
+    uint32_t rotate;
+    uint32_t imm;
+    int msb = most_significant_bit(extractedExp);
+    int lsb = east_significant_bit(extractedExp);
+    if(msb > 8){ 
+        /*check whether split or not*/
+        if((msb - lsb) < 8){//it's all together, just need to find the rotation
+            /*For the shift to be even the lsb must be even*/
+            if(lsb % 2 == 0){
+                rotate = (32 - lsb)/2;
+                imm = extractedExp >> lsb  ; 
+            } else {
+                if((msb - lsb) < 7){
+                /*The last bit can be 0!*/
+                rotate = (33 -lsb)/2; /*rotate right one further*/
+                imm = extractedExp >> (lsb - 1);
+                } else {
+                    /*throw error that it is not possible*/
+                }
+            }
+        } else {
+           /*This is the case that it is split*/
+           /*Find how much to rotate based on where the last 1 in the right 
+             group is*/
+           int j;
+           int posLastOne = -1;
+           uint32_t mask3 = 0x1; //could reuse mask 1?
+           for(j = 0; j < 8; j++){
+               if((extractedExp & mask3) == 1){
+                   posLastOne = j;
+               }
+           }
+           if(posLastOne == -1){
+               /*throw error, this can not occur*/
+           }
+           if(posLastOne % 2 == 1){
+           /*the rotation is an odd number, so check if the final it on the
+            *hand-side is a 0, if it isn't then it can'tbe represented.*/
+               if(((extractedExp >> (32 - (7 - posLastOne))) & 0x1) == 0){
+                   rotate = (7 - lastpos - 1)/2;
+                   imm = execute_rotate_right((32 - posLastOne), extractedExp);
+               } else {
+               /*Throw error, this number can't be represented in this way*/
+               }
+           }
+           rotate = (7 - posLastOne)/2;
+           imm = execute_rotate_right((31 - posLastOne), extractedExp);
+        }
+    } else { 
+        /*this case should have been covered at the start, if it reaches here
+         *then throw an error*/
+    }
+    return imm | (rotate << 8);
+     
+}
+
 /* Translates mov */
 uint32_t *dataProcessing2(char *source){
-  //TODO
-  return NULL;
+    assert(source != NULL);
+    uint32_t binary;
+    const char delim[3] = " ,";
+    strtok(source, delim);
+    char *reg = strtok(NULL, delim);
+    if(reg == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+
+    char *operand2 = strtok(NULL, delim);
+    /*May want to add the optional shift here*/
+    if (operand2[0] == '#'){ //has the form #expression 
+        uint32_t extractedExp = sscanf(operand2[1], "%" SCNx32, &int32);
+        /*Now need to convert to from described in emulate*/
+        uint32_t rotAndImm = convertToImm(extractedExp);
+        uint32_t sameForAll = 0xE3A00000;
+        uint32_t reg = (uint32_t *) toCpuReg(reg);
+        return (sameForAll | (toCpuReg << 12) | rotAndImm);
+
+    } else {
+        /*We can include the case for a shifted register her if we choose to*/
+    }
 }
 
 /* Translates tst, teq, cmp */
