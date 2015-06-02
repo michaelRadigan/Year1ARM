@@ -144,11 +144,63 @@ uint32_t *toCpuReg(char *str){
 
 /* char *source is the string of words of the instructions */
 
+/*There is a lot of redundancy her that we could proably clean up*/
 
 /* Translates and, eor, sub, rsb, add ,orr instructions*/
 uint32_t *dataProcessing1(char *source){
-  //TODO
-  return NULL;  
+     assert(!= NULL);
+    uint32_t first12bits;
+    char *rn;
+    char *rd
+    uint32_t rotAndImm;
+    char *operand2;
+
+    const char delim[3] = " ,";
+    char *opcode = strtok(source, delim);
+    if(opcode == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+    }
+    /*The 2nd letter of each mnemonic is unique, so we will just test that*/
+    if(opcode[1] == 'n'){
+        first12bits = 0xE2000000; // This will have to be changed if we decide 
+                                  // decide to implement th eoptional shifts
+    } else if(opcode[1] == 'o'){
+        first12bits = 0xE2200000; // ^^^^^^^^
+    } else if(opcode[1] == 'u'){
+        first12bits = 0xE2400000; // ^^^^^^^^
+    } else if(opcode[1] == 's'){
+        first12bits = 0xE2600000; // ^^^^^^^^
+    } else if(opcode[1] == 'd'){
+        first12bits = 0xE2800000; // ^^^^^^^^
+    } else if(opcode[1] == 'r'){
+        first12bits = 0xE3800000; // ^^^^^^^^
+    }
+    if((rn = strtok(NULL, delim)) == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+    }
+    if((rd = strtok(NULL, delim)) == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+    }
+
+    
+    if (operand2 = strtok(NULL, delim) == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+    }
+    if(operand2[0] == '#'){
+        rotAndImm = convertToImm(sscanf(operand[1], "%" SCNx32, &int32));
+    } else {
+        /*this is where we could put the optional shift stuff*/
+    }
+    uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
+    uint32_t *rdINt = (uint32_t *) toCpuReg(rd);
+    return (first12bits | (*rnInt) << 16 | (*rdInt) << 12 | rotAndImm);
+}
+
+    
 }
 
 
@@ -163,33 +215,20 @@ max(int a, int b){
 }
 
 
-/*Takes in a 64 bit unisgned vlaue and returns a 32 bit unsigned int
+/*Takes in a 32 bit unisgned vlaue and returns a 32 bit unsigned int
  *which represents the rotate-Immediate value representation of the input as
  *descried on page 7 of the spec. (the first 20 bits of the return value will 
  *be 0
  *@Param extractedExp is the value to be converted*/
 uint32_t
 convertToImm(uint32_t extractdExp){
-   /*To test whether thi is possible find th difference between the most 
-    *and the least significant bit*/
+    /*If the number is less than 2^8 then it's easy*/
     if(extractedExp < 2^8){
         return extractedExp;
     }
     /*Check condition 1: There must be atleast 24 0s in a row*/
-    int i, count, max_; 
-    count = 0;  //The current number f 0s in a row
-    max_ = 0;    //The max number of 0s in a row
-    uint32_t mask  = 0x1; 
-    for(i = 0; i < 32; i++){
-        if((mask & extractedExp) == 0){ //the "i"th bit of extractedExp is 0
-            count++;
-        } else {
-            max_ = max(max_, count);
-            count = 0; 
-        }
-        mask <<= 1;
-    }
-    if( max_ < 24){
+    int numOFZeroes = numberOfZeroes(extractedExp);
+    if(numOFZeroes < 24){
     /*Throw some kind of error, this number isn't able to be transferred
      *immediate and rotate format*/
     }
@@ -201,7 +240,7 @@ convertToImm(uint32_t extractdExp){
     uint32_t imm;
     int msb = most_significant_bit(extractedExp);
     int lsb = least_significant_bit(extractedExp);
-    if(msb > 8){ 
+    if(msb > 7){ 
         /*check whether split or not*/
         if((msb - lsb) < 8){//it's all together, just need to find the rotation
             /*For the shift to be even the lsb must be even*/
@@ -233,7 +272,7 @@ convertToImm(uint32_t extractdExp){
                /*throw error, this can not occur*/
            }
            if(posLastOne % 2 == 1){
-           /*the rotation is an odd number, so check if the final it on the
+           /*the rotation is an odd number, so check if the final bit on the
             *hand-side is a 0, if it isn't then it can'tbe represented.*/
                if(((extractedExp >> (32 - (7 - posLastOne))) & 0x1) == 0){
                    rotate = (7 - posLastOne - 1)/2;
@@ -269,21 +308,58 @@ uint32_t *dataProcessing2(char *source){
     if (operand2[0] == '#'){ //has the form #expression 
         uint32_t extractedExp = sscanf(operand2[1], "%" ,SCNx32, &int32);
         /*Now need to convert to from described in emulate*/
+
         uint32_t rotAndImm = convertToImm(extractedExp);
         uint32_t sameForAll = 0xE3A00000;
         uint32_t *regint = (uint32_t *) toCpuReg(reg);
         return (sameForAll | (*regint << 12) | rotAndImm);
 
     } else {
-        /*We can include the case for a shifted register her if we choose to*/
+        /*We can include the case for a shifted register here if we choose to*/
     }
-}
+  }
 }
 
 /* Translates tst, teq, cmp */
 uint32_t *dataProcessing3(char *source){
-  //TODO
-  return NULL;
+    assert(!= NULL);
+    uint32_t first12bits;
+    char *rn;
+    uint32_t rotAndImm;
+    char *operand2;
+
+    const char delim[3] = " ,";
+    char *opcode = strtok(source, delim);
+    if(opcode == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+    }
+    if(opcode[0] == 'c'){
+        first12bits = 0xE3500000; // This will have to be changed if we decide 
+                                  // decide to implement th eoptional shifts
+    } else if(opcode[1] == 's'){
+        first12bits = 0xE3100000; // ^^^^^^^^
+    } else {
+        first12bits = 0xE3300000; // ^^^^^^^^
+    } else {
+       /*ERROR - passed this function something wrong*/
+    }    
+    if((rn = strtok(NULL, delim)) == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+    }
+    
+    if (operand2 = strtok(NULL, delim) == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+    }
+    if(operand2[0] == '#'){
+        rotAndImm = convertToImm(sscanf(operand[1], "%" SCNx32, &int32));
+    } else {
+        /*this is where we could put the optional shift stuff*/
+    }
+    uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
+    return (first12bits | (*rnInt) << 16 | rotAndImm);
 }
 
 /* Translates mul */
