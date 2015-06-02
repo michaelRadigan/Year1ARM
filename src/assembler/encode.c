@@ -214,16 +214,18 @@ max(int a, int b){
     } 
 }
 
+/*This function returns 1 if the function has 24(or more) consecutive 0s 
+ *(including wrap around) and returns 0 otherwise.*/
 int
 numberOfZeros(uint32_t extractedExp){
-    uint32_t mask = 0x00111111; 
+    uint32_t mask = 0x00FFFFFFFF; 
     int i;
     for(i = 0; i < 32; i++){
         if((mask & extractedExp) == 0){
             return 1;
         }         
     }
-    return 1;
+    return 0;
 }
 
 
