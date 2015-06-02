@@ -54,7 +54,6 @@ void destroyFuncStructs(void){
 }
 
 
-
 void setUPcode_binarycode(void){
   DICTIONARY *d = createDictionary();
 
@@ -142,68 +141,6 @@ uint32_t *toCpuReg(char *str){
 }
 
 
-/* char *source is the string of words of the instructions */
-
-/*There is a lot of redundancy her that we could proably clean up*/
-
-/* Translates and, eor, sub, rsb, add ,orr instructions*/
-uint32_t *dataProcessing1(char *source){
-     assert(!= NULL);
-    uint32_t first12bits;
-    char *rn;
-    char *rd
-    uint32_t rotAndImm;
-    char *operand2;
-
-    const char delim[3] = " ,";
-    char *opcode = strtok(source, delim);
-    if(opcode == NULL){
-        printf("OPCODE PARAMETER NON-EXISTANT");
-        exit(EXIT_FAILURE);
-    }
-    /*The 2nd letter of each mnemonic is unique, so we will just test that*/
-    if(opcode[1] == 'n'){
-        first12bits = 0xE2000000; // This will have to be changed if we decide 
-                                  // decide to implement th eoptional shifts
-    } else if(opcode[1] == 'o'){
-        first12bits = 0xE2200000; // ^^^^^^^^
-    } else if(opcode[1] == 'u'){
-        first12bits = 0xE2400000; // ^^^^^^^^
-    } else if(opcode[1] == 's'){
-        first12bits = 0xE2600000; // ^^^^^^^^
-    } else if(opcode[1] == 'd'){
-        first12bits = 0xE2800000; // ^^^^^^^^
-    } else if(opcode[1] == 'r'){
-        first12bits = 0xE3800000; // ^^^^^^^^
-    }
-    if((rn = strtok(NULL, delim)) == NULL){
-        printf("OPCODE PARAMETER NON-EXISTANT");
-        exit(EXIT_FAILURE);
-    }
-    if((rd = strtok(NULL, delim)) == NULL){
-        printf("OPCODE PARAMETER NON-EXISTANT");
-        exit(EXIT_FAILURE);
-    }
-
-    
-    if (operand2 = strtok(NULL, delim) == NULL){
-        printf("OPCODE PARAMETER NON-EXISTANT");
-        exit(EXIT_FAILURE);
-    }
-    if(operand2[0] == '#'){
-        rotAndImm = convertToImm(sscanf(operand[1], "%" SCNx32, &int32));
-    } else {
-        /*this is where we could put the optional shift stuff*/
-    }
-    uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
-    uint32_t *rdINt = (uint32_t *) toCpuReg(rd);
-    return (first12bits | (*rnInt) << 16 | (*rdInt) << 12 | rotAndImm);
-}
-
-    
-}
-
-
  /*Takes two ints and returns the larger*/
 int
 max(int a, int b){
@@ -235,7 +172,7 @@ numberOfZeros(uint32_t extractedExp){
  *be 0
  *@Param extractedExp is the value to be converted*/
 uint32_t
-convertToImm(uint32_t extractdExp){
+convertToImm(uint32_t extractedExp){
     /*If the number is less than 2^8 then it's easy*/
     if(extractedExp < 2^7){
         return extractedExp;
@@ -307,10 +244,68 @@ convertToImm(uint32_t extractdExp){
      
 }
 
+
+
+/* char *source is the string of words of the instructions */
+
+/*There is a lot of redundancy her that we could proably clean up*/
+
+/* Translates and, eor, sub, rsb, add ,orr instructions*/
+uint32_t *dataProcessing1(char *source){
+    assert(source!= NULL);
+    uint32_t first12bits;
+    char *rn;
+    char *rd;
+    uint32_t rotAndImm;
+    char *operand2;
+    const char delim[3] = " ,";
+    char *opcode = strtok(source, delim);
+    if(opcode == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+    }
+    /*The 2nd letter of each mnemonic is unique, so we will just test that*/
+    if(opcode[1] == 'n'){
+        first12bits = 0xE2000000; // This will have to be changed if we decide 
+                                  // decide to implement th eoptional shifts
+    } else if(opcode[1] == 'o'){
+        first12bits = 0xE2200000; // ^^^^^^^^
+    } else if(opcode[1] == 'u'){
+        first12bits = 0xE2400000; // ^^^^^^^^
+    } else if(opcode[1] == 's'){
+        first12bits = 0xE2600000; // ^^^^^^^^
+    } else if(opcode[1] == 'd'){
+        first12bits = 0xE2800000; // ^^^^^^^^
+    } else if(opcode[1] == 'r'){
+        first12bits = 0xE3800000; // ^^^^^^^^
+    }
+    if((rn = strtok(NULL, delim)) == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+    }
+    if((rd = strtok(NULL, delim)) == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+    }
+    if ((operand2 = strtok(NULL, delim)) == NULL){
+        printf("OPCODE PARAMETER NON-EXISTANT");
+        exit(EXIT_FAILURE);
+    }
+    if(operand2[0] == '#'){
+        uint32_t temp = sscanf(operand2[1], "%", SCNx32, &int32);
+        rotAndImm = convertToImm(temp);
+    } else {
+        /*this is where we could put the optional shift stuff*/
+    }
+    uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
+    uint32_t *rdInt = (uint32_t *) toCpuReg(rd);
+    *rdInt = (first12bits | (*rnInt) << 16 | (*rdInt) << 12 | rotAndImm);
+    return rdInt;
+}
+
 /* Translates mov */
 uint32_t *dataProcessing2(char *source){
     assert(source != NULL);
-    uint32_t binary;
     const char delim[3] = " ,";
     strtok(source, delim);
     char *reg = strtok(NULL, delim);
@@ -324,20 +319,22 @@ uint32_t *dataProcessing2(char *source){
         uint32_t extractedExp = sscanf(operand2[1], "%" ,SCNx32, &int32);
         /*Now need to convert to from described in emulate*/
 
-        uint32_t rotAndImm = convertToImm(extractedExp);
+    uint32_t rotAndImm = convertToImm(extractedExp);
         uint32_t sameForAll = 0xE3A00000;
         uint32_t *regint = (uint32_t *) toCpuReg(reg);
-        return (sameForAll | (*regint << 12) | rotAndImm);
-
+        uint32_t temp = (sameForAll | (*regint << 12) | rotAndImm);
+        return &temp;
     } else {
-        /*We can include the case for a shifted register here if we choose to*/
+        /*We can include the case for a shifted register here if we choose tio*/
+      //TODO
     }
   }
+  return NULL;
 }
 
 /* Translates tst, teq, cmp */
 uint32_t *dataProcessing3(char *source){
-    assert(!= NULL);
+    assert(source != NULL);
     uint32_t first12bits;
     char *rn;
     uint32_t rotAndImm;
@@ -354,7 +351,7 @@ uint32_t *dataProcessing3(char *source){
                                   // decide to implement th eoptional shifts
     } else if(opcode[1] == 's'){
         first12bits = 0xE3100000; // ^^^^^^^^
-    } else {
+    } else if(opcode[1] == 'e'){
         first12bits = 0xE3300000; // ^^^^^^^^
     } else {
        /*ERROR - passed this function something wrong*/
@@ -364,17 +361,19 @@ uint32_t *dataProcessing3(char *source){
         exit(EXIT_FAILURE);
     }
     
-    if (operand2 = strtok(NULL, delim) == NULL){
+    if ((operand2 = strtok(NULL, delim)) == NULL){
         printf("OPCODE PARAMETER NON-EXISTANT");
         exit(EXIT_FAILURE);
     }
     if(operand2[0] == '#'){
-        rotAndImm = convertToImm(sscanf(operand[1], "%" SCNx32, &int32));
+        uint32_t temp = sscanf(operand2[1], "%", SCNx32, &int32);
+        rotAndImm = convertToImm(temp);
     } else {
         /*this is where we could put the optional shift stuff*/
     }
     uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
-    return (first12bits | (*rnInt) << 16 | rotAndImm);
+    *rnInt =  (first12bits | (*rnInt) << 16 | rotAndImm);
+    return rnInt;
 }
 
 /* Translates mul */
@@ -462,7 +461,7 @@ uint32_t *sdt_ldr(char *source){
   //1. Expr is numeric constant of form '=#'
   if(expr[0] == '='){
     
-
+  
 
 
 
