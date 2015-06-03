@@ -48,6 +48,7 @@ cpu *cpu_ptr;
 instr_flags *instr_flags_ptr;
 
 
+
 //uint32_t pc = 0;                     
 /* Program counter will act as a pointer to memory*/
 
@@ -290,7 +291,7 @@ decode_branch(uint32_t instr){
 	instr_branch_ptr->cond = cond_val;
 
 	//get offset
-	uint32_t offset = extract_bits(instr, OFFSET_1_MASK, 0);
+	uint32_t offset = extract_bits(instr, OFFSET_2_MASK, 0);
 	instr_branch_ptr->offset = offset;
 }
  
@@ -1156,7 +1157,7 @@ execute_single_data_trans(){
 	uint32_t s_or_d_reg_contents = register_select_read(s_or_d_reg);
 	
 	
-	uint32_t memory_access_index = 0;
+	uint32_t memory_access_index = base_reg_contents;
 
 	if(P_flag_set()){
 		/* Pre-Indexing*/
@@ -1193,7 +1194,7 @@ execute_single_data_trans(){
 
 			/* Memory access checking */
 			if(memory_access_index > MEM_SIZE){
-				printf("Error: Out of bounds memory access at address 0x%08x\n", memory_access_index + 4);
+				printf("Error: Out of bounds memory access at address 0x%08x\n", memory_access_index);
 			}
 			else{
 				uint32_t word_load = memory_fetch_word(memory_access_index);
@@ -1235,7 +1236,7 @@ execute_single_data_trans(){
 
 			/* Memory access checking */
 						if(memory_access_index > MEM_SIZE){
-							printf("Error: Out of bounds memory access at address 0x%08x\n", memory_access_index + 4);
+							printf("Error: Out of bounds memory access at address 0x%08x\n", memory_access_index);
 						}
 						else{
 							uint32_t word_load = memory_fetch_word(memory_access_index);
@@ -1274,7 +1275,7 @@ execute_single_data_trans(){
 void
 execute_branch(){
 
-	uint32_t result = 0;
+	uint32_t result = 0; //fffffc
 	uint32_t offset = instr_branch_ptr->offset;
 
 	/* Shift offset left 2 bits */
@@ -1285,7 +1286,7 @@ execute_branch(){
 
 	//TODO
 	if(ms_bit == 1){
-		uint32_t sign_extend_1_mask = 0xFC000000; 
+		uint32_t sign_extend_1_mask = 0xFC000000;
 		result = sign_extend_1_mask | offset_shift; 	
 	}
 	else{
@@ -1293,7 +1294,7 @@ execute_branch(){
 	}
 
 	/* Add result to pc 8 is for pipeline offset cheeky fix*/
-	cpu_ptr->pc += result + 4;
+	cpu_ptr->pc += (int32_t) result + 4;
 	update_CPSR();
 	pipeline_ptr->fetched = UNDEFINED;
 }
@@ -1406,17 +1407,22 @@ cpu_cycle(void){
 
 		if(pipeline_push(cpu_ptr->pc) == 1){
 			uint32_t instr = pipeline_pop();
+
 			if(!instr){
+				//instr_decode(pipeline_pop());
+				//instr_execute(pipeline_pop());
+				cpu_ptr->pc += 4;
 				print_registers();
-				instr_decode(pipeline_pop());
-				instr_execute(pipeline_pop());
+
 				break;
 			}
 			else{
 				instr_decode(instr);
 				instr_execute(instr);
+
+				cpu_ptr->pc += 4;
 			}
-	cpu_ptr->pc += 4;
+
 		}
 	
 	}
@@ -1443,7 +1449,10 @@ pipeline_push(uint32_t pc){
 
 uint32_t 
 pipeline_pop(void) {
-  return pipeline_ptr->decoded;
+  uint32_t decoded = pipeline_ptr->decoded;
+  pipeline_ptr->decoded = pipeline_ptr->fetched;
+  pipeline_ptr->fetched = UNDEFINED;
+  return decoded;
 }
 
 

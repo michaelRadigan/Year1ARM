@@ -5,7 +5,7 @@
 
 
 memory_machine *memory;
-pipeline *pipeline_ptr;
+pipeline_obj *pipeline_ptr;
 
 
 uint32_t
@@ -204,7 +204,7 @@ memory_instr_flags_destroy(){
 
 void
 memory_pipeline_init(){
-	pipeline_ptr = calloc(1, sizeof(pipeline));
+	pipeline_ptr = calloc(1, sizeof(pipeline_obj));
 	pipeline_ptr->fetched = UNDEFINED;
 	pipeline_ptr->decoded = UNDEFINED;
 }

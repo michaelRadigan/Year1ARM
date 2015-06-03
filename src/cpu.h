@@ -131,9 +131,9 @@ typedef enum{
 typedef struct {
 	uint32_t fetched;
 	uint32_t decoded;
-}pipeline;
+}pipeline_obj;
 
-extern pipeline *pipeline_ptr;
+extern pipeline_obj *pipeline_ptr;
 
 
 int pipeline_push(uint32_t pc);
