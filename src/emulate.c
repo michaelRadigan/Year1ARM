@@ -1,19 +1,13 @@
 #include "common_instances.h"
 
+
 /**
  * Checks the number of arguments
  * @param argc Number of command line arguments
- * @return EXIT_SUCCESS if all ok 
  */
 int
-argc_check(int argc){
-	
-	if(argc == 2){
-		return 1;
-	}
-	else{
-		return 0;
-	}
+argc_check(int argc){	
+  return argc == 2;
 }
 
 
@@ -25,14 +19,8 @@ argc_check(int argc){
 int
 argv_check(char **argv){
 
-	FILE *binFile = fopen(argv[1], "rb");
-
-	if(binFile == NULL){
-		return 0;
-	}
-	else{
-		return 1;
-	}
+  FILE *binFile = fopen(argv[1], "rb");
+  return binFile == NULL;
 }
 
 
@@ -45,13 +33,12 @@ argv_check(char **argv){
 int
 main(int argc, char **argv){
 
-	if(argc_check(argc) || argv_check(argv)){
-		FILE *binFile = fopen(argv[1], "rb");
-		memory_load_file(binFile);
-	}
-	else{
-		return EXIT_FAILURE;
-
-	}
-	return EXIT_SUCCESS;
+  if(argc_check(argc) || argv_check(argv)){
+    FILE *binFile = fopen(argv[1], "rb");
+    memory_load_file(binFile);
+  }
+  else{
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
 }
