@@ -35,6 +35,8 @@
 
 #define BIT_26_MASK                   0x02000000
 
+#define UNDEFINED 0xFFFFFFFF
+
 /* Global variables */
 
 /*This variable will always either be a 0 or a 1, it will be set and checked
@@ -44,7 +46,11 @@ int carry_out_flag = 0;
 /* Pointer definitions */
 cpu *cpu_ptr;
 instr_flags *instr_flags_ptr;
-uint32_t pc = 0;                      /* Program counter will act as a pointer to memory*/
+
+
+
+//uint32_t pc = 0;                     
+/* Program counter will act as a pointer to memory*/
 
 
 /* Boolean methods to check validity */
@@ -261,7 +267,7 @@ decode_single_data_trans(uint32_t instr){
 	
 	//get Rn flag
 	uint32_t rn_reg = extract_bits(instr, REG_1_MASK, 16);
-        instr_single_data_trans_ptr->rn_reg = rn_reg;	
+    instr_single_data_trans_ptr->rn_reg = rn_reg;
 	
 	//get Rd flag
 	uint32_t rd_reg = extract_bits(instr, REG_2_MASK, 12);
@@ -285,7 +291,7 @@ decode_branch(uint32_t instr){
 	instr_branch_ptr->cond = cond_val;
 
 	//get offset
-	uint32_t offset = extract_bits(instr, OFFSET_1_MASK, 0);
+	uint32_t offset = extract_bits(instr, OFFSET_2_MASK, 0);
 	instr_branch_ptr->offset = offset;
 }
  
@@ -477,7 +483,7 @@ update_CPSR(){
 void
 execute_data_proc(){
 
-    uint32_t operand_2_val = result_set_I_flag(I_flag_set_data_proc());
+    uint32_t operand_2_val = result_set_I_flag(I_flag_set_data_proc(), instr_data_proc_ptr->operand_2);
     
 	uint32_t reg_val = instr_data_proc_ptr->rn_reg;
     uint32_t reg_contents = register_select_read(reg_val);
@@ -515,25 +521,24 @@ execute_data_proc(){
 //TODO
 	
 	register_select_write_opcode(op_code, result, rd_reg);
-
-
 }
 
 
 /**
  * Return the result depending on the I flag
  * @param I_flag_set One or zero depending on whether flag is set
+ * @param 
  */
 uint32_t
-result_set_I_flag(int I_flag_set){	
+result_set_I_flag(int I_flag_set, uint32_t operand_2_or_offset){	
 	
         uint32_t operand_2_val = 0;
      
 		//TODO
         if(I_flag_set == 1){
-		/* Operand2 is an immediate constant */
-		uint32_t immediate_value = extract_bits(instr_data_proc_ptr->operand_2, IMMEDIATE_VALUE_MASK, 0);
-		uint32_t rotate_field    = extract_bits(instr_data_proc_ptr->operand_2, ROTATE_FIELD_MASK, 8);
+		/* Operand2 or offset is an immediate constant */
+		uint32_t immediate_value = extract_bits(operand_2_or_offset, IMMEDIATE_VALUE_MASK, 0);
+		uint32_t rotate_field    = extract_bits(operand_2_or_offset, ROTATE_FIELD_MASK, 8);
 
 		/* Double rotation amount */
 		uint32_t rotate_amount = rotate_field << 1;
@@ -547,20 +552,20 @@ result_set_I_flag(int I_flag_set){
 		/* Operand2 is a shifted register */
 		
 		/* Read contents of register Rm */
-		uint32_t reg_rm = extract_bits(instr_data_proc_ptr->operand_2, RM_REG_MASK, 0);
+		uint32_t reg_rm = extract_bits(operand_2_or_offset, RM_REG_MASK, 0);
 		uint32_t reg_val = register_select_read(reg_rm);
 
-		/* Examine bit 4 of Operand2 */
-		uint32_t bit_4 = extract_bits(instr_data_proc_ptr->operand_2, BIT_4_MASK, 4);
+		/* Examine bit 5 of Operand2 */
+		uint32_t bit_4 = extract_bits(operand_2_or_offset, BIT_4_MASK, 4);
 
 		/* Extract shift type */
-		uint32_t shift_type  = extract_bits(instr_data_proc_ptr->operand_2, SHIFT_TYPE_MASK, 5);
+		uint32_t shift_type  = extract_bits(operand_2_or_offset, SHIFT_TYPE_MASK, 5);
 		
 		if(bit_4){
 			/* If bit 4 == 1 then shift is specified by register */
 
                         /* Read contents of register Rs */
-			uint32_t reg_rs = extract_bits(instr_data_proc_ptr->operand_2, RS_REG_MASK, 8);
+			uint32_t reg_rs = extract_bits(operand_2_or_offset, RS_REG_MASK, 8);
 			uint32_t reg_rs_val = register_select_read(reg_rs);
 
 			/* Extract bottom byte of Rs register */
@@ -573,7 +578,8 @@ result_set_I_flag(int I_flag_set){
 			/* Else shift by a constant amount */
 
 			/* Integer shift value */
-			uint32_t shift_amount = extract_bits(instr_data_proc_ptr->operand_2, SHIFT_VALUE_MASK, 7);
+			/*TODO possible bugs here as when we call the shifts we are actually using the data proc flags */
+			uint32_t shift_amount = extract_bits(operand_2_or_offset, SHIFT_VALUE_MASK, 7);
 
 			operand_2_val = shift_type_dispatch(shift_type, shift_amount, reg_val);
 		}
@@ -880,8 +886,14 @@ execute_op_code_sub(uint32_t reg, uint32_t operand2){
 		//TODO
 		if (S_flag_set_data_proc() == 1) {
 			//carry_out_flag = 0;
-			instr_flags_ptr->flag_Z = reg == operand2? 0: 1;
+			instr_flags_ptr->flag_Z = reg == operand2? 1: 0;
 			instr_flags_ptr->flag_C = 0;
+
+			/*get bit 31 of the result -> but we are dealing with little endian so we simply get the ls bit*/
+
+			uint32_t result_bit_31 = extract_bits(result, 1, 0);
+
+			instr_flags_ptr->flag_N = result_bit_31;
 		}
 		return result;
 	}
@@ -1135,7 +1147,7 @@ void
 execute_single_data_trans(){
 
 	/* The opposite is true for data processing instructions*/
-	uint32_t offset_value = result_set_I_flag(I_flag_set_single_data_trans());
+	uint32_t offset_value = result_set_I_flag(!I_flag_set_single_data_trans(), instr_single_data_trans_ptr->offset);
 
 
 	uint32_t base_reg = instr_single_data_trans_ptr->rn_reg;
@@ -1145,7 +1157,7 @@ execute_single_data_trans(){
 	uint32_t s_or_d_reg_contents = register_select_read(s_or_d_reg);
 	
 	
-	uint32_t memory_access_index = 0;
+	uint32_t memory_access_index = base_reg_contents;
 
 	if(P_flag_set()){
 		/* Pre-Indexing*/
@@ -1165,14 +1177,37 @@ execute_single_data_trans(){
 
 		if(L_flag_set()){
 			/* Load word from memory */
-			uint32_t word_load = memory_fetch_word(memory_access_index);
-			register_select_write(word_load, s_or_d_reg);
+			/* 4 for the pipeline offset  */
+
+			/* Pipeline offset */
+			/* Word aligned access is -4 unaligned is the same*/
+//			if(memory_access_index % 4 == 0){
+//				memory_access_index -= 4;
+//			}
+//			else if(memory_access_index % 4 > 0){
+//				memory_access_index -= 4;
+//			}
+//			else{
+//				memory_access_index += 4;
+//			}
+
+
+			/* Memory access checking */
+			if(memory_access_index > MEM_SIZE){
+				printf("Error: Out of bounds memory access at address 0x%08x\n", memory_access_index);
+			}
+			else{
+				uint32_t word_load = memory_fetch_word(memory_access_index);
+				register_select_write(word_load, s_or_d_reg);
+			}
+
 		}
 		else{
 			/* Store word in memory */
 			uint32_t word_store = s_or_d_reg_contents;
 			memory_write_word(memory_access_index, word_store);
 		}
+		//register_select_write(memory_access_index, base_reg);
 
 	}
 	else{
@@ -1184,16 +1219,38 @@ execute_single_data_trans(){
 
 		if(L_flag_set()){
 			/* Load word from memory */
-			uint32_t word_load = memory_fetch_word(memory_access_index);
-			register_select_write(word_load, s_or_d_reg);
+
+
+			/* Pipeline offset */
+			/* Word aligned access is -4 unaligned is the same*/
+//			if(memory_access_index % 4 == 0){
+//				memory_access_index += 4;
+//			}
+//			else if(memory_access_index % 4 > 0){
+//				memory_access_index += 4;
+//			}
+//			else{
+//				memory_access_index -= 4;
+//			}
+
+
+			/* Memory access checking */
+						if(memory_access_index > MEM_SIZE){
+							printf("Error: Out of bounds memory access at address 0x%08x\n", memory_access_index);
+						}
+						else{
+							uint32_t word_load = memory_fetch_word(memory_access_index);
+						    register_select_write(word_load, s_or_d_reg);
+						}
 		}
 		else{
 			/* Store word in memory */
 			uint32_t word_store = s_or_d_reg_contents;
+
+			//memory_write_word(memory_access_index + 4, word_store);
+
 			memory_write_word(memory_access_index, word_store);
 		}
-
-
 
 		if(U_flag_set()){
 			/* Offset is added to base register */
@@ -1204,7 +1261,8 @@ execute_single_data_trans(){
 			memory_access_index = base_reg_contents - offset_value;
 		}
 		
-		instr_single_data_trans_ptr->rn_reg += offset_value; 
+		register_select_write(memory_access_index, base_reg);
+
 	}
 	update_CPSR();
 }
@@ -1217,7 +1275,7 @@ execute_single_data_trans(){
 void
 execute_branch(){
 
-	uint32_t result = 0;
+	uint32_t result = 0; //fffffc
 	uint32_t offset = instr_branch_ptr->offset;
 
 	/* Shift offset left 2 bits */
@@ -1228,7 +1286,7 @@ execute_branch(){
 
 	//TODO
 	if(ms_bit == 1){
-		uint32_t sign_extend_1_mask = 0xFC000000; 
+		uint32_t sign_extend_1_mask = 0xFC000000;
 		result = sign_extend_1_mask | offset_shift; 	
 	}
 	else{
@@ -1236,8 +1294,9 @@ execute_branch(){
 	}
 
 	/* Add result to pc 8 is for pipeline offset cheeky fix*/
-	pc += result + 4;
+	cpu_ptr->pc += (int32_t) result + 4;
 	update_CPSR();
+	pipeline_ptr->fetched = UNDEFINED;
 }
 
 
@@ -1323,33 +1382,82 @@ cpu_cycle(void){
 
 	/* Before cpu struct pointer is passed in we need to initialise it */
 
-	uint32_t instr = 0;
-    pc = cpu_ptr->pc;
+//	uint32_t instr = 0;
+    //uint32_t pc = cpu_ptr->pc;
 	/* Fetch one instruction from memory */
-	instr = memory_fetch_word(pc);
-	//printf("the instr is    %x\n", instr);
+	//////////////////////////////////////////instr = memory_fetch_word(pc);
 	
-	while(instr != 0x0){
-//uint32_t count = 0;
-//	while(count < 1){
-	//printf("we are in cpu cycle:  pc  %d\n", cpu_ptr->pc);
-		
-		cpu_ptr->pc = pc + 4;
+//	while(instr != 0x0){
+
+
+
+		/////////////////////////////////////////////cpu_ptr->pc = pc + 4;
+//        instr_decode(instr);
+//		pc += 4;
+//	    instr_execute(instr);
+
+//        instr = memory_fetch_word(pc);
+//    }
+//    print_registers();
+
+
+
+	while(1){
 		//TODO
-	//	printf("%x\n", instr);
-        instr_decode(instr);
-        //TODO
-        //printf("%x\n", instr);
-		pc += 4;
-	    instr_execute(instr);
 
-        instr = memory_fetch_word(pc);
-//		count++;
-    }
+		if(pipeline_push(cpu_ptr->pc) == 1){
+			uint32_t instr = pipeline_pop();
 
+			if(!instr){
+				//instr_decode(pipeline_pop());
+				//instr_execute(pipeline_pop());
+				cpu_ptr->pc += 4;
+				print_registers();
 
-    print_registers();	
+				break;
+			}
+			else{
+				instr_decode(instr);
+				instr_execute(instr);
+
+				cpu_ptr->pc += 4;
+			}
+
+		}
+	
+	}
 }
+
+
+
+int 
+pipeline_push(uint32_t pc){
+  pipeline_ptr->decoded = pipeline_ptr->fetched;
+
+
+  uint32_t instr = memory_fetch_word(pc);
+  //cpu_ptr->pc += 4;
+
+
+  pipeline_ptr->fetched = instr;
+  
+
+  return pipeline_ptr->decoded != UNDEFINED;
+}
+
+
+
+uint32_t 
+pipeline_pop(void) {
+  uint32_t decoded = pipeline_ptr->decoded;
+  pipeline_ptr->decoded = pipeline_ptr->fetched;
+  pipeline_ptr->fetched = UNDEFINED;
+  return decoded;
+}
+
+
+
+
 
 
 /**
@@ -1373,7 +1481,7 @@ print_registers(){
 	printf("$10 : %10d (0x%08x)\n", cpu_ptr->r10, cpu_ptr->r10);
 	printf("$11 : %10d (0x%08x)\n", cpu_ptr->r11, cpu_ptr->r11);
 	printf("$12 : %10d (0x%08x)\n", cpu_ptr->r12, cpu_ptr->r12);
-	printf("PC  : %10d (0x%08x)\n", cpu_ptr->pc + 8, cpu_ptr->pc + 8);
+	printf("PC  : %10d (0x%08x)\n", cpu_ptr->pc + 4, cpu_ptr->pc + 4);
 	printf("CPSR: %10d (0x%08x)\n", cpu_ptr->cpsr, cpu_ptr->cpsr);
     printf("Non-zero memory:\n");
 
