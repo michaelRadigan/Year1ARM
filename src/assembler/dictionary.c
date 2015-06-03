@@ -336,9 +336,9 @@ int main() {
 
   rem = removeElem(dict, "e");
   printf("remvalue = %d\n", rem);
-  /*
+  
 
-  /* test variable change */
+   test variable change */
 /*  int put = putElem(dict,"i", &m);
   printf("put = %d\n", put);
   printf("\ndeleted \"c\" and \"e\" \n\n");   */
