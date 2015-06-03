@@ -166,82 +166,32 @@ numberOfZeros(uint32_t extractedExp){
 }
 
 
+uint32_t
+execute_rotate_left(uint32_t shift_amount, uint32_t reg_val){
+    return((reg_val << shift_amount) | (reg_val >> (32 - shift_amount)));
+}
+
+uint32_t
+execute_rotate_right(uint32_t shift_amount, uint32_t reg_val){
+    return((reg_val >> shift_amount) | (reg_val << (32 - shift_amount)));
+}
+
 /*Takes in a 32 bit unisgned vlaue and returns a 32 bit unsigned int
  *which represents the rotate-Immediate value representation of the input as
  *descried on page 7 of the spec. (the first 20 bits of the return value will 
  *be 0
  *@Param extractedExp is the value to be converted*/
-uint32_t
-convertToImm(uint32_t extractedExp){
-    /*If the number is less than 2^8 then it's easy*/
-    if(extractedExp < 2^7){
-        return extractedExp;
+uint32_t convertToImm(uint32_t extractedExp){
+
+  uint32_t rotated;
+  uint32_t i;
+  for (i = 0; i < 16; i++) {
+    rotated = execute_rotate_left(2*i, extractedExp);
+    if (rotated < 256) {
+      return  i << 8 | rotated;
     }
-    /*Check condition 1: There must be atleast 24 0s in a row*/
-    int numOFZeroes = numberOfZeroes(extractedExp);
-    if(numOFZeroes){
-    /*Throw some kind of error, this number isn't able to be transferred
-     *immediate and rotate format*/
-    }
-    /*There are three scenarios, either the immediate is all together and msb
-     *is less than 8, all together and msb > 8 or it is split between
-     *from 31 to 0, we can find out which is the case by checking the most 
-     *and least significant bits*/
-    uint32_t rotate;
-    uint32_t imm;
-    int msb = most_significant_bit(extractedExp);
-    int lsb = least_significant_bit(extractedExp);
-    if(msb > 7){ 
-        /*check whether split or not*/
-        if((msb - lsb) < 8){//it's all together, just need to find the rotation
-            /*For the shift to be even the lsb must be even*/
-            if(lsb % 2 == 0){
-                rotate = (32 - lsb)/2;
-                imm = extractedExp >> lsb  ; 
-            } else {
-                if((msb - lsb) < 7){
-                /*The last bit can be 0!*/
-                rotate = (33 -lsb)/2; /*rotate right one further*/
-                imm = extractedExp >> (lsb - 1);
-                } else {
-                    /*throw error that it is not possible*/
-                }
-            }
-        } else {
-           /*This is the case that it is split*/
-           /*Find how much to rotate based on where the last 1 in the right 
-             group is*/
-           int j;
-           int posLastOne = -1;
-           uint32_t mask3 = 0x1; //could reuse mask 1?
-           for(j = 0; j < 8; j++){
-               if((extractedExp & mask3) == 1){
-                   posLastOne = j;
-               }
-           mask <<= 1;
-           }
-           if(posLastOne == -1){
-               /*throw error, this can not occur*/
-           }
-           if(posLastOne % 2 == 1){
-           /*the rotation is an odd number, so check if the final bit on the
-            *hand-side is a 0, if it isn't then it can'tbe represented.*/
-               if(((extractedExp >> (32 - (7 - posLastOne))) & 0x1) == 0){
-                   rotate = (7 - posLastOne - 1)/2;
-                   imm = execute_rotate_right((32 - posLastOne), extractedExp);
-               } else {
-               /*Throw error, this number can't be represented in this way*/
-               }
-           }
-           rotate = (7 - posLastOne)/2;
-           imm = execute_rotate_right((31 - posLastOne), extractedExp);
-        }
-    } else { 
-        /*this case should have been covered at the start, if it reaches here
-         *then throw an error*/
-    }
-    return imm | (rotate << 8);
-     
+  }
+  return 0xFFFFFFFF; // this is returned if number is irepresentable 
 }
 
 
