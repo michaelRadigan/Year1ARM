@@ -10,5 +10,6 @@
 #include "cpu.h"
 #include "memory_proc.h"
 #include "instructions.h"
+#include "ALU.h"
 
 #endif
