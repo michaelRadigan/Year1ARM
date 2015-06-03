@@ -336,7 +336,6 @@ int main() {
 
   rem = removeElem(dict, "e");
   printf("remvalue = %d\n", rem);
-  
 
    test variable change */
 /*  int put = putElem(dict,"i", &m);
