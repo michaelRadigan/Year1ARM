@@ -194,8 +194,6 @@ uint32_t convertToImm(uint32_t extractedExp){
   return 0xFFFFFFFF; // this is returned if number is irepresentable 
 }
 
-
-
 /* char *source is the string of words of the instructions */
 
 /*There is a lot of redundancy her that we could proably clean up*/
@@ -485,19 +483,42 @@ uint32_t *spec_andeq(char *source){
   return 0x0;
 }
 
+// extracted uint32_t from string in form "#2342" or "#0x23EF8"
+uint32_t extractNum(char *num) {
+  uint32_t res;
+  if (num[2] == 'x') {
+    res = strtol(num+3, NULL, 16);
+  } else {
+    res = atoi(num+1);
+  }
+  return res;
+}
+
 /* Translates special - lsl */
 uint32_t *spec_lsl(char *source){
   //Effectively a 'mov rn,<#expr>' with 'lsl <#expr>' 
+  uint32_t base = 0xE1A00000;
+
   const char p[3] = " ,";
   strtok(source, p);
 
-  char *rn = strtok(NULL , p);
+  char *reg = strtok(NULL , p);
   char *expr = strtok(NULL , p);
-  
-  //TODO 
-  //Problem: translates to 2 different instructions.
-  //Possible solution, make FILE objects global, so any method can write to them.
-  
-  return NULL;
+
+  if (reg == NULL) {
+    printf("REG PARAMETER NON-EXISTANT\n");
+    exit(EXIT_FAILURE);
+  }
+  uint32_t *regint = toCpuReg(reg);
+
+  uint32_t extractednum = extractNum(expr);
+  if (extractednum >= 32) {
+    printf("rotation too large\n");
+    exit(EXIT_FAILURE);
+  } 
+  uint32_t temp; 
+  temp = (base | *regint << 12 | extractednum << 7 | *regint);
+  uint32_t *ptr = &temp;
+  return ptr;
 }
 
