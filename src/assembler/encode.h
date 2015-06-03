@@ -11,7 +11,7 @@
 #include "assemble.h"
 
 //For access to cpu registers enum
-#include "../cpu.h"
+#include "../emulator/cpu.h"
 
 /* Struct for storing function pointers */
 

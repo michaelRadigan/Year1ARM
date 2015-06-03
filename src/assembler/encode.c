@@ -468,7 +468,7 @@ uint32_t *branch(char *source){
   uint32_t *offset;
   //lines of code offset
   *offset = file_line - *labelAddress;
-  offset += 1;
+  *offset += 1;
   //either add 1 or 2 lines
 
   *binary = (*offset >> 2);
