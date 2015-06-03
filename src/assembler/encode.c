@@ -174,7 +174,7 @@ numberOfZeros(uint32_t extractedExp){
 uint32_t
 convertToImm(uint32_t extractedExp){
     /*If the number is less than 2^8 then it's easy*/
-    if(extractedExp < 2^7){
+    if(extractedExp < (2^7)){
         return extractedExp;
     }
     /*Check condition 1: There must be atleast 24 0s in a row*/
@@ -218,7 +218,7 @@ convertToImm(uint32_t extractedExp){
                if((extractedExp & mask3) == 1){
                    posLastOne = j;
                }
-           mask <<= 1;
+           mask3 <<= 1;
            }
            if(posLastOne == -1){
                /*throw error, this can not occur*/
@@ -292,8 +292,9 @@ uint32_t *dataProcessing1(char *source){
         exit(EXIT_FAILURE);
     }
     if(operand2[0] == '#'){
-        uint32_t temp = sscanf(operand2[1], "%", SCNx32, &int32);
-        rotAndImm = convertToImm(temp);
+        uint32_t *temp;
+        sscanf(operand2, "#%x", temp);
+        rotAndImm = convertToImm(*temp);
     } else {
         /*this is where we could put the optional shift stuff*/
     }
@@ -316,14 +317,16 @@ uint32_t *dataProcessing2(char *source){
     char *operand2 = strtok(NULL, delim);
     /*May want to add the optional shift here*/
     if (operand2[0] == '#'){ //has the form #expression 
-        uint32_t extractedExp = sscanf(operand2[1], "%" ,SCNx32, &int32);
+        uint32_t *extractedExp;
+        sscanf(operand2, "#%x" ,extractedExp);
         /*Now need to convert to from described in emulate*/
 
-    uint32_t rotAndImm = convertToImm(extractedExp);
+        uint32_t rotAndImm = convertToImm(*extractedExp);
         uint32_t sameForAll = 0xE3A00000;
         uint32_t *regint = (uint32_t *) toCpuReg(reg);
-        uint32_t temp = (sameForAll | (*regint << 12) | rotAndImm);
-        return &temp;
+        uint32_t *temp;
+        *temp = (sameForAll | (*regint << 12) | rotAndImm);
+        return temp;
     } else {
         /*We can include the case for a shifted register here if we choose tio*/
       //TODO
@@ -366,8 +369,9 @@ uint32_t *dataProcessing3(char *source){
         exit(EXIT_FAILURE);
     }
     if(operand2[0] == '#'){
-        uint32_t temp = sscanf(operand2[1], "%", SCNx32, &int32);
-        rotAndImm = convertToImm(temp);
+        uint32_t *temp;
+        sscanf(operand2, "#%x", temp);
+        rotAndImm = convertToImm(*temp);
     } else {
         /*this is where we could put the optional shift stuff*/
     }
@@ -460,9 +464,12 @@ uint32_t *sdt_ldr(char *source){
 
   //1. Expr is numeric constant of form '=#'
   if(expr[0] == '='){
-    
-  
+    uint32_t *val;
+    sscanf(expr , "=%x" , val);
+    if(*val < 0xff){
+      //effectively a move
 
+    }
 
 
   }
@@ -509,13 +516,12 @@ uint32_t *branch(char *source){
   }
   
   uint32_t *offset;
+  //lines of code offset
   *offset = file_line - *labelAddress;
-   
-  //Calculate offset to add to the binary
-  //Must try Understand
-  //TODO
-  
-  binary = offset;
+  offset += 1;
+  //either add 1 or 2 lines
+
+  *binary = (*offset >> 2);
   uint32_t k = 0x5;
   binary = binaryConcat(&k ,binary,25);
   binary = binaryConcat(cond_b,binary,28);
