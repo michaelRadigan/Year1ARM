@@ -58,18 +58,16 @@ DICTIONARY *setUPopcode_function(void){
   return d;
 }
 
+/* Frees all memory allocated by the function dictionary */
 void destroyDictionaryfunctions(DICTIONARY *d){
   destroyFuncStructs();
   destroyDictionary(d);
 }
 
-
-/* Returns label if label exists on current line else returns NULL */
-char *getLabel(char *source){
-  char s[3] = ":";
-  return strtok(source,s);
+/* Checks if a token is of the label format */
+int isLabel(char *token){
+  return (token[strlen(token)-1]) == ':';
 }
-
 
 /*prints the bits to file, return 1 on success, 0 otherwise */
 void writeBits(uint32_t *bits , FILE *out_file){
@@ -92,6 +90,7 @@ void writeBits(uint32_t *bits , FILE *out_file){
   printf("/n");
 }
 
+/* Checks for file existance */
 int doesFileExist(const char *filename) { 
   struct stat st;
   int result = stat(filename, &st);
@@ -99,6 +98,8 @@ int doesFileExist(const char *filename) {
 
 }
 
+
+/* Prints the content of a file*/
 int printFileContents(FILE *ptr){
   printf("\nThe File Contents are:\n");
   int c;
@@ -117,7 +118,6 @@ int printFileContents(FILE *ptr){
 }
 
 /* MAIN Program loop */
-
 int main(int argc, char **argv) {
   assert(argc == 3);
 
@@ -130,8 +130,10 @@ int main(int argc, char **argv) {
   label_address = setUPlabel_address();
   setUPcode_binarycode();
   opcode_function = setUPopcode_function();
-  printf("Printing opcode tree \n");
-  printPaths(opcode_function->tree);
+  //printf("Printing opcode tree \n");
+  //printPaths(opcode_function->tree);
+
+
   char ahsf[4] = "mov";
 
   if (!getElem(opcode_function,ahsf )) {
@@ -171,15 +173,15 @@ int main(int argc, char **argv) {
 
   //getLine(buff,ptr_SourceFile);
   while(fgets(buff,MAX_LINE_LENGTH,ptr_SourceFile)){
-         
-    char *label;
+    char delim[3] = " ,";     
+    char *label = strtok(buff,delim);
 
-    if((label = getLabel(buff)) !=NULL){
+    if(isLabel(label)){
+      //Store Label including ':'
       putElem(label_address , label , &file_line);
     }
     file_line++;
   }
-
   printf("FInished program loop 1\n");
 
   rewind(ptr_SourceFile);
@@ -190,30 +192,41 @@ int main(int argc, char **argv) {
   /* Reads Opcode and generate Binary Encoding */
   while(fgets(buff,MAX_LINE_LENGTH,ptr_SourceFile)){
     
+    //Duplicate Buffer
+    char *buffTemp;
+    if((buffTemp = malloc(sizeof(buff)) ) == NULL){
+      printf("Problem!");
+      break;
+    }
+    buffTemp = strcpy(buffTemp,buff);
+
     uint32_t *output; 
     const char s[2] = " ";  
-    char *token;
-    
-    //Removes Label if there is one.
-    if(getLabel(buff) == buff){
-    	token = strtok(buff,s);
-    }else{
-    	token = strtok(NULL,s);
-    }
+    char *token = strtok(buff,s);
 
+    //Check if empty line
     if(token==NULL){
       continue;
     }
 
+    //Check if label exists and if so get next elem
+    if(isLabel(token)){
+      token = strtok(NULL,s);
+     }
+
+    //Loop-up Opcode to get function
     STR_ENC *encodingStruct;
     if((encodingStruct = (STR_ENC *)getElem(opcode_function , (void *)token)) == NULL){
       printf("FAILURE FROM DICTIONARY, OPCODE DOES NOT EXIST: %s" , token);
     }
+   
+    //Apply function
+    output = encodingStruct->encFunc(buffTemp);
     
-    output = encodingStruct->encFunc(buff);
-
+    //Write to file
     writeBits(output, ptr_WriteFile);
-
+    
+    free(buffTemp);
     file_line++;
   }
   printf("Finished Program Loop 2\n");
