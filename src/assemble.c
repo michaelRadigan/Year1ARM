@@ -66,7 +66,7 @@ void destroyDictionaryfunctions(DICTIONARY *d){
 
 /* Returns label if label exists on current line else returns NULL */
 char *getLabel(char *source){
-  char s[2] = ":";
+  char s[3] = ":";
   return strtok(source,s);
 }
 
@@ -112,9 +112,9 @@ int printFileContents(FILE *ptr){
     printf("%c", c);
   }
   printf("\n");
+  rewind(ptr);
   return 0;
 }
-
 
 /* MAIN Program loop */
 
@@ -130,7 +130,15 @@ int main(int argc, char **argv) {
   label_address = setUPlabel_address();
   setUPcode_binarycode();
   opcode_function = setUPopcode_function();
+  printf("Printing opcode tree \n");
+  printPaths(opcode_function->tree);
+  char ahsf[4] = "mov";
+
+  if (!getElem(opcode_function,ahsf )) {
+	  printf("TRUE!!");
+  }
   
+
 
   //Setup File fields
   FILE *ptr_SourceFile = NULL;
@@ -160,16 +168,18 @@ int main(int argc, char **argv) {
 
   printf("Program Loop 1\n");
   file_line = 0;
-  while (fgets(buff,MAX_LINE_LENGTH, ptr_SourceFile)!=NULL){
+
+  //getLine(buff,ptr_SourceFile);
+  while(fgets(buff,MAX_LINE_LENGTH,ptr_SourceFile)){
          
     char *label;
 
     if((label = getLabel(buff)) !=NULL){
-      printf("%s" , buff);
       putElem(label_address , label , &file_line);
     }
     file_line++;
   }
+
   printf("FInished program loop 1\n");
 
   rewind(ptr_SourceFile);
@@ -178,17 +188,20 @@ int main(int argc, char **argv) {
   printf("Beginning Program loop2\n");
   /* Program Loop 2*/
   /* Reads Opcode and generate Binary Encoding */
-  while (fgets(buff,MAX_LINE_LENGTH, ptr_SourceFile)!=NULL){
+  while(fgets(buff,MAX_LINE_LENGTH,ptr_SourceFile)){
     
     uint32_t *output; 
     const char s[2] = " ";  
     char *token;
     
-    if(getLabel(buff)!=NULL){
-      strtok(buff,":");
+    //Removes Label if there is one.
+    if(getLabel(buff) == buff){
+    	token = strtok(buff,s);
+    }else{
+    	token = strtok(NULL,s);
     }
 
-    if((token = strtok(NULL,s))==NULL){
+    if(token==NULL){
       continue;
     }
 
