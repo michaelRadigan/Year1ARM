@@ -35,3 +35,4 @@ assemble
 *.nav
 *.toc
 *.gz
+/Debug

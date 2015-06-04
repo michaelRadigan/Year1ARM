@@ -412,17 +412,17 @@ result_set_I_flag(int I_flag_set, uint32_t operand_2_or_offset){
     result_val = rotated_result;
   }
   else{
-  //Operand2 is a shifted register 
+    //Operand2 is a shifted register 
 
-  //Read contents of register Rm 
-  uint32_t reg_rm = extract_bits(operand_2_or_offset, RM_REG_MASK, 0);
-  uint32_t reg_val = register_select_read(reg_rm);
+    //Read contents of register Rm 
+    uint32_t reg_rm = extract_bits(operand_2_or_offset, RM_REG_MASK, 0);
+    uint32_t reg_val = register_select_read(reg_rm);
 
-  //Examine bit 5 of Operand2/Offset
-  uint32_t bit_4 = extract_bits(operand_2_or_offset, BIT_4_MASK, 4);
+    //Examine bit 5 of Operand2/Offset
+    uint32_t bit_4 = extract_bits(operand_2_or_offset, BIT_4_MASK, 4);
 
-  //Extract shift type 
-  uint32_t shift_type  = extract_bits(operand_2_or_offset, SHIFT_TYPE_MASK, 5);
+    //Extract shift type 
+    uint32_t shift_type  = extract_bits(operand_2_or_offset, SHIFT_TYPE_MASK, 5);
 		
     if(bit_4){
     //If bit 4 == 1 then shift is specified by register 
@@ -456,12 +456,12 @@ void
 execute_mult(void){
 	
   if(A_flag_set()){
-  //Perform multiply and accumulate 
+    //Perform multiply and accumulate 
     multiply_rm_rs();
     accumulate_rm_rs_rn();
   }
   else{
-  //Perform multiply 
+    //Perform multiply 
     multiply_rm_rs();
   }
 
@@ -515,47 +515,56 @@ execute_single_data_trans(void){
     }
 
     //Transfer data 
+    if(L_flag_set()){
+      //Write GPIO to register or load word into memory
 
-      if(L_flag_set()){
-        //Memory access checking 
-        if(memory_access_index > MEM_SIZE){
-          printf("Error: Out of bounds memory access at address 0x%08x\n", memory_access_index);
-        }
-        else{
-          uint32_t word_load = memory_fetch_word(memory_access_index);
-          register_select_write(word_load, s_or_d_reg);
-        }
+      if(gpio_memory_location(memory_access_index)){ 		
+        register_select_write(memory_access_index, s_or_d_reg);
+        return;
       }
-      else{
-        //Store word in memory
-        uint32_t word_store = s_or_d_reg_contents;
-        memory_write_word(memory_access_index, word_store);
+	  else{ 
+        word_load(memory_access_index, s_or_d_reg);
       }
+    }  
+    else{
+      //Check GPIO and store word into memory
+		
+      if(gpio_memory_location(memory_access_index)){ 		
+        return;
+      }
+      else{ 
+        word_store(memory_access_index, s_or_d_reg_contents);
+      }
+    }
   }
   else{
     //Post-Indexing
     //Offset is added/subtracted to the base register after transferring the data.
 	
     //Transfer data 
-
     if(L_flag_set()){
-      //Load word from memory
+      //Write GPIO to register or load word into memory
 
-      //Memory access checking 
-      if(memory_access_index > MEM_SIZE){
-        printf("Error: Out of bounds memory access at address 0x%08x\n", memory_access_index);
+      if(gpio_memory_location(memory_access_index)){ 		
+        register_select_write(memory_access_index, s_or_d_reg);
+        return;
       }
-      else{
-        uint32_t word_load = memory_fetch_word(memory_access_index);
-        register_select_write(word_load, s_or_d_reg);
+	  else{ 
+        word_load(memory_access_index, s_or_d_reg);
       }
-    }
+    }  
     else{
-      //Store word in memory 
-      uint32_t word_store = s_or_d_reg_contents;
-      memory_write_word(memory_access_index, word_store);
+      //Check GPIO and store word into memory
+		
+      if(gpio_memory_location(memory_access_index)){ 		
+        return;
+      }
+      else{ 
+        word_store(memory_access_index, s_or_d_reg_contents);
+      }
     }
-    if(U_flag_set()){
+    
+	if(U_flag_set()){
       //Offset is added to base register
       memory_access_index = base_reg_contents + offset_value;
     }
@@ -748,6 +757,64 @@ uint32_t
 execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t), 
 		uint32_t left_operand, uint32_t right_operand){
   return (*execute_op_code_ptr)(left_operand, right_operand);
+}
+
+
+/**
+ * Writes the word at the memory access index into the selected register
+ * @param memory_access_index The index into memory 
+ * @param s_or_d_reg          The destination register
+ */
+void
+word_load(uint32_t memory_access_index, uint32_t s_or_d_reg){
+
+  if(memory_access_index > MEM_SIZE){
+    printf("Error: Out of bounds memory access at address 0x%08x\n", memory_access_index);
+  }
+  else{
+	//Load word into memory
+    uint32_t word_load = memory_fetch_word(memory_access_index);
+    register_select_write(word_load, s_or_d_reg);
+  }
+}
+
+
+/**
+ * Writes into memory the contents of a register
+ * @param memory_access_index The index into memory 
+ * @param s_or_d_contents     The contents of the selected register
+ */
+void 
+word_store(uint32_t memory_access_index, uint32_t s_or_d_reg_contents){
+
+  if(memory_access_index > MEM_SIZE){
+    printf("Error: Out of bounds memory access at address 0x%08x\n", memory_access_index);
+  }
+  else{
+    //Store word into memory
+    uint32_t word_store = s_or_d_reg_contents;
+    memory_write_word(memory_access_index, word_store);
+  }
+}
+
+
+/**
+ * Prints out the appropriate message depending on the memory access index
+ * @param memory_access_index The index into memory
+ * @return Used at a higher level so return 1/0
+ */
+int
+gpio_memory_location(uint32_t memory_access_index){
+
+  switch(memory_access_index){
+    case GPIO_1 : printf("One GPIO pin from 0 to 9 has been accessed\n"); return 1;
+    case GPIO_2 : printf("One GPIO pin from 10 to 19 has been accessed\n"); return 1;
+    case GPIO_3 : printf("One GPIO pin from 20 to 29 has been accessed\n"); return 1;
+    case GPIO_CLEAR : printf("PIN OFF\n"); return 1;
+    case GPIO_SET   : printf("PIN ON\n");  return 1;
+    default : return 0;
+  }
+  return 0;
 }
 
 

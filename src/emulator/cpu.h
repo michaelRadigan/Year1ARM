@@ -11,37 +11,37 @@
 #define BITS_SINGLE_DATA_TRANS_MASK_1 0x00600000
 #define BITS_SINGLE_DATA_TRANS_MASK_2 0x0C000000
 #define BITS_BRANCH_MASK              0x0A000000
-#define BITS_COND_MASK		      0xF0000000
+#define BITS_COND_MASK                0xF0000000
 
-#define FLAG_I_MASK		      0x02000000
-#define FLAG_A_MASK 		      0x00200000
-#define FLAG_P_MASK 		      0x01000000
+#define FLAG_I_MASK                   0x02000000
+#define FLAG_A_MASK                   0x00200000
+#define FLAG_P_MASK                   0x01000000
 #define FLAG_U_MASK                   0x00800000
-#define OPCODE_MASK		      0x01E00000
-#define FLAG_S_MASK		      0x00100000
-#define FLAG_L_MASK		      0x00100000
-#define REG_1_MASK  		      0x000F0000
-#define REG_2_MASK 		      0x0000F000
-#define REG_3_MASK 		      0x00000F00
-#define REG_4_MASK 		      0x0000000F
+#define OPCODE_MASK                   0x01E00000
+#define FLAG_S_MASK                   0x00100000
+#define FLAG_L_MASK                   0x00100000
+#define REG_1_MASK                    0x000F0000
+#define REG_2_MASK                    0x0000F000
+#define REG_3_MASK                    0x00000F00
+#define REG_4_MASK                    0x0000000F
 #define OPERAND_MASK                  0x00000FFF 
 #define OFFSET_1_MASK                 0x00000FFF 
 #define OFFSET_2_MASK                 0x00FFFFFF
 
-#define IMMEDIATE_VALUE_MASK	      0x000000FF
+#define IMMEDIATE_VALUE_MASK          0x000000FF
 #define ROTATE_FIELD_MASK             0x00000F00
-#define BIT_4_MASK 		      0x00000010
-#define RM_REG_MASK 		      0x0000000F
-#define SHIFT_VALUE_MASK 	      0x00000F80
+#define BIT_4_MASK                    0x00000010
+#define RM_REG_MASK                   0x0000000F
+#define SHIFT_VALUE_MASK              0x00000F80
 #define SHIFT_TYPE_MASK               0x00000060
-#define RS_REG_MASK 		      0x00000F00
+#define RS_REG_MASK                   0x00000F00
 #define RS_VAL_MASK                   0x000000FF
 #define RESULT_BIT_MASK               0x80000000
 
 #define BIT_26_MASK                   0x02000000
 
-#define UNDEFINED 0xFFFFFFFF
-#define PIPELINE_SIZE 2
+#define UNDEFINED                     0xFFFFFFFF
+#define PIPELINE_SIZE                 2
 
 
 /**
@@ -124,18 +124,18 @@ typedef enum{
  * ARM Operation Codes
  */
 typedef enum{
-	//Continuity of OpCodes is not maintained because we 
-	// are only dealing with a subset of them
-	OC_AND = 0x0,
-	OC_EOR = 0x1,
-	OC_SUB = 0x2,
-	OC_RSB = 0x3,
-	OC_ADD = 0x4,
-	OC_TST = 0x8,
-	OC_TEQ = 0x9,
-	OC_CMP = 0xA,
-	OC_ORR = 0xC,
-	OC_MOV = 0xD
+  //Continuity of OpCodes is not maintained because we 
+  // are only dealing with a subset of them
+  OC_AND = 0x0,
+  OC_EOR = 0x1,
+  OC_SUB = 0x2,
+  OC_RSB = 0x3,
+  OC_ADD = 0x4,
+  OC_TST = 0x8,
+  OC_TEQ = 0x9,
+  OC_CMP = 0xA,
+  OC_ORR = 0xC,
+  OC_MOV = 0xD
 }arm_oc;
 
 
@@ -143,10 +143,10 @@ typedef enum{
  * ARM Shift Types
  */
 typedef enum{
-	LSL = 0x0,
-	LSR = 0x1,
-	ASR = 0x2,
-	ROR = 0x3
+  LSL = 0x0,
+  LSR = 0x1,
+  ASR = 0x2,
+  ROR = 0x3
 }arm_shift;
 
 
@@ -154,24 +154,37 @@ typedef enum{
  * CPU registers
  */
 typedef enum{
-	R0   = 0x0,
-	R1   = 0x1,
-	R2   = 0x2,
-	R3   = 0x3,
-	R4   = 0x4,
-	R5   = 0x5,
-	R6   = 0x6,
-	R7   = 0x7,
-	R8   = 0x8,
-	R9   = 0x9,
-	R10  = 0xA,
-	R11  = 0xB,
-	R12  = 0xC,
-	RSP  = 0xD,// Is ignored in this implementation
-	RLR  = 0xE,// Is ignored in this implementation
-	PC   = 0xF,
-	CPSR = 0x10
+  R0   = 0x0,
+  R1   = 0x1,
+  R2   = 0x2,
+  R3   = 0x3,
+  R4   = 0x4,
+  R5   = 0x5,
+  R6   = 0x6,
+  R7   = 0x7,
+  R8   = 0x8,
+  R9   = 0x9,
+  R10  = 0xA,
+  R11  = 0xB,
+  R12  = 0xC,
+  RSP  = 0xD,// Is ignored in this implementation
+  RLR  = 0xE,// Is ignored in this implementation
+  PC   = 0xF,
+  CPSR = 0x10
 }cpu_reg;
+
+
+/**
+ * GPIO pins
+ */
+typedef enum{
+  GPIO_1 = 0x20200000,
+  GPIO_2 = 0x20200004,
+  GPIO_3 = 0x20200008,
+
+  GPIO_CLEAR = 0x20200028,
+  GPIO_SET   = 0x2020001C
+}gpio;
 
 
 /* Function prototypes */
@@ -212,6 +225,14 @@ uint32_t execute_shift_type(uint32_t (*execute_shift_type_ptr)(uint32_t, uint32_
 uint32_t opcode_dispatch(uint32_t opcode, uint32_t left_operand, uint32_t right_operand);
 uint32_t execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
 	    uint32_t left_operand, uint32_t right_operand);
+
+
+
+void word_load(uint32_t memory_access_index, uint32_t s_or_d_reg);
+void word_store(uint32_t memory_access_index, uint32_t s_or_d_reg_contents);
+
+int gpio_memory_location(uint32_t memory_access_index);
+
 void print_registers(void);
 
 
