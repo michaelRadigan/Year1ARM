@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include "dictionary.h"
 #include "encode.h"
+#include <sys/stat.h>
 
 /* Structures */
 
