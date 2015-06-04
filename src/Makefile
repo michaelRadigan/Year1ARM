@@ -5,10 +5,11 @@ CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_BSD_SOURCE -std=c99 -Werror -pedantic
 
 .PHONY: all clean
 
-all: assembler/assemble emulate
+all: assemble emulate
 
 emulate: emulator/cpu.o emulator/memory_proc.o emulator/ALU.o
-assembler/assemble: assembler/dictionary.o assembler/encode.o
+
+assemble: assembler/dictionary.o assembler/encode.o emulator/cpu.o emulator/memory_proc.o emulator/ALU.o 
 
 clean:
 	rm -f $(wildcard *.o)

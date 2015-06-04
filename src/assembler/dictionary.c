@@ -81,7 +81,7 @@ treeNode *rotateRightLeft(treeNode *nodeN) {
   return rotateLeft(nodeN);
 }
 
-int max(int a, int b) {
+int findMaximum(int a, int b) {
   if (a > b) {
     return a;
   } else {
@@ -93,7 +93,7 @@ int findHeight(treeNode *node) {
   if (node == NULL) {
       return -1;
   }
-  return max(findHeight(node->left), findHeight(node->right))+1;
+  return findMaximum(findHeight(node->left), findHeight(node->right))+1;
 }
 
 treeNode *reBalance(treeNode *nodeN) {

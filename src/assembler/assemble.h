@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include "dictionary.h"
 #include "encode.h"
+#include <sys/stat.h>
 
 /* Structures */
 
@@ -15,7 +16,7 @@
 DICTIONARY *label_address;
 DICTIONARY *opcode_function;
 
-extern uint32_t file_line;
+uint32_t file_line;
 
 /* Function definitions */
 DICTIONARY *setUPlabel_address(void);

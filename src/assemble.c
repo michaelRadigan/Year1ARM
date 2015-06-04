@@ -1,4 +1,4 @@
-#include "assemble.h"
+#include "assembler/assemble.h"
 
 /* Structures
 
@@ -80,13 +80,39 @@ void writeBits(uint32_t *bits , FILE *out_file){
   for(i=0 ; i<32 ; ++i){
     if((*bits & mask) == 0){
       fprintf(out_file , "0");
+      printf("0");
     }else{
       fprintf(out_file , "1");
+      printf("1");
     }
       
     *bits <<= 1;
   }
   fprintf(out_file , "\n");
+  printf("/n");
+}
+
+int doesFileExist(const char *filename) { 
+  struct stat st;
+  int result = stat(filename, &st);
+  return result == 0;
+
+}
+
+int printFileContents(FILE *ptr){
+  printf("\nThe File Contents are:\n");
+  int c;
+  while(1)
+  {
+    c = fgetc(ptr);
+    if( feof(ptr) )
+      { 
+        break ;
+      }
+    printf("%c", c);
+  }
+  printf("\n");
+  return 0;
 }
 
 
@@ -96,7 +122,9 @@ int main(int argc, char **argv) {
   assert(argc == 3);
 
   const int MAX_LINE_LENGTH = 511;
-  
+  printf("Program name %s\n", argv[0]);
+  printf("arg[1]: %s\n", argv[1]);
+  printf("arg[2]: %s\n", argv[2]);
 
   //Setup Dictionaries
   label_address = setUPlabel_address();
@@ -105,43 +133,49 @@ int main(int argc, char **argv) {
   
 
   //Setup File fields
-  FILE *ptr_SourceFile;
-  FILE *ptr_WriteFile;
+  FILE *ptr_SourceFile = NULL;
+  FILE *ptr_WriteFile = NULL;
 
 
   char buff[MAX_LINE_LENGTH];
 
-  
+  ptr_SourceFile = fopen( argv[1] ,"r");
 
-  ptr_SourceFile = fopen( argv[0] ,"r");
-
-  if (!ptr_SourceFile){  
+  if(ptr_SourceFile == NULL || !doesFileExist(argv[1])){
+    printf("SOURCEFILE NON EXISTANT\n");
     return EXIT_FAILURE;
   }
 
-  ptr_WriteFile = fopen( argv[1] , "w+");
+  printFileContents(ptr_SourceFile);
 
-  if(!ptr_WriteFile){
-    return EXIT_FAILURE;
-  }
+  //Will create file if non existant
+  ptr_WriteFile = fopen( argv[2] , "w+");
+
+
+  printf("GOT HERE\n");
 
 
   /* Program Loop 1*/
   /* Creates Dictionary for Labels and Memory Locations */
+
+  printf("Program Loop 1\n");
   file_line = 0;
   while (fgets(buff,MAX_LINE_LENGTH, ptr_SourceFile)!=NULL){
          
     char *label;
 
     if((label = getLabel(buff)) !=NULL){
+      printf("%s" , buff);
       putElem(label_address , label , &file_line);
     }
     file_line++;
   }
+  printf("FInished program loop 1\n");
 
   rewind(ptr_SourceFile);
   file_line = 0;
 
+  printf("Beginning Program loop2\n");
   /* Program Loop 2*/
   /* Reads Opcode and generate Binary Encoding */
   while (fgets(buff,MAX_LINE_LENGTH, ptr_SourceFile)!=NULL){
@@ -165,10 +199,11 @@ int main(int argc, char **argv) {
     
     output = encodingStruct->encFunc(buff);
 
-    writeBits(output, ptr_WriteFile); 
+    writeBits(output, ptr_WriteFile);
 
     file_line++;
   }
+  printf("Finished Program Loop 2\n");
 
 
   fclose(ptr_SourceFile);
