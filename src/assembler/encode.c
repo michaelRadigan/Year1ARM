@@ -98,7 +98,7 @@ void destroycode_binarycode(void){
 */
 uint32_t *binaryConcat(uint32_t *b1, uint32_t *b2 , int pos){
   //PRE: After pos in b2, there exist only 0 bits. 
-  uint32_t *ret; 
+  uint32_t *ret = NULL; 
   *ret =  (*b2 | (*b1 << pos));
   return ret;
 }
@@ -171,10 +171,6 @@ execute_rotate_left(uint32_t shift_amount, uint32_t reg_val){
     return((reg_val << shift_amount) | (reg_val >> (32 - shift_amount)));
 }
 
-uint32_t
-execute_rotate_right(uint32_t shift_amount, uint32_t reg_val){
-    return((reg_val >> shift_amount) | (reg_val << (32 - shift_amount)));
-}
 
 /*Takes in a 32 bit unisgned vlaue and returns a 32 bit unsigned int
  *which represents the rotate-Immediate value representation of the input as
@@ -240,7 +236,7 @@ uint32_t *dataProcessing1(char *source){
         exit(EXIT_FAILURE);
     }
     if(operand2[0] == '#'){
-        uint32_t *temp;
+        uint32_t *temp = NULL;
         sscanf(operand2, "#%x", temp);
         rotAndImm = convertToImm(*temp);
     } else {
@@ -317,7 +313,7 @@ uint32_t *dataProcessing3(char *source){
         exit(EXIT_FAILURE);
     }
     if(operand2[0] == '#'){
-        uint32_t *temp;
+        uint32_t *temp = NULL;
         sscanf(operand2, "#%x", temp);
         rotAndImm = convertToImm(*temp);
     } else {
@@ -362,7 +358,7 @@ uint32_t *multiply(char *source){
   uint32_t *s = 0x0;
   uint32_t *a = 0x0;
 
-  uint32_t *cond;
+  uint32_t *cond = NULL;
   *cond = 0xe;
 
   uint32_t k_ = 0x9;
@@ -389,7 +385,7 @@ uint32_t *multiplyAccum(char *source){
   }
 
   uint32_t *rnb = (uint32_t *) toCpuReg(rn);
-  uint32_t *a;
+  uint32_t *a = NULL;
   *a = 0x1;
 
   binary = binaryReplace(rnb,4,binary,12);
@@ -405,14 +401,22 @@ uint32_t *sdt_ldr(char *source){
   //Remove function name 'ldr'
   strtok(source , p );
 
-  char *rd = strtok( NULL , p);
-  char *expr = strtok(NULL , p);
-  
+  char *rd;
+  if((rd = strtok( NULL , p)) == NULL){
+    printf("OPCODE PARAMETER NONEXISTANT");
+    exit(EXIT_FAILURE);
+  }
+  char *expr;
+  if((expr = strtok( NULL , p)) == NULL){
+    printf("OPCODE PARAMETER NONEXISTANT");
+    exit(EXIT_FAILURE);
+  }
+
   //3 ways of interpreting expr
 
   //1. Expr is numeric constant of form '=#'
   if(expr[0] == '='){
-    uint32_t *val;
+    uint32_t *val = NULL;
     sscanf(expr , "=%x" , val);
     if(*val < 0xff){
       //effectively a move
@@ -443,10 +447,10 @@ uint32_t *sdt_str(char *source){
 uint32_t *branch(char *source){
   assert(source != NULL);
   const char p[3] = " ,";
-  char *token;
+  char *token = NULL;
   token = strtok(source, p);
 
-  uint32_t *binary;
+  uint32_t *binary = NULL;
 
   uint32_t *cond_b = (uint32_t *)getElem(code_binarycode, token);
 
@@ -463,7 +467,7 @@ uint32_t *branch(char *source){
     exit(EXIT_FAILURE);
   }
   
-  uint32_t *offset;
+  uint32_t *offset = NULL;
   //lines of code offset
   *offset = file_line - *labelAddress;
   *offset += 1;

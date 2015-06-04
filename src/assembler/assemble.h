@@ -15,7 +15,7 @@
 DICTIONARY *label_address;
 DICTIONARY *opcode_function;
 
-extern uint32_t file_line;
+uint32_t file_line;
 
 /* Function definitions */
 DICTIONARY *setUPlabel_address(void);
