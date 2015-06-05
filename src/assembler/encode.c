@@ -112,7 +112,9 @@ void destroycode_binarycode(void){
   destroyDictionary(code_binarycode);
 }
 
-
+uint32_t binaryConcatHelper(uint32_t *b1, uint32_t *b2 , int pos) {
+	  return(*b2 | (*b1 << pos));
+}
 /*  
 * Concatenates 2 binary encodings from right to left
 * @param b1: the bits to be concatentated onto the left of b2 at bit position pos
@@ -125,10 +127,14 @@ void destroycode_binarycode(void){
 */
 uint32_t *binaryConcat(uint32_t *b1, uint32_t *b2 , int pos){
   //PRE: After pos in b2, there exist only 0 bits. 
-  uint32_t *ret = NULL; 
-  *ret =  (*b2 | (*b1 << pos));
-  return ret;
+//  uint32_t (*ptr)(uint32_t,uint32_t, int) = &binaryConcatHelper;
+
+	uint32_t *ptr = malloc(sizeof(uint32_t *));
+	*ptr = binaryConcatHelper(b1, b2, pos);
+	return ptr;
 }
+
+
 
 
 
@@ -302,7 +308,8 @@ uint32_t *dataProcessing1(char *source){
     }
     if(operand2[0] == '#'){
         uint32_t *temp = malloc(sizeof(uint32_t *));
-        sscanf(operand2, "#%x", temp);
+//        sscanf(operand2, "#%x", temp);
+        *temp = extractNum(operand2);
         printf("temp val = %x\n", *temp);
         rotAndImm = convertToImm(*temp);
         free(temp);
@@ -333,6 +340,7 @@ uint32_t *dataProcessing1(char *source){
     	    uint32_t *rdInt = (uint32_t *) toCpuReg(rd);
     	    printf("rdInt = %x\n", *rdInt);
     	    *rdInt = (first12bits | (*rdInt) << 16 | (*rnInt) << 12 | *roInt);
+    	    free(temp);
     	    return rdInt;
     	}
     }
@@ -464,11 +472,13 @@ uint32_t *multiply(char *source){
   //Create uint32_t binary format
   uint32_t *rdb = (uint32_t *) toCpuReg(rd);
   uint32_t *rmb = (uint32_t *) toCpuReg(rm);
-  uint32_t *rsb = (uint32_t *) toCpuReg(rs);
-  uint32_t *s = 0x0;
-  uint32_t *a = 0x0;
+  char *temp = malloc(sizeof(char *));
+  sscanf(rs, "%s\n", temp);
+  uint32_t *rsb = (uint32_t *) toCpuReg(temp);
+  uint32_t s = 0x0;
+  uint32_t a = 0x0;
 
-  uint32_t *cond = NULL;
+  uint32_t *cond = malloc(sizeof(uint32_t *));
   *cond = 0xe;
 
   uint32_t k_ = 0x9;
@@ -476,10 +486,11 @@ uint32_t *multiply(char *source){
   binary = binaryConcat(&k_, rmb , 4);
   binary = binaryConcat(rsb , binary , 8);
   binary = binaryConcat(rdb, binary , 16);
-  binary = binaryConcat(s, binary , 20);
-  binary = binaryConcat(a, binary , 21);
+  binary = binaryConcat(&s, binary , 20);
+  binary = binaryConcat(&a, binary , 21);
   binary = binaryConcat(cond, binary , 28);
-
+  free(temp);
+  free(cond);
   return binary;
 }
 
@@ -557,8 +568,8 @@ uint32_t *sdt_str(char *source){
 uint32_t *branch(char *source){
   assert(source != NULL);
   const char p[3] = " ,";
-  char *token = NULL;
-  token = strtok(source, p);
+  char *token = strtok(source, p);
+  printf("branch token = %s\n",token);
 
   uint32_t *binary = NULL;
 
@@ -566,17 +577,19 @@ uint32_t *branch(char *source){
 
   //Get Expression
   uint32_t *labelAddress;
+
   if((token = strtok(NULL,p)) == NULL){
     printf("OPCODE PARAMETER NONEXISTANT");
     exit(EXIT_FAILURE);
   }
-
+  char  *temp = malloc(sizeof(char *));
+  sscanf(token, " %s:", temp);
   //Get Label Value
-  if((labelAddress = (uint32_t *)getElem(label_address,token)) == NULL){
+  if((labelAddress = (uint32_t *)getElem(label_address,temp)) == NULL){
     printf("LABEL NONEXISTANT");
     exit(EXIT_FAILURE);
   }
-  
+  free(temp);
   uint32_t *offset = NULL;
   //lines of code offset
   *offset = file_line - *labelAddress;

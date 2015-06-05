@@ -66,7 +66,11 @@ void destroyDictionaryfunctions(DICTIONARY *d){
 
 /* Checks if a token is of the label format */
 int isLabel(char *token){
-  return (token[strlen(token)-1]) == ':';
+    char  *temp = malloc(sizeof(char *));
+    sscanf(token, "%s:", temp);
+	int res = (token[strlen(temp)-1]) == ':';
+	free(temp);
+	return res;
 }
 
 /*prints the bits to file, return 1 on success, 0 otherwise */
@@ -193,6 +197,8 @@ int main(int argc, char **argv) {
 
     if(isLabel(label)){
       //Store Label including ':'
+    	label[strlen(label)-2] = '\0';
+    	printf("label equals this %s\n", label);
       putElem(label_address , label , &file_line);
     }
     file_line++;
