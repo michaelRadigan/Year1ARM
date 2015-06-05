@@ -278,6 +278,34 @@ uint32_t *dataProcessing1(char *source){
         free(temp);
     } else {
         /*this is where we could put the optional shift stuff*/
+    	if (operand2[0] == 'r') {
+
+    	    if(opcode[1] == 'n'){
+    	        first12bits = 0xE0000000;
+
+    	    } else if(opcode[1] == 'o'){
+    	        first12bits = 0xE0200000;
+    	    } else if(opcode[1] == 'u'){
+    	        first12bits = 0xE0400000;
+    	    } else if(opcode[1] == 's'){
+    	        first12bits = 0xE0600000;
+    	    } else if(opcode[1] == 'd'){
+    	        first12bits = 0xE0800000;
+    	    } else if(opcode[1] == 'r'){
+    	        first12bits = 0xE1800000;
+    	    }
+            char *temp = malloc(sizeof(char *));
+            sscanf(operand2, "%s\n", temp);
+            printf("temp = %s\n", temp);
+    		uint32_t *roInt = (uint32_t *) toCpuReg(temp);
+    	    printf("roInt = %x\n", *roInt);
+    	    uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
+    	    printf("rnInt = %x\n", *rnInt);
+    	    uint32_t *rdInt = (uint32_t *) toCpuReg(rd);
+    	    printf("rdInt = %x\n", *rdInt);
+    	    *rdInt = (first12bits | (*rdInt) << 16 | (*rnInt) << 12 | *roInt);
+    	    return rdInt;
+    	}
     }
     uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
     printf("rnInt = %x\n", *rnInt);
