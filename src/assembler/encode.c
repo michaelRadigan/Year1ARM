@@ -343,7 +343,7 @@ uint32_t *dataProcessing2(char *source){
 
     assert(source != NULL);
     const char delim[3] = " ,";
-    strtok(source, delim);
+    source = strtok(source, delim);
 
     char *reg;
     if((reg = strtok(NULL,delim)) == NULL){
