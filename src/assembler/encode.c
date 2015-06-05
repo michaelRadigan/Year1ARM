@@ -108,12 +108,37 @@ void setUPcode_binarycode(void){
   code_binarycode = d;
 }
 
+void setUPregister_dict(void){
+  DICTIONARY *d = createDictionary();
+
+  //Opcodes for registers
+  putElem(d,"r1",(void *)0x0);
+  putElem(d,"r2",(void *)0x1);
+  putElem(d,"r3",(void *)0x2);
+  putElem(d,"r4",(void *)0x3);
+  putElem(d,"r5",(void *)0x4);
+  putElem(d,"r6",(void *)0x5);
+  putElem(d,"r7",(void *)0x6);
+  putElem(d,"r8",(void *)0x7);
+  putElem(d,"r9",(void *)0x8);
+  putElem(d,"r10",(void *)0xa);
+  putElem(d,"r11",(void *)0xb);
+  putElem(d,"r12",(void *)0xc);
+  putElem(d,"pc",(void *)0xf);
+  putElem(d,"cpsr",(void *)0x10);
+ 
+  register_dict = d;
+}
+void destroyRegisterDictionary(void){
+  destroyDictionary(register_dict);
+}
+
 void destroycode_binarycode(void){
   destroyDictionary(code_binarycode);
 }
 
 uint32_t binaryConcatHelper(uint32_t *b1, uint32_t *b2 , int pos) {
-	  return(*b2 | (*b1 << pos));
+  return(*b2 | (*b1 << pos));
 }
 /*  
 * Concatenates 2 binary encodings from right to left
@@ -169,12 +194,19 @@ uint32_t *binaryReplace(uint32_t *b1, int numberOfBits,uint32_t *b2, int pos){
 
 uint32_t *toCpuReg(char *str){
 
-  //only the beginning R will ever be lower/uppercase
-  str[0] = toupper(str[0]);
-  uint32_t *num = malloc(sizeof(uint32_t *));
-  uint32_t  *res = num;
-//  uint32_t  *res;
-// return (cpu_reg *)str;
+  //only the beginning r will ever be lowercase
+  str[0] = tolower(str[0]);
+  uint32_t *ret;
+
+  if((ret = getElem(register_dict,str))==NULL){
+    printf("ILLEGAL REGISTER\n");
+    exit(EXIT_FAILURE);
+  }
+
+  return ret;
+/*
+  //  uint32_t  *res;
+  // return (cpu_reg *)str;
   if (strcmp(str, "R0") == 0) {
 	   *res = R0;
   } else if (strcmp(str, "R1") == 0) {
@@ -206,8 +238,9 @@ uint32_t *toCpuReg(char *str){
   }else if (strcmp(str, "CPSR") == 0) {
 	  *res = CPSR;
   }
-//free(num);
-return res;
+  //free(num);
+  return res;
+*/
 }
 
  /*Takes two ints and returns the larger*/

@@ -11,7 +11,12 @@
 #include "assemble.h"
 
 //For access to cpu registers enum
-#include "../emulator/cpu.h"
+//#include "../emulator/cpu.h"
+
+
+DICTIONARY *register_dict;
+
+
 
 /* Struct for storing function pointers */
 
@@ -38,6 +43,7 @@ STR_ENC *lsl;
   
 /* Function defintions */
 
+void destroyRegisterDictionary(void);
 
 void setUPcode_binarycode(void);
 

@@ -272,7 +272,7 @@ int main(int argc, char **argv) {
   destroyDictionary(label_address);
   destroycode_binarycode();
   destroyDictionaryfunctions(opcode_function);
+  destroyRegisterDictionary();
 
-
-    return EXIT_SUCCESS;
-  }
+  return EXIT_SUCCESS;
+}
