@@ -210,7 +210,7 @@ treeNode *delete(treeNode *node, KEY *key) {
 
 VALUE *find(treeNode *node, KEY *key) {
   if (node == NULL) {   
-     printf("KEY \"%s\"that was searched or attempted deleting not in dictionary\n", (char *)key);
+     printf("KEY \"%s\" that was searched or attempted deleting not in dictionary\n", (char *)key);
     return NULL;
   } 
   else if (compare((void *)key, (void *)node->key) > 0) {

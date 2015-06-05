@@ -77,18 +77,36 @@ void writeBits(uint32_t *bits , FILE *out_file){
 
   for(i=0 ; i<32 ; ++i){
     if((*bits & mask) == 0){
-      fprintf(out_file , "0");
+//      fprintf(out_file , "0");
       printf("0");
     }else{
-      fprintf(out_file , "1");
+//      fprintf(out_file , "1");
       printf("1");
     }
       
     *bits <<= 1;
   }
-  fprintf(out_file , "\n");
-  printf("/n");
+
+//  writeUint32(out_file, bits);
+//  fprintf(out_file , "\n");
+  printf("\n");
 }
+
+
+int writeUint32(FILE *const stream, uint32_t value) {
+/* These must be unsigned */
+unsigned char buffer[sizeof(uint32_t)];
+/* Usually 0xFF */
+const unsigned charMask = (1 << CHAR_BIT) - 1;
+for(int i=0; i < sizeof(buffer); ++i) {
+/* Place the MSB first */
+buffer[sizeof(buffer) - i - 1] = value & charMask;
+value >>= CHAR_BIT;
+}
+int count = fwrite(&buffer[0], sizeof(buffer), 1, stream);
+return count == 1;
+}
+
 
 /* Checks for file existance */
 int doesFileExist(const char *filename) { 
@@ -117,29 +135,25 @@ int printFileContents(FILE *ptr){
   return 0;
 }
 
+uint32_t *LEtoBE(uint32_t *word){
+  *word = ((*word << 8) & 0xFF00FF00) | ((*word >> 8) & 0x00FF00FF);
+  *word = (*word << 16) | (*word >> 16);
+  return word;
+}
+
 /* MAIN Program loop */
 int main(int argc, char **argv) {
   assert(argc == 3);
 
   const int MAX_LINE_LENGTH = 511;
-  printf("Program name %s\n", argv[0]);
-  printf("arg[1]: %s\n", argv[1]);
-  printf("arg[2]: %s\n", argv[2]);
+//  printf("Program name %s\n", argv[0]);
+//  printf("arg[1]: %s\n", argv[1]);
+//  printf("arg[2]: %s\n", argv[2]);
 
   //Setup Dictionaries
   label_address = setUPlabel_address();
   setUPcode_binarycode();
   opcode_function = setUPopcode_function();
-  //printf("Printing opcode tree \n");
-  //printPaths(opcode_function->tree);
-
-
-  char ahsf[4] = "mov";
-
-  if (!getElem(opcode_function,ahsf )) {
-	  printf("TRUE!!");
-  }
-  
 
 
   //Setup File fields
@@ -173,6 +187,7 @@ int main(int argc, char **argv) {
 
   //getLine(buff,ptr_SourceFile);
   while(fgets(buff,MAX_LINE_LENGTH,ptr_SourceFile)){
+//	  printf("buff loop 1 = %s\n", buff);
     char delim[3] = " ,";     
     char *label = strtok(buff,delim);
 
@@ -182,6 +197,7 @@ int main(int argc, char **argv) {
     }
     file_line++;
   }
+
   printf("FInished program loop 1\n");
 
   rewind(ptr_SourceFile);
@@ -192,17 +208,18 @@ int main(int argc, char **argv) {
   /* Reads Opcode and generate Binary Encoding */
   while(fgets(buff,MAX_LINE_LENGTH,ptr_SourceFile)){
     
+//	printf("buff loop 2 = %s\n", buff);
     //Duplicate Buffer
     char *buffTemp;
     if((buffTemp = malloc(sizeof(buff)) ) == NULL){
-      printf("Problem!");
+      printf("Problem! couldn't allocate memory for buffTemp");
       break;
     }
     buffTemp = strcpy(buffTemp,buff);
-
     uint32_t *output; 
     const char s[2] = " ";  
     char *token = strtok(buff,s);
+//    printf("token is : \"%s\"\n", token);
 
     //Check if empty line
     if(token==NULL){
@@ -216,19 +233,24 @@ int main(int argc, char **argv) {
 
     //Loop-up Opcode to get function
     STR_ENC *encodingStruct;
+
     if((encodingStruct = (STR_ENC *)getElem(opcode_function , (void *)token)) == NULL){
       printf("FAILURE FROM DICTIONARY, OPCODE DOES NOT EXIST: %s" , token);
     }
-   
+
     //Apply function
+//	printf("buffTemp loop 2 = %s\n", buffTemp);
     output = encodingStruct->encFunc(buffTemp);
-    
+    output = LEtoBE(output);
+    printf("hex = %x\n", *output);
     //Write to file
-    writeBits(output, ptr_WriteFile);
-    
+    writeUint32(ptr_WriteFile, *output);
+
     free(buffTemp);
     file_line++;
   }
+  printf("file_line = %x\n", file_line);
+
   printf("Finished Program Loop 2\n");
 
 

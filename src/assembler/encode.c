@@ -8,34 +8,34 @@
   anything better at the moment 
 */
 void setUPFuncStructs(void){
-  STR_ENC *dp1 = malloc(sizeof(STR_ENC));
+  dp1 = malloc(sizeof(STR_ENC));
   dp1->encFunc = &dataProcessing1;
   
-  STR_ENC *dp2 = malloc(sizeof(STR_ENC));
+  dp2 = malloc(sizeof(STR_ENC));
   dp2->encFunc = &dataProcessing2;
 
-  STR_ENC *dp3 = malloc(sizeof(STR_ENC));
+  dp3 = malloc(sizeof(STR_ENC));
   dp3->encFunc = &dataProcessing3;
 
-  STR_ENC *m = malloc(sizeof(STR_ENC));
+  m = malloc(sizeof(STR_ENC));
   m->encFunc = &multiply;
 
-  STR_ENC *ma = malloc(sizeof(STR_ENC));
+  ma = malloc(sizeof(STR_ENC));
   ma->encFunc = &multiplyAccum;
 
-  STR_ENC *ldr = malloc(sizeof(STR_ENC));
+  ldr = malloc(sizeof(STR_ENC));
   ldr->encFunc = &sdt_ldr;
 
-  STR_ENC *str = malloc(sizeof(STR_ENC));
+  str = malloc(sizeof(STR_ENC));
   str->encFunc = &sdt_str;
 
-  STR_ENC *b = malloc(sizeof(STR_ENC));
+  b = malloc(sizeof(STR_ENC));
   b->encFunc = &branch;
 
-  STR_ENC *andeq = malloc(sizeof(STR_ENC));
+  andeq = malloc(sizeof(STR_ENC));
   andeq->encFunc = &spec_andeq;
 
-  STR_ENC *lsl = malloc(sizeof(STR_ENC));
+  lsl = malloc(sizeof(STR_ENC));
   lsl->encFunc = &spec_lsl;
 
 }
@@ -135,11 +135,47 @@ uint32_t *binaryReplace(uint32_t *b1, int numberOfBits,uint32_t *b2, int pos){
 */
 
 uint32_t *toCpuReg(char *str){
+
   //only the beginning R will ever be lower/uppercase
   str[0] = toupper(str[0]);
-  return (cpu_reg *)str;
+  uint32_t *num = malloc(sizeof(uint32_t *));
+  uint32_t  *res = num;
+//  uint32_t  *res;
+// return (cpu_reg *)str;
+  if (strcmp(str, "R0") == 0) {
+	   *res = R0;
+  } else if (strcmp(str, "R1") == 0) {
+	  *res = R1;
+  }else if (strcmp(str, "R2") == 0) {
+	  *res = R2;
+  }else if (strcmp(str, "R3") == 0) {
+	  *res = R3;
+  }else if (strcmp(str, "R4") == 0) {
+	  *res = R5;
+  }else if (strcmp(str, "R5") == 0) {
+	  *res = R5;
+  }else if (strcmp(str, "R6") == 0) {
+	  *res = R6;
+  }else if (strcmp(str, "R7") == 0) {
+	  *res = R7;
+  }else if (strcmp(str, "R8") == 0) {
+	  *res = R8;
+  }else if (strcmp(str, "R9") == 0) {
+	  *res = R9;
+  }else if (strcmp(str, "R10") == 0) {
+	  *res = R10;
+  }else if (strcmp(str, "R11") == 0) {
+	  *res = R11;
+  }else if (strcmp(str, "R12") == 0) {
+	  *res = R12;
+  }else if (strcmp(str, "PC") == 0) {
+	  *res = PC;
+  }else if (strcmp(str, "CPSR") == 0) {
+	  *res = CPSR;
+  }
+//free(num);
+return res;
 }
-
 
  /*Takes two ints and returns the larger*/
 int
@@ -236,15 +272,19 @@ uint32_t *dataProcessing1(char *source){
         exit(EXIT_FAILURE);
     }
     if(operand2[0] == '#'){
-        uint32_t *temp = NULL;
+        uint32_t *temp = malloc(sizeof(uint32_t *));
         sscanf(operand2, "#%x", temp);
         rotAndImm = convertToImm(*temp);
+        free(temp);
     } else {
         /*this is where we could put the optional shift stuff*/
     }
     uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
+    printf("rnInt = %x\n", *rnInt);
     uint32_t *rdInt = (uint32_t *) toCpuReg(rd);
-    *rdInt = (first12bits | (*rnInt) << 16 | (*rdInt) << 12 | rotAndImm);
+    printf("rdInt = %x\n", *rdInt);
+    printf("rotAndImm = %x\n", rotAndImm);
+    *rdInt = (first12bits | (*rdInt) << 16 | (*rnInt) << 12 | rotAndImm);
     return rdInt;
 }
 
@@ -257,27 +297,30 @@ uint32_t *dataProcessing2(char *source){
     if(reg == NULL){
         printf("OPCODE PARAMETER NON-EXISTANT");
         exit(EXIT_FAILURE);
+    }
 
     char *operand2 = strtok(NULL, delim);
     /*May want to add the optional shift here*/
     if (operand2[0] == '#'){ //has the form #expression 
-        uint32_t *extractedExp;
-        sscanf(operand2, "#%x" ,extractedExp);
-        /*Now need to convert to from described in emulate*/
+        uint32_t *temp = malloc(sizeof(uint32_t *));
+        sscanf(operand2, "#%x" ,temp);
 
-        uint32_t rotAndImm = convertToImm(*extractedExp);
+        /*Now need to convert to from described in emulate*/
+        uint32_t rotAndImm = convertToImm(*temp);
+        free(temp);
         uint32_t sameForAll = 0xE3A00000;
         uint32_t *regint = (uint32_t *) toCpuReg(reg);
-        uint32_t *temp;
-        *temp = (sameForAll | (*regint << 12) | rotAndImm);
-        return temp;
+        *regint = (sameForAll | (*regint << 12) | rotAndImm);
+        return regint;
     } else {
         /*We can include the case for a shifted register here if we choose tio*/
       //TODO
     }
-  }
+
   return NULL;
 }
+
+
 
 /* Translates tst, teq, cmp */
 uint32_t *dataProcessing3(char *source){
@@ -313,9 +356,10 @@ uint32_t *dataProcessing3(char *source){
         exit(EXIT_FAILURE);
     }
     if(operand2[0] == '#'){
-        uint32_t *temp = NULL;
+        uint32_t *temp = malloc(sizeof(uint32_t *));
         sscanf(operand2, "#%x", temp);
         rotAndImm = convertToImm(*temp);
+        free(temp);
     } else {
         /*this is where we could put the optional shift stuff*/
     }
@@ -520,9 +564,7 @@ uint32_t *spec_lsl(char *source){
     printf("rotation too large\n");
     exit(EXIT_FAILURE);
   } 
-  uint32_t temp; 
-  temp = (base | *regint << 12 | extractednum << 7 | *regint);
-  uint32_t *ptr = &temp;
-  return ptr;
+  *regint = (base | *regint << 12 | extractednum << 7 | *regint);
+  return regint;
 }
 

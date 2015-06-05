@@ -9,6 +9,7 @@
 #include "dictionary.h"
 #include "encode.h"
 #include <sys/stat.h>
+#include <limits.h>
 
 /* Structures */
 
