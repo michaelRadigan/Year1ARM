@@ -1,6 +1,33 @@
 #include "encode.h"
 
+void printBits(uint32_t x) {
+  int i;
+  uint32_t mask = 1 << 31;
+  for(i=0; i<32; ++i) {
+    if (i%4 == 0 && i!=0) {
+      printf(", ");
+    }
+    if((x & mask) == 0){
+      printf("0");
+    }
+    else {
+      printf("1");
+    }
+    x = x << 1;
+  }
+  printf("\n");
+}
 
+// extracted uint32_t from string in form "#2342" or "#0x23EF8"
+uint32_t extractNum(char *num) {
+  uint32_t res;
+  if (num[2] == 'x') {
+    res = strtol(num+3, NULL, 16);
+  } else {
+    res = atoi(num+1);
+  }
+  return res;
+}
 
 /* 
   Sets up structs containing function pointers 
@@ -151,7 +178,7 @@ uint32_t *toCpuReg(char *str){
   }else if (strcmp(str, "R3") == 0) {
 	  *res = R3;
   }else if (strcmp(str, "R4") == 0) {
-	  *res = R5;
+	  *res = R4;
   }else if (strcmp(str, "R5") == 0) {
 	  *res = R5;
   }else if (strcmp(str, "R6") == 0) {
@@ -214,11 +241,13 @@ execute_rotate_left(uint32_t shift_amount, uint32_t reg_val){
  *be 0
  *@Param extractedExp is the value to be converted*/
 uint32_t convertToImm(uint32_t extractedExp){
-
+	printf("extractedExp  = %x\n",extractedExp);
+    printBits(extractedExp);
   uint32_t rotated;
   uint32_t i;
   for (i = 0; i < 16; i++) {
     rotated = execute_rotate_left(2*i, extractedExp);
+ //   printBits(rotated);
     if (rotated < 256) {
       return  i << 8 | rotated;
     }
@@ -274,6 +303,7 @@ uint32_t *dataProcessing1(char *source){
     if(operand2[0] == '#'){
         uint32_t *temp = malloc(sizeof(uint32_t *));
         sscanf(operand2, "#%x", temp);
+        printf("temp val = %x\n", *temp);
         rotAndImm = convertToImm(*temp);
         free(temp);
     } else {
@@ -296,7 +326,6 @@ uint32_t *dataProcessing1(char *source){
     	    }
             char *temp = malloc(sizeof(char *));
             sscanf(operand2, "%s\n", temp);
-            printf("temp = %s\n", temp);
     		uint32_t *roInt = (uint32_t *) toCpuReg(temp);
     	    printf("roInt = %x\n", *roInt);
     	    uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
@@ -331,18 +360,27 @@ uint32_t *dataProcessing2(char *source){
     /*May want to add the optional shift here*/
     if (operand2[0] == '#'){ //has the form #expression 
         uint32_t *temp = malloc(sizeof(uint32_t *));
-        sscanf(operand2, "#%x" ,temp);
+   //     sscanf(operand2, "#%x" ,temp);
+        *temp = extractNum(operand2);
+        printf("temp = %x\n", *temp);
 
         /*Now need to convert to from described in emulate*/
         uint32_t rotAndImm = convertToImm(*temp);
         free(temp);
-        uint32_t sameForAll = 0xE3A00000;
+        uint32_t sameForAllIm = 0xE3A00000;
         uint32_t *regint = (uint32_t *) toCpuReg(reg);
-        *regint = (sameForAll | (*regint << 12) | rotAndImm);
+        *regint = (sameForAllIm | (*regint << 12) | rotAndImm);
         return regint;
     } else {
         /*We can include the case for a shifted register here if we choose tio*/
-      //TODO
+        char *temp = malloc(sizeof(char *));
+        sscanf(operand2, "%s\n", temp);
+		uint32_t *regop = (uint32_t *) toCpuReg(temp);
+    	uint32_t sameForAllReg = 0xE1A00000;
+    	uint32_t *regint = (uint32_t *) toCpuReg(reg);
+    	*regint = sameForAllReg | *regint << 12 | *regop;
+    	return regint;
+
     }
 
   return NULL;
@@ -559,16 +597,7 @@ uint32_t *spec_andeq(char *source){
   return 0x0;
 }
 
-// extracted uint32_t from string in form "#2342" or "#0x23EF8"
-uint32_t extractNum(char *num) {
-  uint32_t res;
-  if (num[2] == 'x') {
-    res = strtol(num+3, NULL, 16);
-  } else {
-    res = atoi(num+1);
-  }
-  return res;
-}
+
 
 /* Translates special - lsl */
 uint32_t *spec_lsl(char *source){
