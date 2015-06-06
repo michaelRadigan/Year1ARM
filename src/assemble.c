@@ -64,27 +64,49 @@ void destroyDictionaryfunctions(DICTIONARY *d){
   destroyDictionary(d);
 }
 
-/* Checks if a token is of the label format */
-int isLabel(char *token){
-    char  *temp = malloc(sizeof(char *));
-    sscanf(token, "%s:", temp);
-	int res = (token[strlen(temp)-1]) == ':';
-	free(temp);
-	return res;
+/* Checks if label exists, This will store it*/
+int storeLabel(char *source){
+	printf("storeLabel source = %s\n", source);
+  char *t1 = malloc(sizeof(source));
+  char *t2 = malloc(sizeof(source));
+  sscanf(source,"%[^:] %[:] ",t1,t2);
+	printf("storeLabel t1 = %s\n", t1);
+	printf("storeLabel t2 = %s\n", t2);
+  if(t2[0] == '\0'){ //No Label
+    return 0;
+  }
+  putElem(label_address,t1,&file_line);
+//  printf("Printing tree in removelabel....\n");
+//  printPaths(label_address->tree);
+//  free(t1);
+  free(t2);
+  return 1;
+}
+
+/* Removes the label from the source string if it exists */
+char *removeLabel(char *source){
+  char *t1 = malloc(sizeof(source));
+  char *t2 = malloc(sizeof(source));
+  sscanf(source,"%[^:] %*[ :] %[^:] ",t1,t2);
+  if(t2[0] == '\0'){
+    free(t2);
+    return(t1);
+  }
+  free(t1);
+  return(t2);
 }
 
 /*prints the bits to file, return 1 on success, 0 otherwise */
-void writeBits(uint32_t *bits , FILE *out_file){
+
+/*void writeBits(uint32_t *bits , FILE *out_file){
   assert(out_file != NULL);
   int i;
   uint32_t mask = 1 << 31;
 
   for(i=0 ; i<32 ; ++i){
     if((*bits & mask) == 0){
-//      fprintf(out_file , "0");
       printf("0");
     }else{
-//      fprintf(out_file , "1");
       printf("1");
     }
       
@@ -92,23 +114,22 @@ void writeBits(uint32_t *bits , FILE *out_file){
   }
 
 //  writeUint32(out_file, bits);
-//  fprintf(out_file , "\n");
   printf("\n");
 }
-
+*/
 
 int writeUint32(FILE *const stream, uint32_t value) {
-/* These must be unsigned */
-unsigned char buffer[sizeof(uint32_t)];
-/* Usually 0xFF */
-const unsigned charMask = (1 << CHAR_BIT) - 1;
-for(int i=0; i < sizeof(buffer); ++i) {
-/* Place the MSB first */
-buffer[sizeof(buffer) - i - 1] = value & charMask;
-value >>= CHAR_BIT;
-}
-int count = fwrite(&buffer[0], sizeof(buffer), 1, stream);
-return count == 1;
+  /* These must be unsigned */
+  unsigned char buffer[sizeof(uint32_t)];
+  /* Usually 0xFF */
+  const unsigned charMask = (1 << CHAR_BIT) - 1;
+  for(int i=0; i < sizeof(buffer); ++i) {
+    /* Place the MSB first */
+    buffer[sizeof(buffer) - i - 1] = value & charMask;
+    value >>= CHAR_BIT;
+  }
+  int count = fwrite(buffer,sizeof(buffer),1, stream);
+  return count == 1;
 }
 
 
@@ -139,9 +160,10 @@ int printFileContents(FILE *ptr){
   return 0;
 }
 
-uint32_t *LEtoBE(uint32_t *word){
-  *word = ((*word << 8) & 0xFF00FF00) | ((*word >> 8) & 0x00FF00FF);
-  *word = (*word << 16) | (*word >> 16);
+
+uint32_t LEtoBE(uint32_t word){
+  word = ((word << 8) & 0xFF00FF00) | ((word >> 8) & 0x00FF00FF);
+  word = (word << 16) | (word >> 16);
   return word;
 }
 
@@ -158,6 +180,9 @@ int main(int argc, char **argv) {
   label_address = setUPlabel_address();
   setUPcode_binarycode();
   opcode_function = setUPopcode_function();
+  printf("Value of b %x\n", *(uint32_t *)getElem(code_binarycode, "b"));
+//  printf("Printing binarycode tree in main....\n");
+//  printPaths(code_binarycode->tree);
 
 
   //Setup File fields
@@ -189,20 +214,13 @@ int main(int argc, char **argv) {
   printf("Program Loop 1\n");
   file_line = 0;
 
-  //getLine(buff,ptr_SourceFile);
   while(fgets(buff,MAX_LINE_LENGTH,ptr_SourceFile)){
-//	  printf("buff loop 1 = %s\n", buff);
-    char delim[3] = " ,";     
-    char *label = strtok(buff,delim);
-
-    if(isLabel(label)){
-      //Store Label including ':'
-    	label[strlen(label)-2] = '\0';
-    	printf("label equals this %s\n", label);
-      putElem(label_address , label , &file_line);
-    }
+	    printf("Program loop 1 buffer line %x = %s\n", file_line ,buff);
+    storeLabel(buff);
     file_line++;
   }
+//  printf("Printing tree....\n");
+//  printPaths(label_address->tree);
 
   printf("FInished program loop 1\n");
 
@@ -213,45 +231,54 @@ int main(int argc, char **argv) {
   /* Program Loop 2*/
   /* Reads Opcode and generate Binary Encoding */
   while(fgets(buff,MAX_LINE_LENGTH,ptr_SourceFile)){
-    
-//	printf("buff loop 2 = %s\n", buff);
+
+    //Check if label exists and if so remove it
+    char *buffer = removeLabel(buff);
+    //Buff now contains no label absolutely
+
     //Duplicate Buffer
     char *buffTemp;
-    if((buffTemp = malloc(sizeof(buff)) ) == NULL){
+    if((buffTemp = malloc(sizeof(buffer)) ) == NULL){
       printf("Problem! couldn't allocate memory for buffTemp");
       break;
     }
-    buffTemp = strcpy(buffTemp,buff);
-    uint32_t *output; 
-    const char s[2] = " ";  
+    strcpy(buffTemp,buff);
+    printf("This is your buffer = %s\n", buff);
+//    uint32_t *output;
+    printf("Program loop 2 buffTemp = %s\n", buffTemp);
+    const char s[2] = " ";
     char *token = strtok(buff,s);
-//    printf("token is : \"%s\"\n", token);
-
+    printf("current token %s\n" , token);
     //Check if empty line
-    if(token==NULL){
+    if(token[0]=='\n'){
       continue;
     }
-
-    //Check if label exists and if so get next elem
-    if(isLabel(token)){
-      token = strtok(NULL,s);
-     }
-
+    if (token[strlen(token)-2] == ':') {
+    	printf("This is a label: %s\n", token);
+        free(buffTemp);
+        file_line++;
+        continue;
+    }
     //Loop-up Opcode to get function
     STR_ENC *encodingStruct;
 
     if((encodingStruct = (STR_ENC *)getElem(opcode_function , (void *)token)) == NULL){
       printf("FAILURE FROM DICTIONARY, OPCODE DOES NOT EXIST: %s" , token);
+      exit(EXIT_FAILURE);
     }
 
     //Apply function
 //	printf("buffTemp loop 2 = %s\n", buffTemp);
-    output = encodingStruct->encFunc(buffTemp);
-    output = LEtoBE(output);
-    printf("hex = %x\n", *output);
-    //Write to file
-    writeUint32(ptr_WriteFile, *output);
+    printf("This is buffTemp %s\n", buffTemp);
+ //   output = encodingStruct->encFunc(buffTemp);
+    uint32_t out = *encodingStruct->encFunc(buffTemp);
 
+    out = LEtoBE(out);
+    printf("hex = %x\n", out);
+    printf("hex in the middle = %x\n", out);
+    //Write to file
+    writeUint32(ptr_WriteFile, out);
+    printf("hex again  = %x\n", out);
     free(buffTemp);
     file_line++;
   }
@@ -259,14 +286,13 @@ int main(int argc, char **argv) {
 
   printf("Finished Program Loop 2\n");
 
-
   fclose(ptr_SourceFile);
   fclose(ptr_WriteFile);
-  
+
   destroyDictionary(label_address);
   destroycode_binarycode();
   destroyDictionaryfunctions(opcode_function);
 
 
-  return EXIT_SUCCESS;
-}
+   return EXIT_SUCCESS;
+  }
