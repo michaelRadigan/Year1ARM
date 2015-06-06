@@ -193,13 +193,11 @@ uint32_t *binaryConcat(uint32_t *b1, uint32_t *b2 , int pos){
   //PRE: After pos in b2, there exist only 0 bits. 
 //  uint32_t (*ptr)(uint32_t,uint32_t, int) = &binaryConcatHelper;
 
-	uint32_t *ptr = malloc(sizeof(uint32_t *));
 //	*ptr = binaryConcatHelper(b1, b2, pos);
 //	  printf("Printing tree in binaryConcat....\n");
 //	  printPaths(label_address->tree);
-	  uint32_t num = (*b2 | (*b1 << pos));
-	  uint32_t *ptrhelp =  &num;
-	  free(ptr);
+	uint32_t num = (*b2 | (*b1 << pos));
+	uint32_t *ptrhelp =  &num;
 	return ptrhelp;
 }
 
@@ -220,10 +218,10 @@ uint32_t *binaryConcat(uint32_t *b1, uint32_t *b2 , int pos){
 uint32_t *binaryReplace(uint32_t *b1, int numberOfBits,uint32_t *b2, int pos){
     //replaces the bit of b2 to be replaced with 0s
   uint32_t mask = 1;
-  for(int i = 0 ; i <  numberOfBits; i++){
+  for(int i = 0 ; i <  numberOfBits-1; i++){
     mask = 1 + (mask << 1); // put 1s in correct place
   }
-  *b2 = *b2 & ((~mask) << pos); // and so 0s are in swap position
+  *b2 = *b2 & ~(mask << pos); // and so 0s are in swap position
   return binaryConcat(b1,b2,pos);
 }
 
@@ -238,7 +236,7 @@ uint32_t *binaryReplace(uint32_t *b1, int numberOfBits,uint32_t *b2, int pos){
 
 uint32_t *toCpuReg(char *str){
 
-  //only the beginning r will ever be lowercase
+/*  //only the beginning r will ever be lowercase
   str[0] = tolower(str[0]);
   uint32_t *ret;
 
@@ -247,8 +245,11 @@ uint32_t *toCpuReg(char *str){
     exit(EXIT_FAILURE);
   }
 
-  return ret;
-/*
+  return ret;*/
+
+  str[0] = toupper(str[0]);
+  uint32_t *num = malloc(sizeof(uint32_t *));
+  uint32_t *res = num;
   //  uint32_t  *res;
   // return (cpu_reg *)str;
   if (strcmp(str, "R0") == 0) {
@@ -284,7 +285,6 @@ uint32_t *toCpuReg(char *str){
   }
   //free(num);
   return res;
-*/
 }
 
  /*Takes two ints and returns the larger*/
@@ -345,10 +345,11 @@ uint32_t convertToImm(uint32_t extractedExp){
 /* Translates and, eor, sub, rsb, add ,orr instructions*/
 uint32_t *dataProcessing1(char *source){
     assert(source!= NULL);
-    uint32_t *first12bits = NULL;
+    uint32_t first12bits;
     char *rn;
     char *rd;
-    uint32_t finalOperand2 = 0;
+    uint32_t rotAndImm;
+    // uint32_t finalOperand2 = 0;
     char *operand2;
     const char delim[3] = " ,";
     char *opcode = strtok(source, delim);
@@ -379,7 +380,7 @@ uint32_t *dataProcessing1(char *source){
         first12bits = 0xE3800000; // ^^^^^^^^
     }
     /* Create first 12 bits */
-    *first12bits = (*first12bits << 21) | 0xE0000000;
+    //*first12bits = (*first12bits << 21) | 0xE0000000;
     
     /* Get registers */
     if((rn = strtok(NULL, delim)) == NULL){
@@ -417,12 +418,12 @@ uint32_t *dataProcessing1(char *source){
       //THIS DOESNT ACTUALLY DO THE SHIFT!!
     	if (operand2[0] == 'r') {
         
-          uint32_t *temp = malloc(sizeof(char *));
+       /*   uint32_t *temp = malloc(sizeof(char *));
           // sscanf(operand2, "%s\n", temp);
     		  temp = (uint32_t *) toCpuReg(operand2);
     	    finalOperand2 = *temp;
           free(temp);
-   	}
+   	}*/
 
 //<<<<<<< HEAD
 //=======
@@ -452,8 +453,9 @@ uint32_t *dataProcessing1(char *source){
     	    free(temp);
     	    return rdInt;
     	}
+  }
 //>>>>>>> origin/Oliver
-    }
+    
     /* Finishing off */
     uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
 //    printf("rnInt = %x\n", *rnInt);
@@ -480,7 +482,7 @@ uint32_t *dataProcessing2(char *source){
 
 =======*/
 
-    printf("This is your input = %s\n", source);
+    printf("\nNOW IN DP2\nThis is your input = %s\n", source);
     assert(source != NULL);
     const char delim[3] = " ,";
     source = strtok(source, delim);
@@ -507,7 +509,7 @@ uint32_t *dataProcessing2(char *source){
         uint32_t *temp = malloc(sizeof(uint32_t *));
         //sscanf(operand2, "#%x" ,temp);
         *temp = extractNum(operand2);
-        printf("temp = %x\n", *temp);
+        printf("extractedNumber = %x\n", *temp);
 
         /*Now need to convert to from described in emulate*/
         *operandBits = convertToImm(*temp);
@@ -611,7 +613,7 @@ uint32_t *dataProcessing3(char *source){
 /* Translates mul */
 uint32_t *multiply(char *source){
   assert(source!=NULL);
-  uint32_t *binary;
+  uint32_t *binary = calloc(1,sizeof(uint32_t *));
 
   const char p[3] = " ,";
   //Remove function name 'mul'
@@ -634,7 +636,7 @@ uint32_t *multiply(char *source){
     printf("OPCODE PARAMETER NONEXISTANT");
     exit(EXIT_FAILURE);
   }
-
+  
   //Create uint32_t binary format
   uint32_t *rdb = (uint32_t *) toCpuReg(rd);
   uint32_t *rmb = (uint32_t *) toCpuReg(rm);
@@ -648,13 +650,10 @@ uint32_t *multiply(char *source){
   *cond = 0xe;
 
   uint32_t k_ = 0x9;
-
-  binary = binaryConcat(&k_, rmb , 4);
-  binary = binaryConcat(rsb , binary , 8);
-  binary = binaryConcat(rdb, binary , 16);
-  binary = binaryConcat(&s, binary , 20);
-  binary = binaryConcat(&a, binary , 21);
-  binary = binaryConcat(cond, binary , 28);
+  
+  *binary = (*cond << 28)|(a<<21)|(s<<20)|
+                      (*rdb<<16)|(*rsb<<8)|(k_<<4)|*rmb;
+  
   free(temp);
   free(cond);
   return binary;
@@ -672,9 +671,9 @@ uint32_t *multiplyAccum(char *source){
   }
 
   uint32_t *rnb = (uint32_t *) toCpuReg(rn);
-  uint32_t *a = NULL;
+  uint32_t *a = malloc(sizeof(uint32_t *));
   *a = 0x1;
-
+  
   binary = binaryReplace(rnb,4,binary,12);
   binary = binaryReplace(a,1,binary,21);
 
@@ -731,26 +730,23 @@ uint32_t *sdt_str(char *source){
 uint32_t *branchAux(uint32_t *code, uint32_t *offset) {
 	uint32_t *res = malloc(sizeof(uint32_t *));
 	*res = *code << 28 | 0xA << 24 | *offset;
-//	printf("res ...\n");
-//	printBits(res);
 	return res;
 }
 
 /* Translates branch - beq, bne, bge, blt, bgt, ble, b, */
 uint32_t *branch(char *source){
   assert(source != NULL);
-  const char p[3] = " ,";
+  const char p[3] = " ,:";
   char *token = strtok(source, p);
   printf("branch token = %s\n",token);
 
   uint32_t *binary = malloc(sizeof(uint32_t *));
-//  printf("Printing binaryode tree in branch....\n");
-//  printPaths(code_binarycode->tree);
+
+  //Get Code
   printf("this is the value of b: %p\n",getElem(code_binarycode, token));
   uint32_t *code = (uint32_t *)getElem(code_binarycode, token);
   printf("this is cond_b = %x\n", *code);
-//  uint32_t *cond_b = malloc(sizeof(uint32_t *));
-//  *cond_b = code;
+  
   //Get Expression
   uint32_t *labelAddress;
 
@@ -760,15 +756,15 @@ uint32_t *branch(char *source){
   }
   char  *temp = malloc(sizeof(char *));
   sscanf(token, " %s:", temp);
+
   //Get Label Value
   if((labelAddress = (uint32_t *)getElem(label_address,temp)) == NULL){
     printf("LABEL NONEXISTANT");
     exit(EXIT_FAILURE);
   }
   free(temp);
-//  printf("Printing tree in branch....\n");
-//  printPaths(label_address->tree);
   uint32_t *offset = malloc(sizeof(uint32_t));
+  
   //lines of code offset
   *offset = *labelAddress - file_line;
   if (*labelAddress > file_line && *labelAddress - file_line <= 3) {
@@ -776,25 +772,19 @@ uint32_t *branch(char *source){
   } else if	(file_line > *labelAddress  && file_line - *labelAddress <= 3) {
 	  *offset -= 1;
   }
-//  else {
-//	  *offset -= 1;  // if :label is above condtion e.g. b label (jump back)
-//  }
   printf("offset = %x\n", *offset);
+  
   //either add 1 or 2 lines
   *offset = *offset & 0x00FFFFFF;
-//  *offset = *offset  2;
+  //*offset = *offset  2;
   printf("offset2 = %x\n", *offset);
   *binary = (*offset >> 2);
-//  uint32_t k = 0x5;
-//  uint32_t *res  = binaryConcat(&k ,binary,25);
-//  res = binaryConcat(code,res,28);
-//  printf("code = %x\n", *code);
-//  uint32_t *res = *code << 28 | 5 << 24 | *offset;
+ 
   uint32_t *res = branchAux(code, offset);
   printf("res = %x\n", *res);
   free(offset);
   free(binary);
-//  free(cond_b);
+
   return res;
 }
 
@@ -808,7 +798,6 @@ uint32_t *spec_andeq(char *source){
 
 /* Translates special - lsl */
 uint32_t *spec_lsl(char *source){
-  //Effectively a 'mov rn,<#expr>' with 'lsl <#expr>' 
   uint32_t base = 0xE1A00000;
 
   const char p[3] = " ,";

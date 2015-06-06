@@ -11,7 +11,7 @@
 #include "assemble.h"
 
 //For access to cpu registers enum
-//#include "../emulator/cpu.h"
+#include "../emulator/cpu.h"
 
 
 DICTIONARY *register_dict;
