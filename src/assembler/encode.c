@@ -635,7 +635,13 @@ uint32_t *sdt_str(char *source){
   binary = binaryReplace( 0x0 ,1, binary , 20 );
   return binary;
 }
-
+uint32_t *branchAux(uint32_t *code, uint32_t *offset) {
+	uint32_t *res = malloc(sizeof(uint32_t *));
+	*res = *code << 28 | 0xA << 24 | *offset;
+//	printf("res ...\n");
+//	printBits(res);
+	return res;
+}
 
 /* Translates branch - beq, bne, bge, blt, bgt, ble, b, */
 uint32_t *branch(char *source){
@@ -671,14 +677,28 @@ uint32_t *branch(char *source){
 //  printPaths(label_address->tree);
   uint32_t *offset = malloc(sizeof(uint32_t));
   //lines of code offset
-  *offset = file_line - *labelAddress;
-  *offset += 1;
+  *offset = *labelAddress - file_line;
+  if (*labelAddress > file_line && *labelAddress - file_line <= 3) {
+  *offset -= 2;      // if condtion e.g. b label is above :label(jump ahead)
+  } else if	(file_line > *labelAddress  && file_line - *labelAddress <= 3) {
+	  *offset -= 1;
+  }
+//  else {
+//	  *offset -= 1;  // if :label is above condtion e.g. b label (jump back)
+//  }
+  printf("offset = %x\n", *offset);
   //either add 1 or 2 lines
-
+  *offset = *offset & 0x00FFFFFF;
+//  *offset = *offset  2;
+  printf("offset2 = %x\n", *offset);
   *binary = (*offset >> 2);
-  uint32_t k = 0x5;
-  uint32_t *res  = binaryConcat(&k ,binary,25);
-  res = binaryConcat(code,res,28);
+//  uint32_t k = 0x5;
+//  uint32_t *res  = binaryConcat(&k ,binary,25);
+//  res = binaryConcat(code,res,28);
+//  printf("code = %x\n", *code);
+//  uint32_t *res = *code << 28 | 5 << 24 | *offset;
+  uint32_t *res = branchAux(code, offset);
+  printf("res = %x\n", *res);
   free(offset);
   free(binary);
 //  free(cond_b);

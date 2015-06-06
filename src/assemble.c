@@ -66,20 +66,24 @@ void destroyDictionaryfunctions(DICTIONARY *d){
 
 /* Checks if label exists, This will store it*/
 int storeLabel(char *source){
-	printf("storeLabel source = %s\n", source);
+//  printf("storeLabel source = %s\n", source);
   char *t1 = malloc(sizeof(source));
   char *t2 = malloc(sizeof(source));
   sscanf(source,"%[^:] %[:] ",t1,t2);
-	printf("storeLabel t1 = %s\n", t1);
-	printf("storeLabel t2 = %s\n", t2);
+//  printf("storeLabel t1 = %s\n", t1);
+ // printf("storeLabel t2 = %s\n", t2);
   if(t2[0] == '\0'){ //No Label
     return 0;
   }
-  putElem(label_address,t1,&file_line);
+  uint32_t *linenumlabel = malloc(sizeof(uint32_t *));
+  *linenumlabel = file_line;
+//  uint32_t *num = linenumlabel;
+  putElem(label_address,t1,linenumlabel);
 //  printf("Printing tree in removelabel....\n");
 //  printPaths(label_address->tree);
 //  free(t1);
   free(t2);
+//  free(linenumlabel);
   return 1;
 }
 
@@ -215,7 +219,7 @@ int main(int argc, char **argv) {
   file_line = 0;
 
   while(fgets(buff,MAX_LINE_LENGTH,ptr_SourceFile)){
-	    printf("Program loop 1 buffer line %x = %s\n", file_line ,buff);
+//	    printf("Program loop 1 buffer line %x = %s\n", file_line ,buff);
     storeLabel(buff);
     file_line++;
   }
