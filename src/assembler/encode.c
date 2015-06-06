@@ -83,29 +83,67 @@ void destroyFuncStructs(void){
 
 void setUPcode_binarycode(void){
   DICTIONARY *d = createDictionary();
-
+//  BR *codes = malloc(sizeof(BR));
   //Opcodes for binaryConditions
-  putElem(d,"beq",(void *)0x0);//eq
-  putElem(d,"bne",(void *)0x1);//ne
-  putElem(d,"bge",(void *)0xa);//ge
-  putElem(d,"blt",(void *)0xb);//lt
-  putElem(d,"bgt",(void *)0xc);//gt
-  putElem(d,"ble",(void *)0xd);//le
-  putElem(d,"b",(void *)0xe);//al
+
+  uint32_t *beq = malloc(sizeof(uint32_t *));
+  *beq = 0x0;
+  uint32_t *bne = malloc(sizeof(uint32_t *));
+  *bne = 0x1;
+  uint32_t *bge = malloc(sizeof(uint32_t *));
+  *bge = 0xa;
+  uint32_t *blt = malloc(sizeof(uint32_t *));
+  *blt = 0xb;
+  uint32_t *bgt = malloc(sizeof(uint32_t *));
+  *bgt = 0xc;
+  uint32_t *ble = malloc(sizeof(uint32_t *));
+  *ble = 0xd;
+  uint32_t *b = malloc(sizeof(uint32_t *));
+  *b = 0xe;
+  putElem(d,"beq",beq);//eq
+  putElem(d,"bne",bne);//ne
+  putElem(d,"bge",bge);//ge
+  putElem(d,"blt",blt);//lt
+  putElem(d,"bgt",bgt);//gt
+  putElem(d,"ble",ble);//le
+
+  putElem(d,"b",b);//al
+
+  uint32_t *and = malloc(sizeof(uint32_t *));
+  *and = 0x0;
+  uint32_t *eor = malloc(sizeof(uint32_t *));
+  *eor = 0x1;
+  uint32_t *sub = malloc(sizeof(uint32_t *));
+  *sub = 0x2;
+  uint32_t *rsb = malloc(sizeof(uint32_t *));
+  *rsb = 0x3;
+  uint32_t *add = malloc(sizeof(uint32_t *));
+  *add = 0x4;
+  uint32_t *orr = malloc(sizeof(uint32_t *));
+  *orr = 0xc;
+  uint32_t *mov = malloc(sizeof(uint32_t *));
+  *mov = 0xd;
+  uint32_t *tst = malloc(sizeof(uint32_t *));
+  *tst = 0x8;
+  uint32_t *teq = malloc(sizeof(uint32_t *));
+  *teq = 0x9;
+  uint32_t *cmp = malloc(sizeof(uint32_t *));
+  *cmp = 0xa;
 
   //Opcodes for Data Processing
-  putElem(d,"and",(void *)0x0);
-  putElem(d,"eor",(void *)0x1);
-  putElem(d,"sub",(void *)0x2);
-  putElem(d,"rsb",(void *)0x3);
-  putElem(d,"add",(void *)0x4);
-  putElem(d,"orr",(void *)0xc);
-  putElem(d,"mov",(void *)0xd);
-  putElem(d,"tst",(void *)0x8);
-  putElem(d,"teq",(void *)0x9);
-  putElem(d,"cmp",(void *)0xa);
+  putElem(d,"and",and);
+  putElem(d,"eor",eor);
+  putElem(d,"sub",sub);
+  putElem(d,"rsb",rsb);
+  putElem(d,"add",add);
+  putElem(d,"orr",orr);
+  putElem(d,"mov",mov);
+  putElem(d,"tst",tst);
+  putElem(d,"teq",teq);
+  putElem(d,"cmp",cmp);
 
   code_binarycode = d;
+
 }
 
 void setUPregister_dict(void){
@@ -135,10 +173,11 @@ void destroyRegisterDictionary(void){
 
 void destroycode_binarycode(void){
   destroyDictionary(code_binarycode);
+ // free(BR);
 }
 
 uint32_t binaryConcatHelper(uint32_t *b1, uint32_t *b2 , int pos) {
-  return(*b2 | (*b1 << pos));
+	  return (*b2 | (*b1 << pos));
 }
 /*  
 * Concatenates 2 binary encodings from right to left
@@ -155,8 +194,13 @@ uint32_t *binaryConcat(uint32_t *b1, uint32_t *b2 , int pos){
 //  uint32_t (*ptr)(uint32_t,uint32_t, int) = &binaryConcatHelper;
 
 	uint32_t *ptr = malloc(sizeof(uint32_t *));
-	*ptr = binaryConcatHelper(b1, b2, pos);
-	return ptr;
+//	*ptr = binaryConcatHelper(b1, b2, pos);
+//	  printf("Printing tree in binaryConcat....\n");
+//	  printPaths(label_address->tree);
+	  uint32_t num = (*b2 | (*b1 << pos));
+	  uint32_t *ptrhelp =  &num;
+	  free(ptr);
+	return ptrhelp;
 }
 
 
@@ -312,11 +356,27 @@ uint32_t *dataProcessing1(char *source){
         printf("OPCODE PARAMETER NON-EXISTANT");
         exit(EXIT_FAILURE);
     }
-    
-    /* Convert opcode to binary */
+   /* 
+     Convert opcode to binary 
     if((first12bits =(uint32_t *) getElem(code_binarycode,opcode)) == NULL){
       printf("OPCODE IS NOT OF THE RIGHT FORMAT\n");
       exit(EXIT_FAILURE);
+    }*/
+  
+    /*The 2nd letter of each mnemonic is unique, so we will just test that*/
+    if(opcode[1] == 'n'){
+        first12bits = 0xE2000000; // This will have to be changed if we decide
+                                  // decide to implement th eoptional shifts
+    } else if(opcode[1] == 'o'){
+        first12bits = 0xE2200000; // ^^^^^^^^
+    } else if(opcode[1] == 'u'){
+        first12bits = 0xE2400000; // ^^^^^^^^
+    } else if(opcode[1] == 's'){
+        first12bits = 0xE2600000; // ^^^^^^^^
+    } else if(opcode[1] == 'd'){
+        first12bits = 0xE2800000; // ^^^^^^^^
+    } else if(opcode[1] == 'r'){
+        first12bits = 0xE3800000; // ^^^^^^^^
     }
     /* Create first 12 bits */
     *first12bits = (*first12bits << 21) | 0xE0000000;
@@ -342,10 +402,14 @@ uint32_t *dataProcessing1(char *source){
         uint32_t *temp = malloc(sizeof(uint32_t *));
 //        sscanf(operand2, "#%x", temp);
         *temp = extractNum(operand2);
+/*<<<<<<< HEAD
         printf("temp val = %x\n", *temp);
         uint32_t k = 0x1;
         first12bits = binaryReplace(&k,1,first12bits,25);
         finalOperand2= convertToImm(*temp);
+=======*/
+ //       printf("temp val = %x\n", *temp);
+        rotAndImm = convertToImm(*temp);
         free(temp);
     } 
     /* Else It is a shift */
@@ -360,24 +424,68 @@ uint32_t *dataProcessing1(char *source){
           free(temp);
    	}
 
+//<<<<<<< HEAD
+//=======
+    	    if(opcode[1] == 'n'){
+    	        first12bits = 0xE0000000;
+
+    	    } else if(opcode[1] == 'o'){
+    	        first12bits = 0xE0200000;
+    	    } else if(opcode[1] == 'u'){
+    	        first12bits = 0xE0400000;
+    	    } else if(opcode[1] == 's'){
+    	        first12bits = 0xE0600000;
+    	    } else if(opcode[1] == 'd'){
+    	        first12bits = 0xE0800000;
+    	    } else if(opcode[1] == 'r'){
+    	        first12bits = 0xE1800000;
+    	    }
+            char *temp = malloc(sizeof(char *));
+            sscanf(operand2, "%s\n", temp);
+    		uint32_t *roInt = (uint32_t *) toCpuReg(temp);
+ //   	    printf("roInt = %x\n", *roInt);
+    	    uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
+ //   	    printf("rnInt = %x\n", *rnInt);
+    	    uint32_t *rdInt = (uint32_t *) toCpuReg(rd);
+ //   	    printf("rdInt = %x\n", *rdInt);
+    	    *rdInt = (first12bits | (*rdInt) << 16 | (*rnInt) << 12 | *roInt);
+    	    free(temp);
+    	    return rdInt;
+    	}
+//>>>>>>> origin/Oliver
     }
     /* Finishing off */
     uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
-    printf("rnInt = %x\n", *rnInt);
+//    printf("rnInt = %x\n", *rnInt);
     uint32_t *rdInt = (uint32_t *) toCpuReg(rd);
+/*<<<<<<< HEAD
     printf("rdInt = %x\n", *rdInt);
     printf("finalOperand2 = %x\n", finalOperand2);
     *rdInt = (*first12bits | (*rdInt) << 16 | (*rnInt) << 12 | finalOperand2);
+=======*/
+//    printf("rdInt = %x\n", *rdInt);
+ //   printf("rotAndImm = %x\n", rotAndImm);
+    *rdInt = (first12bits | (*rdInt) << 16 | (*rnInt) << 12 | rotAndImm);
+//>>>>>>> origin/Oliver
     return rdInt;
 }
 
 /* Translates mov */
 uint32_t *dataProcessing2(char *source){
-
+/*<<<<<<< HEAD
+ 
     assert(source != NULL);
     const char delim[3] = " ,";
     source = strtok(source, delim);
 
+=======*/
+
+    printf("This is your input = %s\n", source);
+    assert(source != NULL);
+    const char delim[3] = " ,";
+    source = strtok(source, delim);
+    printf("This is your input after strtok = %s\n", source);
+//>>>>>>> origin/Oliver
     char *reg;
     if((reg = strtok(NULL,delim)) == NULL){
         printf("OPCODE PARAMETER NON-EXISTANT");
@@ -395,7 +503,7 @@ uint32_t *dataProcessing2(char *source){
     /*May want to add the optional shift here*/
     if (operand2[0] == '#'){ //has the form #expression 
         startingBits = 0xE3A00000;
-        
+//>>>>>>> origin/Oliver
         uint32_t *temp = malloc(sizeof(uint32_t *));
         //sscanf(operand2, "#%x" ,temp);
         *temp = extractNum(operand2);
@@ -407,6 +515,7 @@ uint32_t *dataProcessing2(char *source){
 
     } else {
         /*We can include the case for a shifted register here if we choose tio*/
+/*<<<<<<< HEAD
         
       char *temp = malloc(sizeof(char *));
       sscanf(operand2, "%s\n", temp);
@@ -415,6 +524,16 @@ uint32_t *dataProcessing2(char *source){
         
       startingBits = 0xE1A00000;
 
+=======*/
+
+      char *temp = malloc(sizeof(char *));
+      sscanf(operand2, "%s\n", temp);
+     	operandBits = (uint32_t *) toCpuReg(temp);
+      free(temp);
+
+      startingBits = 0xE1A00000;
+
+//>>>>>>> origin/Oliver
     }
     uint32_t *regint = (uint32_t *) toCpuReg(reg);
     *regint = (startingBits | *regint << 12 | *operandBits);
@@ -464,6 +583,25 @@ uint32_t *dataProcessing3(char *source){
         free(temp);
     } else {
         /*this is where we could put the optional shift stuff*/
+        if(opcode[0] == 'c'){
+            first12bits = 0xE1500000; // This will have to be changed if we decide
+                                      // decide to implement th eoptional shifts
+        } else if(opcode[1] == 's'){
+            first12bits = 0xE1100000; // ^^^^^^^^
+        } else if(opcode[1] == 'e'){
+            first12bits = 0xE1300000; // ^^^^^^^^
+        } else {
+           /*ERROR - passed this function something wrong*/
+        }
+        char *temp = malloc(sizeof(char *));
+        sscanf(operand2, "%s\n", temp);
+       	uint32_t *operandBits = (uint32_t *) toCpuReg(temp);
+        free(temp);
+        uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
+ //      	printf("rnInt = %x\n", *rnInt);
+//       	printf("operandBits = %x\n", *operandBits);
+       	*rnInt = (first12bits | (*rnInt) << 16 | *operandBits);
+        return rnInt;
     }
     uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
     *rnInt =  (first12bits | (*rnInt) << 16 | rotAndImm);
@@ -590,7 +728,13 @@ uint32_t *sdt_str(char *source){
   binary = binaryReplace( 0x0 ,1, binary , 20 );
   return binary;
 }
-
+uint32_t *branchAux(uint32_t *code, uint32_t *offset) {
+	uint32_t *res = malloc(sizeof(uint32_t *));
+	*res = *code << 28 | 0xA << 24 | *offset;
+//	printf("res ...\n");
+//	printBits(res);
+	return res;
+}
 
 /* Translates branch - beq, bne, bge, blt, bgt, ble, b, */
 uint32_t *branch(char *source){
@@ -599,10 +743,14 @@ uint32_t *branch(char *source){
   char *token = strtok(source, p);
   printf("branch token = %s\n",token);
 
-  uint32_t *binary = NULL;
-
-  uint32_t *cond_b = (uint32_t *)getElem(code_binarycode, token);
-
+  uint32_t *binary = malloc(sizeof(uint32_t *));
+//  printf("Printing binaryode tree in branch....\n");
+//  printPaths(code_binarycode->tree);
+  printf("this is the value of b: %p\n",getElem(code_binarycode, token));
+  uint32_t *code = (uint32_t *)getElem(code_binarycode, token);
+  printf("this is cond_b = %x\n", *code);
+//  uint32_t *cond_b = malloc(sizeof(uint32_t *));
+//  *cond_b = code;
   //Get Expression
   uint32_t *labelAddress;
 
@@ -618,18 +766,36 @@ uint32_t *branch(char *source){
     exit(EXIT_FAILURE);
   }
   free(temp);
-  uint32_t *offset = NULL;
+//  printf("Printing tree in branch....\n");
+//  printPaths(label_address->tree);
+  uint32_t *offset = malloc(sizeof(uint32_t));
   //lines of code offset
-  *offset = file_line - *labelAddress;
-  *offset += 1;
+  *offset = *labelAddress - file_line;
+  if (*labelAddress > file_line && *labelAddress - file_line <= 3) {
+  *offset -= 2;      // if condtion e.g. b label is above :label(jump ahead)
+  } else if	(file_line > *labelAddress  && file_line - *labelAddress <= 3) {
+	  *offset -= 1;
+  }
+//  else {
+//	  *offset -= 1;  // if :label is above condtion e.g. b label (jump back)
+//  }
+  printf("offset = %x\n", *offset);
   //either add 1 or 2 lines
-
+  *offset = *offset & 0x00FFFFFF;
+//  *offset = *offset  2;
+  printf("offset2 = %x\n", *offset);
   *binary = (*offset >> 2);
-  uint32_t k = 0x5;
-  binary = binaryConcat(&k ,binary,25);
-  binary = binaryConcat(cond_b,binary,28);
-  
-  return binary;
+//  uint32_t k = 0x5;
+//  uint32_t *res  = binaryConcat(&k ,binary,25);
+//  res = binaryConcat(code,res,28);
+//  printf("code = %x\n", *code);
+//  uint32_t *res = *code << 28 | 5 << 24 | *offset;
+  uint32_t *res = branchAux(code, offset);
+  printf("res = %x\n", *res);
+  free(offset);
+  free(binary);
+//  free(cond_b);
+  return res;
 }
 
 /* Translates special - andeq */
@@ -665,4 +831,3 @@ uint32_t *spec_lsl(char *source){
   *regint = (base | *regint << 12 | extractednum << 7 | *regint);
   return regint;
 }
-

@@ -66,6 +66,7 @@ void destroyDictionaryfunctions(DICTIONARY *d){
 
 /* Checks if label exists, This will store it*/
 int storeLabel(char *source){
+/*<<<<<<< HEAD
   char *t1 = malloc(sizeof(source));
   char *t2 = malloc(sizeof(source));
   sscanf(source,"%[^:] %*[ :] %[^:] ",t1,t2);
@@ -75,6 +76,26 @@ int storeLabel(char *source){
   putElem(label_address,t1,&file_line);
   free(t1);
   free(t2);
+=======*/
+//  printf("storeLabel source = %s\n", source);
+  char *t1 = malloc(sizeof(source));
+  char *t2 = malloc(sizeof(source));
+  sscanf(source,"%[^:] %[:] ",t1,t2);
+//  printf("storeLabel t1 = %s\n", t1);
+ // printf("storeLabel t2 = %s\n", t2);
+  if(t2[0] == '\0'){ //No Label
+    return 0;
+  }
+  uint32_t *linenumlabel = malloc(sizeof(uint32_t *));
+  *linenumlabel = file_line;
+//  uint32_t *num = linenumlabel;
+  putElem(label_address,t1,linenumlabel);
+//  printf("Printing tree in removelabel....\n");
+//  printPaths(label_address->tree);
+//  free(t1);
+  free(t2);
+//  free(linenumlabel);
+//>>>>>>> origin/Oliver
   return 1;
 }
 
@@ -92,7 +113,8 @@ char *removeLabel(char *source){
 }
 
 /*prints the bits to file, return 1 on success, 0 otherwise */
-void writeBits(uint32_t *bits , FILE *out_file){
+
+/*void writeBits(uint32_t *bits , FILE *out_file){
   assert(out_file != NULL);
   int i;
   uint32_t mask = 1 << 31;
@@ -110,7 +132,7 @@ void writeBits(uint32_t *bits , FILE *out_file){
 //  writeUint32(out_file, bits);
   printf("\n");
 }
-
+*/
 
 int writeUint32(FILE *const stream, uint32_t value) {
   /* These must be unsigned */
@@ -122,7 +144,7 @@ int writeUint32(FILE *const stream, uint32_t value) {
     buffer[sizeof(buffer) - i - 1] = value & charMask;
     value >>= CHAR_BIT;
   }
-  int count = fwrite(buffer,1, sizeof(buffer), stream);
+  int count = fwrite(buffer,sizeof(buffer),1, stream);
   return count == 1;
 }
 
@@ -154,9 +176,10 @@ int printFileContents(FILE *ptr){
   return 0;
 }
 
-uint32_t *LEtoBE(uint32_t *word){
-  *word = ((*word << 8) & 0xFF00FF00) | ((*word >> 8) & 0x00FF00FF);
-  *word = (*word << 16) | (*word >> 16);
+
+uint32_t LEtoBE(uint32_t word){
+  word = ((word << 8) & 0xFF00FF00) | ((word >> 8) & 0x00FF00FF);
+  word = (word << 16) | (word >> 16);
   return word;
 }
 
@@ -173,6 +196,9 @@ int main(int argc, char **argv) {
   label_address = setUPlabel_address();
   setUPcode_binarycode();
   opcode_function = setUPopcode_function();
+  printf("Value of b %x\n", *(uint32_t *)getElem(code_binarycode, "b"));
+//  printf("Printing binarycode tree in main....\n");
+//  printPaths(code_binarycode->tree);
 
 
   //Setup File fields
@@ -205,9 +231,12 @@ int main(int argc, char **argv) {
   file_line = 0;
 
   while(fgets(buff,MAX_LINE_LENGTH,ptr_SourceFile)){
-    storeLabel(buff); 
+//	    printf("Program loop 1 buffer line %x = %s\n", file_line ,buff);
+    storeLabel(buff);
     file_line++;
   }
+//  printf("Printing tree....\n");
+//  printPaths(label_address->tree);
 
   printf("FInished program loop 1\n");
 
@@ -218,7 +247,6 @@ int main(int argc, char **argv) {
   /* Program Loop 2*/
   /* Reads Opcode and generate Binary Encoding */
   while(fgets(buff,MAX_LINE_LENGTH,ptr_SourceFile)){
-    
     //Check if label exists and if so remove it
     char *buffer = removeLabel(buff);
     //Buff now contains no label absolutely
@@ -229,15 +257,33 @@ int main(int argc, char **argv) {
       printf("Problem! couldn't allocate memory for buffTemp");
       break;
     }
+/*<<<<<<< HEAD
     buffTemp = strcpy(buffTemp,buffer);
     uint32_t *output;
 
     const char s[2] = " ";     
     char *token = strtok(buffer,s);
 
+=======*/
+    strcpy(buffTemp,buff);
+    printf("This is your buffer = %s\n", buff);
+//    uint32_t *output;
+    printf("Program loop 2 buffTemp = %s\n", buffTemp);
+    const char s[2] = " ";
+    char *token = strtok(buff,s);
+    printf("current token %s\n" , token);
+//>>>>>>> origin/Oliver
     //Check if empty line
-    if(token==NULL){
+    if(token[0]=='\n'){
       continue;
+    }
+
+    /* The Label will never exist here, i have already removed it */
+    if (token[strlen(token)-2] == ':') {
+    	printf("This is a label: %s\n", token);
+        free(buffTemp);
+        file_line++;
+        continue;
     }
 
     //Loop-up Opcode to get function
@@ -250,14 +296,17 @@ int main(int argc, char **argv) {
 
     //Apply function
 //	printf("buffTemp loop 2 = %s\n", buffTemp);
-    output = encodingStruct->encFunc(buffTemp);
 
-    output = LEtoBE(output);
-    printf("hex = %x\n", *output);
+    printf("This is buffTemp %s\n", buffTemp);
+ //   output = encodingStruct->encFunc(buffTemp);
+    uint32_t out = *encodingStruct->encFunc(buffTemp);
 
+    out = LEtoBE(out);
+    printf("hex = %x\n", out);
+    printf("hex in the middle = %x\n", out);
     //Write to file
-    writeUint32(ptr_WriteFile, *output);
-
+    writeUint32(ptr_WriteFile, out);
+    printf("hex again  = %x\n", out);
     free(buffTemp);
     file_line++;
   }
@@ -265,14 +314,13 @@ int main(int argc, char **argv) {
 
   printf("Finished Program Loop 2\n");
 
-
   fclose(ptr_SourceFile);
   fclose(ptr_WriteFile);
-  
+
   destroyDictionary(label_address);
   destroycode_binarycode();
   destroyDictionaryfunctions(opcode_function);
   destroyRegisterDictionary();
 
-  return EXIT_SUCCESS;
-}
+   return EXIT_SUCCESS;
+  }
