@@ -75,8 +75,8 @@ int storeLabel(char *source){
     return 0;
   }
 
-  uint32_t line = file_line;
-  uint32_t *linenumlabel = &line;
+  uint32_t *linenumlabel = malloc(sizeof(uint32_t *));
+  *linenumlabel = file_line;
 
   putElem(label_address,t1,linenumlabel);
   free(t2);
@@ -155,6 +155,7 @@ int main(int argc, char **argv) {
   label_address = setUPlabel_address();
   setUPcode_binarycode();
   opcode_function = setUPopcode_function();
+  setUPregister_dict();
   //printf("Value of b %x\n", *(uint32_t *)getElem(code_binarycode, "b"));
 
 

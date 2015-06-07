@@ -143,27 +143,58 @@ void setUPcode_binarycode(void){
   putElem(d,"cmp",cmp);
 
   code_binarycode = d;
-
 }
 
 void setUPregister_dict(void){
   DICTIONARY *d = createDictionary();
 
   //Opcodes for registers
-  putElem(d,"r1",(void *)0x0);
-  putElem(d,"r2",(void *)0x1);
-  putElem(d,"r3",(void *)0x2);
-  putElem(d,"r4",(void *)0x3);
-  putElem(d,"r5",(void *)0x4);
-  putElem(d,"r6",(void *)0x5);
-  putElem(d,"r7",(void *)0x6);
-  putElem(d,"r8",(void *)0x7);
-  putElem(d,"r9",(void *)0x8);
-  putElem(d,"r10",(void *)0xa);
-  putElem(d,"r11",(void *)0xb);
-  putElem(d,"r12",(void *)0xc);
-  putElem(d,"pc",(void *)0xf);
-  putElem(d,"cpsr",(void *)0x10);
+  uint32_t *r0 = malloc(sizeof(uint32_t *));
+  *r0 = 0x0;
+  uint32_t *r1 = malloc(sizeof(uint32_t *));
+  *r1 = 0x1;
+  uint32_t *r2 = malloc(sizeof(uint32_t *));
+  *r2 = 0x2;
+  uint32_t *r3 = malloc(sizeof(uint32_t *));
+  *r3 = 0x3;
+  uint32_t *r4 = malloc(sizeof(uint32_t *));
+  *r4 = 0x4;
+  uint32_t *r5 = malloc(sizeof(uint32_t *));
+  *r5 = 0x5;
+  uint32_t *r6 = malloc(sizeof(uint32_t *));
+  *r6 = 0x6;
+  uint32_t *r7 = malloc(sizeof(uint32_t *));
+  *r7 = 0x7;
+  uint32_t *r8 = malloc(sizeof(uint32_t *));
+  *r8 = 0x8;
+  uint32_t *r9 = malloc(sizeof(uint32_t *));
+  *r9 = 0x9;
+  uint32_t *r10 = malloc(sizeof(uint32_t *));
+  *r10 = 0xa;
+  uint32_t *r11 = malloc(sizeof(uint32_t *));
+  *r11 = 0xb;
+  uint32_t *r12 = malloc(sizeof(uint32_t *));
+  *r12 = 0xc;
+  uint32_t *pc = malloc(sizeof(uint32_t *));
+  *pc = 0xf;
+  uint32_t *cpsr = malloc(sizeof(uint32_t *));
+  *cpsr = 0x10;
+
+  putElem(d,"r0",(void *)r0);
+  putElem(d,"r1",(void *)r1);
+  putElem(d,"r2",(void *)r2);
+  putElem(d,"r3",(void *)r3);
+  putElem(d,"r4",(void *)r4);
+  putElem(d,"r5",(void *)r5);
+  putElem(d,"r6",(void *)r6);
+  putElem(d,"r7",(void *)r7);
+  putElem(d,"r8",(void *)r8);
+  putElem(d,"r9",(void *)r9);
+  putElem(d,"r10",(void *)r10);
+  putElem(d,"r11",(void *)r11);
+  putElem(d,"r12",(void *)r12);
+  putElem(d,"pc",(void *)pc);
+  putElem(d,"cpsr",(void *)cpsr);
  
   register_dict = d;
 }
@@ -764,7 +795,7 @@ uint32_t *branch(char *source){
   }
   free(temp);
   uint32_t *offset = malloc(sizeof(uint32_t));
-  
+  printf("labelAddress  %x, file_line %x\n", *labelAddress, file_line);
   //lines of code offset
   *offset = *labelAddress - file_line;
   if (*labelAddress > file_line && *labelAddress - file_line <= 3) {

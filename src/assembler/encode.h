@@ -16,8 +16,6 @@
 
 DICTIONARY *register_dict;
 
-
-
 /* Struct for storing function pointers */
 
 
@@ -42,6 +40,7 @@ STR_ENC *andeq;
 STR_ENC *lsl;
   
 /* Function defintions */
+void setUPregister_dict(void);
 
 void destroyRegisterDictionary(void);
 
