@@ -46,4 +46,7 @@ int removeElem(DICTIONARY *d , KEY *key);
 //Returns 1 if all dictioary memory elemnts have been freed, 0 otherwise;
 int destroyDictionary(DICTIONARY *d);
 
+//Returns 1 if all dictioary memory elemnts have been freed, 0 otherwise;
+int destroyDictionaryVALUES(DICTIONARY *d);
+
 #endif

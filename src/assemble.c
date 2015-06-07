@@ -256,6 +256,8 @@ int main(int argc, char **argv) {
   fclose(ptr_SourceFile);
   fclose(ptr_WriteFile);
 
+  destroyDictionaryVALUES(label_address);  // this is where we free the values we malloced in storeLabel function.
+  destroyDictionaryVALUES(code_binarycode);
   destroyDictionary(label_address);
   destroycode_binarycode();
   destroyDictionaryfunctions(opcode_function);

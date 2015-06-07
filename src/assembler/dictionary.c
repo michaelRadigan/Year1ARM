@@ -236,6 +236,16 @@ void destroyENTRY(treeNode *node) {
   node = NULL;
 }
 
+void destroyENTRYVALUES(treeNode *node) {
+  if(node == NULL) {
+    return;
+  }
+  destroyENTRY(node->left);
+  destroyENTRY(node->right);
+  free(node->value);
+  node = NULL;
+}
+
 void inorder(treeNode *root) {
   if(root == NULL) return;
 
@@ -292,6 +302,18 @@ int destroyDictionary(DICTIONARY *d) {
   d->tree = NULL;
   return 1;
 }
+
+//Returns 1 if all dictioary memory elemnts have been freed, 0 otherwise;
+int destroyDictionaryVALUES(DICTIONARY *d) {
+	  if (d == NULL) {
+	    perror("Tried to destroy dictionary that does not exist");
+	    return 0;
+	  }
+	  destroyENTRYVALUES(d->tree);
+	  d->tree = NULL;
+	  return 1;
+}
+
 /*
 int main() {
   uint16_t a = 1;
