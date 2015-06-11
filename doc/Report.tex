@@ -1,21 +1,75 @@
 \documentclass[11pt]{article}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\graphicspath{ {Images/} }
 
 \usepackage{fullpage}
 
 \begin{document}
 
-\title{Our Extension...}
-\author{TODO}
+\title{
+	{\huge\textbf{FlappyPi}} \\		
+	Documentation of our 'original' extension
+	}
 
+\author{Henryk Hadass \and Mickey Li \and Michael Radigan \and Oliver Wheeler}
+\date{\today}
 \maketitle
 
-\section{Introduction}
+\noindent
+\rule{8cm}{0.6pt}
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-culpa qui officia deserunt mollit anim id est laborum.
+\tableofcontents
+
+\noindent
+\rule{8cm}{0.6pt}
+\begin{wrapfigure}{r}{0.25\textwidth}
+  \vspace{-10pt}
+  \begin{center}
+    \includegraphics[width=0.25\textwidth]{flappyBird.png}
+  \end{center}
+  \vspace{-30pt}
+  \caption{The bird...}
+  \vspace{-20pt}
+\end{wrapfigure}
+\section{Introduction}
+On completing the challenges involved in developing the Emulator and Assembler modules of this project, we tried to come up with a fun and simple game to make use of the Raspberry pi we had at our disposal and the code we had created. What better game then to create our very own retro 8-bit style 'Flappy Bird' clone.
+
+This idea will throw up several challenges which we will have to overcome, such as creating the display driver, creating button controls and of course developing the main game loop. But the decision we have to make is whether we will choose to program the game in C, and as a result add instructions to the emulator and assembler, or program the game in assembler. Either way, this will prove to be an interesting extension to this project!
+
+
+
+\pagebreak
+
+\section{Implementation}
+
+
+\noindent
+\rule{8cm}{0.6pt}
+\section{Challenges/Problems}
+
+\noindent
+\rule{8cm}{0.6pt}
+\section{Evaluation of Testing}
+
+\noindent
+\rule{8cm}{0.6pt}
+\section{Project Evaluation}
+
+\subsection{Group Reflection}
+
+\subsection{Individual Reflection}
+
+\subsubsection*{Henryk Hadass}
+
+\subsubsection*{Mickey Li}
+
+\subsubsection*{Michael Radigan}
+
+\subsubsection*{Oliver Wheeler}
+
+\noindent
+\rule{8cm}{0.6pt}
+\section{Conclusion}
 
 \end{document}
