@@ -735,7 +735,7 @@ uint32_t *sdt_ldr(char *source) {
 		exit(EXIT_FAILURE);
 	}
 	char *expr2;
-	expr2 = strtok( NULL, p);
+	expr2 = strtok(NULL, p);
 	printf("This is expr, expr2 : %s : %s\n", expr, expr2);
 
 	//3 ways of interpreting expr
@@ -775,12 +775,9 @@ uint32_t *sdt_ldr(char *source) {
 		}
 	} else {
 		startingBits = 0xE5900000;
-		//	char *rn;
 		char *newexpr = malloc(sizeof(char *));
 		char *t2 = malloc(sizeof(char *));
-
 		sscanf(expr, "[%[^]] %[]] ", newexpr, t2);
-		//		sscanf(expr, "[%[^]%] ", newexpr, t2);
 		printf("this is temp1 %s\n", newexpr);
 //			printf("this is temp2 %s\n", t2);
 		uint32_t *rnint = toCpuReg(newexpr);
@@ -789,7 +786,10 @@ uint32_t *sdt_ldr(char *source) {
 			*val = startingBits | *rnint << 16 | *rdint << 12;
 			return val;
 		} else {
+//			expr2[strlen(expr2)-1] = '\0';
 			uint32_t *temp = malloc(sizeof(uint32_t *));
+			if (expr2[0] == '#') {
+				printf("This is expr2 \"%s\"\n", expr2);
 			*temp = extractNum(expr2);
 			if (isNegative(*temp)) {
 				*temp = flipSign(*temp);
@@ -798,10 +798,23 @@ uint32_t *sdt_ldr(char *source) {
 			printf("this is temp %x \n", *temp);
 			*val = startingBits | *rnint << 16 | *rdint << 12 | *temp;
 			return val;
+			}
+			else {
+				if (strchr(expr2, ']') != NULL) {
+					startingBits = 0xE7900000;
+					expr2[strlen(expr2)-1] = '\0';
+				} else {
+					startingBits = 0xE6900000;
+				}
+					uint32_t *roff = toCpuReg(expr2);
+					printf("This is roff %x\n", *roff);
+					*val = startingBits | *rnint << 16 | *rdint << 12 | *roff;
+					printf("This is roff %x\n", *roff);
+					return val;
+
+			}
 		}
 	}
-	//2. A pre-indexed spec
-	//3. A post-index
 	return NULL;
 }
 
