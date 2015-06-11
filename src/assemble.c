@@ -179,6 +179,10 @@ int main(int argc, char **argv) {
 	file_line = 0;
 
 	while (fgets(buff, MAX_LINE_LENGTH, ptr_SourceFile)) {
+		//Check if empty line
+		if (buff[0] == '\n' || buff[0] == '\0' || buff[0] == EOF) {
+			continue;
+		}
 		storeLabel(buff);
 		file_line++;
 	}
@@ -196,7 +200,7 @@ int main(int argc, char **argv) {
 
 		//Check if empty line
 		if (buff[0] == '\n' || buff[0] == '\0' || buff[0] == EOF) {
-			file_line++;
+	//		file_line++;
 			continue;
 		}
 

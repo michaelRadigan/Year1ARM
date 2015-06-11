@@ -26,8 +26,7 @@ uint32_t extractNum(char *num) {
 		} else {
 			res = atoi(num + 1);
 		}
-	}
-	else {
+	} else {
 		if (num[2] == 'x') {
 			res = strtol(num + 3, NULL, 16);
 		} else {
@@ -752,12 +751,14 @@ uint32_t *sdt_ldr(char *source) {
 			return val;
 		} else {
 			uint32_t offset = 0x0;
-			if (file_length - file_line + getNumElems(LDRconsts) > 2) {
-				offset =
-						4
-								* (file_length - file_line - 1
-										+ getNumElems(LDRconsts));
+			if (file_length + getNumElems(LDRconsts) - file_line >= 2) {
+				offset = 4
+						* (file_length - file_line - 1 + getNumElems(LDRconsts)
+								- getNumElems(label_address));
 			}
+			printf("This is getNumElems(LDRconsts) %x\n",
+					getNumElems(LDRconsts));
+			printf("This is offset %x\n", offset);
 			char *str = malloc(sizeof(char *));
 			uint32_t *ldrconstant = malloc(sizeof(uint32_t *));
 			*ldrconstant = *val;
@@ -799,19 +800,25 @@ uint32_t *sdt_ldr(char *source) {
 			return val;
 		}
 	}
-
 	//2. A pre-indexed spec
-
 	//3. A post-index
-
 	return NULL;
+}
+
+uint32_t twentieth0(uint32_t num) {
+	printf("num in twentieth0 first = %x\n", num);
+	if (num && 0x100000 == 0x100000) {
+		num -= 0x100000;
+	}
+	printf("num in twentieth0 = %x\n", num);
+	return num;
 }
 
 /* Translates str */
 uint32_t *sdt_str(char *source) {
 	//Same as ldr but with 20th bit replaced with a 0;
 	uint32_t *binary = sdt_ldr(source);
-	binary = binaryReplace(0x0, 1, binary, 20);
+	*binary = twentieth0(*binary);
 	return binary;
 }
 
@@ -855,11 +862,18 @@ uint32_t *branch(char *source) {
 	printf("labelAddress  %x, file_line %x\n", *labelAddress, file_line);
 	//lines of code offset
 	*offset = *labelAddress - file_line;
-	if (*labelAddress > file_line && *labelAddress - file_line <= 3) {
+	if (*labelAddress > file_line && *labelAddress - file_line <= 2) {
 		*offset -= 2;    // if condtion e.g. b label is above :label(jump ahead)
-	} else if (file_line > *labelAddress && file_line - *labelAddress <= 3) {
+	} else if (file_line > *labelAddress && file_line - *labelAddress <= 5) {
 		*offset -= 1;
 	}
+//	else if (file_line > *labelAddress && file_line - *labelAddress >= 4) {
+//		*offset -=1;
+//	}
+//	else if (file_line > *labelAddress && file_line) {
+//		*offset -=1;
+//	}
+
 	printf("offset = %x\n", *offset);
 
 	//either add 1 or 2 lines
