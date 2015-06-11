@@ -15,6 +15,7 @@
 
 
 DICTIONARY *register_dict;
+DICTIONARY *LDRconsts;
 
 /* Struct for storing function pointers */
 
@@ -47,6 +48,10 @@ void destroyRegisterDictionary(void);
 void setUPcode_binarycode(void);
 
 void destroycode_binarycode(void);
+
+void setUpLDRconsts(void);
+
+void destroyLDRconsts(void);
 
 /* Auxiliary functions defintions*/
 
