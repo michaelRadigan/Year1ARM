@@ -15,7 +15,7 @@ int carry_out_flag = 0;
 
 
 /**
- * Checks whether I flag is set for Data Processing
+ * Checks whether I flag is set in Data Processing
  */
 int
 I_flag_set_data_proc(void){
@@ -109,7 +109,7 @@ C_flag_set(uint32_t op_code){
     case OC_SUB : case OC_RSB : case OC_CMP : 
     default : 
       break;
-	}
+  }
 }
 
 
@@ -155,6 +155,7 @@ shift_right_flag_check(uint32_t shift_amount, uint32_t reg_val){
  */
 int
 most_significant_bit(uint32_t test){
+  
   int i, temp;
   temp = test;
   for(i = 31; i < 0; i--){
@@ -176,6 +177,7 @@ most_significant_bit(uint32_t test){
  */
 int
 least_significant_bit(uint32_t test){
+  
   int i, temp;
   temp = test;
   for(i = 0; i < 31; i++){

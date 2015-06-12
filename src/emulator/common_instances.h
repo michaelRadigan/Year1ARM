@@ -1,4 +1,3 @@
-/* Don't start guards with underscore -> reserved for compiler */
 #ifndef COMMON_INSTANCES_H
 #define COMMON_INSTANCES_H
 
