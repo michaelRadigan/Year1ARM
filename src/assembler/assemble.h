@@ -16,15 +16,22 @@
 
 DICTIONARY *label_address;
 DICTIONARY *opcode_function;
-
+Dictionary *alias_register;
 
 uint32_t file_line;
 uint32_t file_length;
 
 /* Function definitions */
+void setUpDictionaries();
 DICTIONARY *setUPlabel_address(void);
+DICTIONARY *setUpalias_register(void);
 DICTIONARY *setUPopcode_function(void);
 void destroyDictionaryfunctions(DICTIONARY *d);
-char *getLabel(char *source);
+void destroyAllDictionaries();
+int storeLabel(char *source);
+char *removeLabel(char *source);
+int writeUint32(FILE * const stream, uint32_t value);
+int doesFileExist(const char *filename);
 void writeBits(uint32_t *bits,FILE *out_file);
+uint32_t LEtoBE(uint32_t word);
 #endif
