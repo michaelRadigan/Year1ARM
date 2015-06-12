@@ -36,6 +36,7 @@ main(int argc, char **argv){
   if(argc_check(argc) || argv_check(argv)){
     FILE *binFile = fopen(argv[1], "rb");
     memory_load_file(binFile);
+//    fclose(binFile);
   }
   else{
     return EXIT_FAILURE;
