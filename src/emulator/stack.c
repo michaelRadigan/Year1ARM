@@ -15,9 +15,9 @@ stack_init(stackByte *stack_ptr, int maxSize){
       exit(1);  /* Exit, returning error code. */
     }
 
-    stackptr->contents = newContents;
-    stackptr->maxSize = maxSize;
-    stackptr->stackTop = -1;  /* i.e. empty */
+    stack_ptr->contents = newContents;
+    stack_ptr->maxSize = maxSize;
+    stack_ptr->stackTop = -1;  /* i.e. empty */
 }
 
 
@@ -27,7 +27,7 @@ stack_init(stackByte *stack_ptr, int maxSize){
  */
 void
 StackDestroy(stackByte *stack_ptr){
-  free(stackptr->contents);
+  free(stack_ptr->contents);
 
   stack_ptr->contents = NULL;
   stack_ptr->maxSize = 0;
@@ -61,7 +61,7 @@ stack_is_full(stackByte *stack_ptr){
  */
 void
 stack_push(stackByte *stack_ptr, stackByteElem *element){
-  if(StackIsFull(stackptr)){
+  if(stack_is_full(stack_ptr)){
     fprintf(stderr, "Can't push element on stack: stack is full.\n");
     exit(1);  /* Exit, returning error code. */
   }
@@ -76,7 +76,7 @@ stack_push(stackByte *stack_ptr, stackByteElem *element){
  */
 stackByteElem 
 StackPop(stackByte *stack_ptr){
-  if(StackIsEmpty(stack_ptr)){
+  if(stack_is_empty(stack_ptr)){
     fprintf(stderr, "Can't pop element from stack: stack is empty.\n");
     exit(1);  /* Exit, returning error code. */
   }

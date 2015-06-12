@@ -1,6 +1,6 @@
 #ifndef STACK_H
 #define STACK_H
-#include <stdlib.h>
+#include "common_instances.h"
 /**
  * Stack datatype for converting Little Endian file
  * to Big Endian for instruction parsing convenience
@@ -12,6 +12,8 @@ typedef struct {
 	int maxSize;
 	int stackTop;
 }stackByte;
+
+extern stackByte *stack_ptr;
 
 /* Function protoypes */
 
