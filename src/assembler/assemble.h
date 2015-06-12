@@ -16,7 +16,7 @@
 
 DICTIONARY *label_address;
 DICTIONARY *opcode_function;
-Dictionary *alias_register;
+DICTIONARY *alias_register;
 
 uint32_t file_line;
 uint32_t file_length;
@@ -30,6 +30,7 @@ void destroyDictionaryfunctions(DICTIONARY *d);
 void destroyAllDictionaries();
 int storeLabel(char *source);
 char *removeLabel(char *source);
+char *replaceAliases(char *source);
 int writeUint32(FILE * const stream, uint32_t value);
 int doesFileExist(const char *filename);
 void writeBits(uint32_t *bits,FILE *out_file);
