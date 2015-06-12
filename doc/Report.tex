@@ -1,15 +1,32 @@
 \documentclass[11pt]{article}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={210mm,297mm},
+ left=30mm,
+ right=30mm,
+ top=40mm,
+ bottom=40mm,
+ }
 \usepackage{wrapfig}
 \usepackage{graphicx}
 \graphicspath{ {Images/} }
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
 
-\usepackage{fullpage}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\today}
+\lhead{Group 16 - FlappyPi}
+
 
 \begin{document}
 
 \title{
 	{\huge\textbf{FlappyPi}} \\		
-	Documentation of our 'original' extension
+	Group 16
 	}
 
 \author{Henryk Hadass \and Mickey Li \and Michael Radigan \and Oliver Wheeler}
@@ -35,7 +52,7 @@
 \section{Introduction}
 On completing the challenges involved in developing the Emulator and Assembler modules of this project, we tried to come up with a fun and simple game to make use of the Raspberry pi we had at our disposal and the code we had created. What better game then to create our very own retro 8-bit style 'Flappy Bird' clone.
 
-This idea will throw up several challenges which we will have to overcome, such as creating the display driver, creating button controls and of course developing the main game loop. But the decision we have to make is whether we will choose to program the game in C, and as a result add instructions to the emulator and assembler, or program the game in assembler. Either way, this will prove to be an interesting extension to this project!
+This idea will throw up many challenges which we will try our best to overcome. They will include implementing the stack, aliasing, opcode-suffixes, multi-file programs and more opcodes within our current assembler and emulator, as well as writing the assembler scripts for the graphics drivers and game loops and maths engine for our game. 
 
 
 
@@ -44,21 +61,32 @@ This idea will throw up several challenges which we will have to overcome, such 
 \section{Implementation}
 
 
-\noindent
-\rule{8cm}{0.6pt}
+
 \section{Challenges/Problems}
 
-\noindent
-\rule{8cm}{0.6pt}
+
+
 \section{Evaluation of Testing}
 
-\noindent
-\rule{8cm}{0.6pt}
-\section{Project Evaluation}
 
+
+
+\section{Project Evaluation}
+This project has been an interesting journey, and with any journey has had its ups and downs, but overall we think that it has been successful! At the end of this project we sat down and, as a group, reflected on our communication, organisation and effectiveness of our approach to the project.
 \subsection{Group Reflection}
 
-\subsection{Individual Reflection}
+\begin{description}
+\item[Communication]
+
+
+\item[Organisation]
+
+
+\item[Effectiveness]
+
+\end{description}
+
+\subsection{Individual Reflections}
 
 \subsubsection*{Henryk Hadass}
 
@@ -68,8 +96,6 @@ This idea will throw up several challenges which we will have to overcome, such 
 
 \subsubsection*{Oliver Wheeler}
 
-\noindent
-\rule{8cm}{0.6pt}
 \section{Conclusion}
 
 \end{document}
