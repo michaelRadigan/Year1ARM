@@ -126,19 +126,41 @@ char *removeLabel(char *source) {
 
 /* Replaces all aliases in the command with their proper representations */
 char *replaceAliases(char *source){
-  char *out = malloc(sizeof(char));
+  char *out = malloc(5 * sizeof(source));
   char *c = strtok(source, " ");
-  char *newChar = malloc(sizeof(char));
   out = strcpy(c,out);
+  int len = strlen(out);
   while( (c = strtok(NULL," "))!= NULL){
-    sscanf(c , "%[^,#=:<>]" , newChar);
-    if((newChar = getElem(alias_register,newChar)) == NULL){
+    char *newtoken = malloc(sizeof(char));
+    sscanf(c , "%[^,#=:<>]" , newtoken);
+    char *cp_newToken = malloc(sizeof(char));
+    if((newtoken = getElem(alias_register,newtoken)) == NULL){
       printf("ALIAS Does not exist");
       break;
     }
-    out = strcat(out , newChar);
+    //Insert space
+    out[len++] = ' ';
+
+    //Insert chars before alias
+    int i = 0;
+    for(; c[i] != cp_newToken[0]  ; i++){
+      out[len++] = c[i];
+    }
+    //Insert alias
+    for(int j = 0; newtoken[j] != '\0' ; j++){
+      out[len++] = newtoken[j];
+      len++;
+    }
+    //Update search param i by token length
+    i += strlen(cp_newToken);
+
+    //Insert chars after alias
+    for(;c[i] != '\0';i++){
+      out[len++] = c[i];
+    }
+    free(cp_newToken);
+    free(newtoken);
   }
-  free(newChar);
   free(source);
   return out;
 }
@@ -285,24 +307,13 @@ int main(int argc, char **argv) {
 			exit(EXIT_FAILURE);
 		}
 
-		/*
-<<<<<<< HEAD
-======= */
     //Replace all aliases
     buffTemp = replaceAliases(buffTemp);
 
-//>>>>>>> origin/master
-		//Apply function
 		uint32_t *output = encodingStruct->encFunc(buffTemp);
 
 		*output = LEtoBE(*output);
-		//Write to file
-//<<<<<<< HEAD
-	//	writeUint32(ptr_WriteFile, *output);
-//		printf("hex out  = %x\n", *output);
-//=======
-		writeUint32(ptr_WriteFile, out);
-//>>>>>>> origin/master
+  	writeUint32(ptr_WriteFile, *output);
 		free(buffTemp);
 		free(buffer);
 		free(output);
