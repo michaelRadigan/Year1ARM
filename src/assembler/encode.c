@@ -17,7 +17,7 @@ void printBits(uint32_t x) {
 	printf("\n");
 }
 
-// extracted uint32_t from string in form "#2342" or "#0x23EF8"
+// extracted uint32_t from string in form "#2342" or "#0x23EF8" or "#-1325" or "#-0x3C85"
 uint32_t extractNum(char *num) {
 	uint32_t res;
 	if (num[1] == '-') {
@@ -168,14 +168,6 @@ void destroyLDRconsts(void) {
 	destroyDictionary(LDRconsts);
 }
 
-//void setUPregistervalue_dict(void) {
-//	regist_vals = createDictionary();
-//}
-
-//void destroyregistervalue_dict(void) {
-//	destroyDictionary(regist_vals);
-//}
-
 void setUPregister_dict(void) {
 	DICTIONARY *d = createDictionary();
 
@@ -249,17 +241,6 @@ void destroycode_binarycode(void) {
  *
  * Note: Always build bit strings from the right to left
  */
-uint32_t *binaryConcat(uint32_t *b1, uint32_t *b2, int pos) {
-	//PRE: After pos in b2, there exist only 0 bits.
-//  uint32_t (*ptr)(uint32_t,uint32_t, int) = &binaryConcatHelper;
-
-//	*ptr = binaryConcatHelper(b1, b2, pos);
-//	  printf("Printing tree in binaryConcat....\n");
-//	  printPaths(label_address->tree);
-	uint32_t num = (*b2 | (*b1 << pos));
-	uint32_t *ptrhelp = &num;
-	return ptrhelp;
-}
 
 /*  
  * Replaces a bit chunk in b2 with b1
@@ -271,14 +252,14 @@ uint32_t *binaryConcat(uint32_t *b1, uint32_t *b2, int pos) {
  * @return: uint32_t bitString with b1 a pos for numberOfBits bits in b2.
  */
 
-uint32_t *binaryReplace(uint32_t *b1, int numberOfBits, uint32_t *b2, int pos) {
+uint32_t binaryReplace(uint32_t b1, int numberOfBits, uint32_t *b2, int pos) {
 	//replaces the bit of b2 to be replaced with 0s
 	uint32_t mask = 1;
 	for (int i = 0; i < numberOfBits - 1; i++) {
 		mask = 1 + (mask << 1); // put 1s in correct place
 	}
 	*b2 = *b2 & ~(mask << pos); // and so 0s are in swap position
-	return binaryConcat(b1, b2, pos);
+	return *b2 | (b1 << pos);
 }
 
 /*
@@ -288,7 +269,7 @@ uint32_t *binaryReplace(uint32_t *b1, int numberOfBits, uint32_t *b2, int pos) {
  * @return: pointer to the cpu_reg version of the register name.
  */
 
-uint32_t *toCpuReg(char *str) {
+uint32_t toCpuReg(char *str) {
 
 	/*  //only the beginning r will ever be lowercase
 	 str[0] = tolower(str[0]);
@@ -302,42 +283,41 @@ uint32_t *toCpuReg(char *str) {
 	 return ret;*/
 
 	str[0] = toupper(str[0]);
-	uint32_t *num = malloc(sizeof(uint32_t *));
-	uint32_t *res = num;
+//	uint32_t *num = malloc(sizeof(uint32_t *));
+	uint32_t res;
 	//  uint32_t  *res;
 	// return (cpu_reg *)str;
 	if (strcmp(str, "R0") == 0) {
-		*res = R0;
+		res = R0;
 	} else if (strcmp(str, "R1") == 0) {
-		*res = R1;
+		res = R1;
 	} else if (strcmp(str, "R2") == 0) {
-		*res = R2;
+		res = R2;
 	} else if (strcmp(str, "R3") == 0) {
-		*res = R3;
+		res = R3;
 	} else if (strcmp(str, "R4") == 0) {
-		*res = R4;
+		res = R4;
 	} else if (strcmp(str, "R5") == 0) {
-		*res = R5;
+		res = R5;
 	} else if (strcmp(str, "R6") == 0) {
-		*res = R6;
+		res = R6;
 	} else if (strcmp(str, "R7") == 0) {
-		*res = R7;
+		res = R7;
 	} else if (strcmp(str, "R8") == 0) {
-		*res = R8;
+		res = R8;
 	} else if (strcmp(str, "R9") == 0) {
-		*res = R9;
+		res = R9;
 	} else if (strcmp(str, "R10") == 0) {
-		*res = R10;
+		res = R10;
 	} else if (strcmp(str, "R11") == 0) {
-		*res = R11;
+		res = R11;
 	} else if (strcmp(str, "R12") == 0) {
-		*res = R12;
+		res = R12;
 	} else if (strcmp(str, "PC") == 0) {
-		*res = PC;
+		res = PC;
 	} else if (strcmp(str, "CPSR") == 0) {
-		*res = CPSR;
+		res = CPSR;
 	}
-	//free(num);
 	return res;
 }
 
@@ -420,7 +400,7 @@ uint32_t calculateShift(char *source) {
 	uint32_t res;
 	uint32_t shifttypeint;
 	uint32_t immval;
-	uint32_t *regval;
+	uint32_t regval;
 	if (shifttype[0] == 'l') {
 		if (shifttype[2] == 'l') {
 			shifttypeint = 0x0;
@@ -429,7 +409,7 @@ uint32_t calculateShift(char *source) {
 				res = immval << 7 | shifttypeint << 5;
 			} else {
 				regval = toCpuReg(expr);
-				res = *regval << 8 | shifttypeint << 5 | 1 << 4;
+				res = regval << 8 | shifttypeint << 5 | 1 << 4;
 			}
 		} else if (shifttype[2] == 'r') {
 			shifttypeint = 0x1;
@@ -438,7 +418,7 @@ uint32_t calculateShift(char *source) {
 				res = immval << 7 | shifttypeint << 5;
 			} else {
 				regval = toCpuReg(expr);
-				res = *regval << 8 | shifttypeint << 5 | 1 << 4;
+				res = regval << 8 | shifttypeint << 5 | 1 << 4;
 			}
 		} else {
 			perror("Shift command doesn't exist");
@@ -451,7 +431,7 @@ uint32_t calculateShift(char *source) {
 			res = immval << 7 | shifttypeint << 5;
 		} else {
 			regval = toCpuReg(expr);
-			res = *regval << 8 | shifttypeint << 5 | 1 << 4;
+			res = regval << 8 | shifttypeint << 5 | 1 << 4;
 		}
 	} else if (shifttype[0] == 'r') {
 		shifttypeint = 0x3;
@@ -460,7 +440,7 @@ uint32_t calculateShift(char *source) {
 			res = immval << 7 | shifttypeint << 5;
 		} else {
 			regval = toCpuReg(expr);
-			res = *regval << 8 | shifttypeint << 5 | 1 << 4;
+			res = regval << 8 | shifttypeint << 5 | 1 << 4;
 		}
 	} else {
 		perror("Shift command doesn't exist");
@@ -471,8 +451,9 @@ uint32_t calculateShift(char *source) {
 
 /* Translates and, eor, sub, rsb, add ,orr instructions*/
 uint32_t *dataProcessing1(char *source) {
+	uint32_t *res = malloc(sizeof(uint32_t *));
 	assert(source!= NULL);
-	uint32_t first12bits;
+//	uint32_t first12bits;
 	char *rn;
 	char *rd;
 	uint32_t rotAndImm;
@@ -485,31 +466,9 @@ uint32_t *dataProcessing1(char *source) {
 		printf("OPCODE PARAMETER NON-EXISTANT");
 		exit(EXIT_FAILURE);
 	}
-	/*
-	 Convert opcode to binary
-	 if((first12bits =(uint32_t *) getElem(code_binarycode,opcode)) == NULL){
-	 printf("OPCODE IS NOT OF THE RIGHT FORMAT\n");
-	 exit(EXIT_FAILURE);
-	 }*/
+	uint32_t *opcodeint = (uint32_t *)getElem(code_binarycode, opcode);
+	uint32_t imm = 0x1;
 
-	/*The 2nd letter of each mnemonic is unique, so we will just test that*/
-	if (opcode[1] == 'n') {
-		first12bits = 0xE2000000; // This will have to be changed if we decide
-								  // decide to implement th eoptional shifts
-	} else if (opcode[1] == 'o') {
-		first12bits = 0xE2200000; // ^^^^^^^^
-	} else if (opcode[1] == 'u') {
-		first12bits = 0xE2400000; // ^^^^^^^^
-	} else if (opcode[1] == 's') {
-		first12bits = 0xE2600000; // ^^^^^^^^
-	} else if (opcode[1] == 'd') {
-		first12bits = 0xE2800000; // ^^^^^^^^
-	} else if (opcode[1] == 'r') {
-		first12bits = 0xE3800000; // ^^^^^^^^
-	}
-	/* Create first 12 bits */
-	//*first12bits = (*first12bits << 21) | 0xE0000000;
-	/* Get registers */
 	if ((rn = strtok(NULL, delim)) == NULL) {
 		printf("OPCODE PARAMETER NON-EXISTANT");
 		exit(EXIT_FAILURE);
@@ -524,99 +483,61 @@ uint32_t *dataProcessing1(char *source) {
 		printf("OPCODE PARAMETER NON-EXISTANT");
 		exit(EXIT_FAILURE);
 	}
+	uint32_t rnInt = toCpuReg(rn);
+	//   	    printf("rnInt = %x\n", *rnInt);
+	uint32_t rdInt = toCpuReg(rd);
+	//   	    printf("rdInt = %x\n", *rdInt);
+
 	const char delimshift[3] = ",";
 	operand2shift = strtok(NULL, delimshift);
 
 	/* Check if operand 2 is an immediateValue */
 	if (operand2[0] == '#') {
 		uint32_t *temp = malloc(sizeof(uint32_t *));
-//        sscanf(operand2, "#%x", temp);
+
 		*temp = extractNum(operand2);
-		/*<<<<<<< HEAD
-		 printf("temp val = %x\n", *temp);
-		 uint32_t k = 0x1;
-		 first12bits = binaryReplace(&k,1,first12bits,25);
-		 finalOperand2= convertToImm(*temp);
-		 =======*/
-		//       printf("temp val = %x\n", *temp);
 		rotAndImm = convertToImm(*temp);
 		free(temp);
 	}
+
 	/* Else It is a shift */
 	else {
-		//THIS DOESNT ACTUALLY DO THE SHIFT!!
 		if (operand2[0] == 'r') {
-			if (opcode[1] == 'n') {
-				first12bits = 0xE0000000;
-
-			} else if (opcode[1] == 'o') {
-				first12bits = 0xE0200000;
-			} else if (opcode[1] == 'u') {
-				first12bits = 0xE0400000;
-			} else if (opcode[1] == 's') {
-				first12bits = 0xE0600000;
-			} else if (opcode[1] == 'd') {
-				first12bits = 0xE0800000;
-			} else if (opcode[1] == 'r') {
-				first12bits = 0xE1800000;
-			}
-
+			imm = 0x0;
 			char *temp = malloc(sizeof(char *));
 			sscanf(operand2, "%s\n", temp);
-			uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
-			//   	    printf("rnInt = %x\n", *rnInt);
-			uint32_t *rdInt = (uint32_t *) toCpuReg(rd);
-			//   	    printf("rdInt = %x\n", *rdInt);
-			uint32_t *roInt = (uint32_t *) toCpuReg(temp);
+
+			uint32_t roInt = toCpuReg(temp);
 			//   	    printf("roInt = %x\n", *roInt);
 			if (operand2shift == NULL) {
-				*rdInt =
-						(first12bits | (*rdInt) << 16 | (*rnInt) << 12 | *roInt);
+				*res = 0xE << 28 | imm << 25 | *opcodeint << 21 | rdInt << 16 | rnInt << 12 | roInt;
 				free(temp);
-				return rdInt;
+				return res;
 			} else {
 				printf("operand2shift \"%s\"\n", operand2shift);
-				*rdInt = first12bits | calculateShift(operand2shift)
-						| *rdInt << 16 | *rnInt << 12 | *roInt;
-				return rdInt;
-
+				*res = 0xE << 28 | imm << 25 | *opcodeint << 21 | calculateShift(operand2shift) | rdInt << 16 | rnInt << 12 | roInt;
+				return res;
 			}
 		}
 	}
-//>>>>>>> origin/Oliver
-
-	/* Finishing off */
-	uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
-//    printf("rnInt = %x\n", *rnInt);
-	uint32_t *rdInt = (uint32_t *) toCpuReg(rd);
-	/*<<<<<<< HEAD
-	 printf("rdInt = %x\n", *rdInt);
-	 printf("finalOperand2 = %x\n", finalOperand2);
-	 *rdInt = (*first12bits | (*rdInt) << 16 | (*rnInt) << 12 | finalOperand2);
-	 =======*/
-//    printf("rdInt = %x\n", *rdInt);
-	//   printf("rotAndImm = %x\n", rotAndImm);
-	*rdInt = (first12bits | (*rdInt) << 16 | (*rnInt) << 12 | rotAndImm);
-//>>>>>>> origin/Oliver
-	return rdInt;
+	*res = 0xE << 28 | imm << 25 | *opcodeint << 21 | rdInt << 16 | rnInt << 12 | rotAndImm;
+	return res;
 }
 
 /* Translates mov */
 uint32_t *dataProcessing2(char *source) {
-	/*<<<<<<< HEAD
 
-	 assert(source != NULL);
-	 const char delim[3] = " ,";
-	 source = strtok(source, delim);
+	uint32_t *res = malloc(sizeof(uint32_t *));
 
-	 =======*/
+	uint32_t *opcodeint = (uint32_t *)getElem(code_binarycode, "mov");
+	uint32_t imm = 0x1;
 
 	printf("\nNOW IN DP2\nThis is your input = %s\n", source);
 	assert(source != NULL);
 	const char delim[3] = " ,";
 	source = strtok(source, delim);
 	printf("This is your input after strtok = %s\n", source);
-//>>>>>>> origin/Oliver
+
 	char *reg;
 	if ((reg = strtok(NULL, delim)) == NULL) {
 		printf("OPCODE PARAMETER NON-EXISTANT");
@@ -628,54 +549,40 @@ uint32_t *dataProcessing2(char *source) {
 		printf("OPCODE PARAMETER NON_EXISTANT");
 		exit(EXIT_FAILURE);
 	}
-	uint32_t startingBits = 0;
-	uint32_t *operandBits = malloc(sizeof(uint32_t *));
+	uint32_t operandBits;
 
 	/*May want to add the optional shift here*/
 	if (operand2[0] == '#') { //has the form #expression
-		startingBits = 0xE3A00000;
-//>>>>>>> origin/Oliver
-		uint32_t *temp = malloc(sizeof(uint32_t *));
+//		uint32_t *temp = malloc(sizeof(uint32_t *));
+		uint32_t temp;
 		//sscanf(operand2, "#%x" ,temp);
-		*temp = extractNum(operand2);
-		printf("extractedNumber = %x\n", *temp);
+		temp = extractNum(operand2);
+		printf("extractedNumber = %x\n", temp);
 
 		/*Now need to convert to from described in emulate*/
-		*operandBits = convertToImm(*temp);
-		free(temp);
+		operandBits = convertToImm(temp);
+//		free(temp);
 
 	} else {
-		/*We can include the case for a shifted register here if we choose tio*/
-		/*<<<<<<< HEAD
-
-		 char *temp = malloc(sizeof(char *));
-		 sscanf(operand2, "%s\n", temp);
-		 operandBits = (uint32_t *) toCpuReg(temp);
-		 free(temp);
-
-		 startingBits = 0xE1A00000;
-
-		 =======*/
-
+		/*We can include the case for a shifted register here if we choose to*/
+		imm = 0x0;
 		char *temp = malloc(sizeof(char *));
 		sscanf(operand2, "%s\n", temp);
-		operandBits = (uint32_t *) toCpuReg(temp);
+		operandBits = toCpuReg(temp);
 		free(temp);
-
-		startingBits = 0xE1A00000;
-
-//>>>>>>> origin/Oliver
 	}
-	uint32_t *regint = (uint32_t *) toCpuReg(reg);
-	*regint = (startingBits | *regint << 12 | *operandBits);
-	free(operandBits);
-	return regint;
+	uint32_t regint = toCpuReg(reg);
+	*res = 0xE << 28 | imm << 25 | *opcodeint << 21 | regint << 12 | operandBits;
+	return res;
 }
 
 /* Translates tst, teq, cmp */
 uint32_t *dataProcessing3(char *source) {
+
+	uint32_t *res = malloc(sizeof(uint32_t *));
 	assert(source != NULL);
-	uint32_t first12bits;
+	uint32_t *opcodeint;
+	uint32_t imm = 0x1;
 	char *rn;
 	uint32_t rotAndImm;
 	char *operand2;
@@ -686,21 +593,11 @@ uint32_t *dataProcessing3(char *source) {
 		printf("OPCODE PARAMETER NON-EXISTANT");
 		exit(EXIT_FAILURE);
 	}
-	if (opcode[0] == 'c') {
-		first12bits = 0xE3500000; // This will have to be changed if we decide
-								  // decide to implement th eoptional shifts
-	} else if (opcode[1] == 's') {
-		first12bits = 0xE3100000; // ^^^^^^^^
-	} else if (opcode[1] == 'e') {
-		first12bits = 0xE3300000; // ^^^^^^^^
-	} else {
-		/*ERROR - passed this function something wrong*/
-	}
+	opcodeint = (uint32_t *)getElem(code_binarycode, opcode);
 	if ((rn = strtok(NULL, delim)) == NULL) {
 		printf("OPCODE PARAMETER NON-EXISTANT");
 		exit(EXIT_FAILURE);
 	}
-
 	if ((operand2 = strtok(NULL, delim)) == NULL) {
 		printf("OPCODE PARAMETER NON-EXISTANT");
 		exit(EXIT_FAILURE);
@@ -711,36 +608,27 @@ uint32_t *dataProcessing3(char *source) {
 		rotAndImm = convertToImm(*temp);
 		free(temp);
 	} else {
-		/*this is where we could put the optional shift stuff*/
-		if (opcode[0] == 'c') {
-			first12bits = 0xE1500000; // This will have to be changed if we decide
-									  // decide to implement th eoptional shifts
-		} else if (opcode[1] == 's') {
-			first12bits = 0xE1100000; // ^^^^^^^^
-		} else if (opcode[1] == 'e') {
-			first12bits = 0xE1300000; // ^^^^^^^^
-		} else {
-			/*ERROR - passed this function something wrong*/
-		}
+		imm = 0x0;
 		char *temp = malloc(sizeof(char *));
 		sscanf(operand2, "%s\n", temp);
-		uint32_t *operandBits = (uint32_t *) toCpuReg(temp);
+		uint32_t operandBits = toCpuReg(temp);
 		free(temp);
-		uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
+		uint32_t rnInt = toCpuReg(rn);
 		//      	printf("rnInt = %x\n", *rnInt);
 //       	printf("operandBits = %x\n", *operandBits);
-		*rnInt = (first12bits | (*rnInt) << 16 | *operandBits);
-		return rnInt;
+		*res = 0xE01 << 20 | imm << 25 | *opcodeint << 21 | rnInt << 16 | operandBits;
+		return res;
 	}
-	uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
-	*rnInt = (first12bits | (*rnInt) << 16 | rotAndImm);
-	return rnInt;
+	uint32_t rnInt = toCpuReg(rn);
+	*res = 0xE31 << 20 | imm << 25 | *opcodeint << 21 | rnInt << 16 | rotAndImm;
+	return res;
 }
 
 /* Translates mul */
 uint32_t *multiply(char *source) {
+
+	uint32_t *res = malloc(sizeof(uint32_t *));
 	assert(source!=NULL);
-	uint32_t *binary = calloc(1, sizeof(uint32_t *));
 
 	const char p[3] = " ,";
 	//Remove function name 'mul'
@@ -765,30 +653,28 @@ uint32_t *multiply(char *source) {
 	}
 
 	//Create uint32_t binary format
-	uint32_t *rdb = (uint32_t *) toCpuReg(rd);
-	uint32_t *rmb = (uint32_t *) toCpuReg(rm);
+	uint32_t rdb = toCpuReg(rd);
+	uint32_t rmb = toCpuReg(rm);
 	char *temp = malloc(sizeof(char *));
 	sscanf(rs, "%s\n", temp);
-	uint32_t *rsb = (uint32_t *) toCpuReg(temp);
+	uint32_t rsb = toCpuReg(temp);
 	uint32_t s = 0x0;
 	uint32_t a = 0x0;
 
-	uint32_t *cond = malloc(sizeof(uint32_t *));
-	*cond = 0xe;
+	uint32_t cond = 0xe;
+	uint32_t k = 0x9;
 
-	uint32_t k_ = 0x9;
-
-	*binary = (*cond << 28) | (a << 21) | (s << 20) | (*rdb << 16) | (*rsb << 8)
-			| (k_ << 4) | *rmb;
+	*res = cond << 28 | a << 21 | s << 20 | rdb << 16 | rsb << 8
+			| k << 4 | rmb;
 
 	free(temp);
-	free(cond);
-	return binary;
+	return res;
 }
 
 /* Translates mla */
 uint32_t *multiplyAccum(char *source) {
 	assert(source!=NULL);
+	uint32_t *res = malloc(sizeof(uint32_t *));
 	uint32_t *binary = multiply(source);
 	char *rn;
 
@@ -797,23 +683,25 @@ uint32_t *multiplyAccum(char *source) {
 		exit(EXIT_FAILURE);
 	}
 
-	uint32_t *rnb = (uint32_t *) toCpuReg(rn);
-	uint32_t *a = malloc(sizeof(uint32_t *));
-	*a = 0x1;
+	uint32_t rnb = toCpuReg(rn);
+	uint32_t a = 0x1;
 
-	binary = binaryReplace(rnb, 4, binary, 12);
-	binary = binaryReplace(a, 1, binary, 21);
-
-	return binary;
+	*binary = binaryReplace(rnb, 4, binary, 12);
+	*res = binaryReplace(a, 1, binary, 21);
+	free(binary);
+	return res;
 }
 
 /* Translates ldr */
 uint32_t *sdt_ldr(char *source) {
+	uint32_t *res = malloc(sizeof(uint32_t *));
 	printf("source = %s\n", source);
 	const char p[3] = " ,";
 	const char delimshift[3] = ",";
-	//Remove function name 'ldr'
 	strtok(source, p);
+	uint32_t I = 0x0;
+	uint32_t P = 0x1;
+	uint32_t U = 0x1;
 
 	char *rd;
 	if ((rd = strtok( NULL, p)) == NULL) {
@@ -833,17 +721,15 @@ uint32_t *sdt_ldr(char *source) {
 	op2shift = strtok(NULL, delimshift);
 	printf("This is expr : expr2 : expr3 = %s : %s : %s\n", expr, expr2,
 			op2shift);
-
-	//3 ways of interpreting expr
-	uint32_t *rdint = toCpuReg(rd);
+	uint32_t rdint = toCpuReg(rd);
 	//1. Expr is numeric constant of form '=#'
-	uint32_t startingBits = 0xE3A00000;
-	uint32_t *val = malloc(sizeof(uint32_t *));
+
 	if (expr[0] == '=') {
-		sscanf(expr, "=%x", val);
-		if (*val < 0xff) {
+
+		sscanf(expr, "=%x", res);
+		if (*res < 0xff) {
 			//effectively a move
-			*val = startingBits | *rdint << 12 | *val;
+			*res = 0xE3A00000 | rdint << 12 | *res;
 		} else {
 			uint32_t offset = 0x0;
 			if (file_length + getNumElems(LDRconsts) - file_line >= 2) {
@@ -856,74 +742,70 @@ uint32_t *sdt_ldr(char *source) {
 			printf("This is offset %x\n", offset);
 			char *str = malloc(sizeof(char *));
 			uint32_t *ldrconstant = malloc(sizeof(uint32_t *));
-			*ldrconstant = *val;
+			*ldrconstant = *res;
 			sprintf(str, "%x", file_line);
 			printf("This is str %s\n", str);
-			if (putElem(LDRconsts, str, (void *) ldrconstant) == 0) {
+			if (putElem(LDRconsts, str, (void *)ldrconstant) == 0) {
 				perror("Couldn't insert LDRconstant into dictionary");
 				exit(EXIT_FAILURE);
 			}
+			I = 0x0; P = 0x1; U = 0x1;
 
-			startingBits = 0xE59F0000;
-			*val = startingBits | *rdint << 12 | offset;
+			*res = 0xE01F << 16 | 1 << 26 | I << 25 | P << 24 | U << 23 | rdint << 12 | offset;
 		}
 	} else {
-		startingBits = 0xE5900000;
+		I = 0x0; P = 0x1; U = 0x1;
 		char *newexpr = malloc(sizeof(char *));
 		char *t2 = malloc(sizeof(char *));
 		sscanf(expr, "[%[^]] %[]] ", newexpr, t2);
 		printf("this is temp1 %s\n", newexpr);
-//			printf("this is temp2 %s\n", t2);
-		uint32_t *rnint = toCpuReg(newexpr);
+		uint32_t rnint = toCpuReg(newexpr);
 		free(t2);
 		if (expr2 == NULL) {
-			*val = startingBits | *rnint << 16 | *rdint << 12;
+			*res = 0xE41 << 20 | I << 25 | P << 24 | U << 23 | rnint << 16 | rdint << 12;
 		} else {
-//			expr2[strlen(expr2)-1] = '\0';
 			uint32_t *temp = malloc(sizeof(uint32_t *));
 			if (expr2[0] == '#') {
 				*temp = extractNum(expr2);
 				if (strchr(expr2, ']') == NULL) {
-					startingBits = 0xE4900000;
+					I = 0x0; P = 0x0; U = 0x1;
 					if (isNegative(*temp)) {
 						*temp = flipSign(*temp);
-						startingBits = 0xE5100000;
+						I = 0x0; P = 0x1; U = 0x0;
 					}
 				} else {
 					if (isNegative(*temp)) {
 						*temp = flipSign(*temp);
-						startingBits = 0xE5100000;
+						I = 0x0; P = 0x1; U = 0x0;
 					}
 				}
 				printf("this is temp %x \n", *temp);
-				*val = startingBits | *rnint << 16 | *rdint << 12 | *temp;
+				*res = 0xE41 << 20 | I << 25 | P << 24 | U << 23 | rnint << 16 | rdint << 12 | *temp;
 			} else {
-				uint32_t *roff;
-				startingBits = 0xE7900000;
+				uint32_t roff;
+				I = 0x1; P = 0x1; U = 0x1;
 				if (op2shift != NULL) {
 					op2shift[strlen(op2shift) - 1] = '\0';
 					printf("This is expr2 \"%s\"\n", expr2);
 					roff = toCpuReg(expr2);
 					printf("This is op2shift %s\n", op2shift);
-					*val = startingBits | *rnint << 16 | *rdint << 12 | *roff
+					*res = 0xE41 << 20 | I << 25 | P << 24 | U << 23 | rnint << 16 | rdint << 12 | roff
 							| calculateShift(op2shift);
-
 				} else {
 					if (strchr(expr2, ']') != NULL) {
 						expr2[strlen(expr2) - 1] = '\0';
 						roff = toCpuReg(expr2);
 					} else {
-						startingBits = 0xE6900000;
+						I = 0x1; P = 0x0; U = 0x1;
 						roff = toCpuReg(expr2);
 					}
-					printf("This is roff %x\n", *roff);
-					*val = startingBits | *rnint << 16 | *rdint << 12 | *roff;
+					printf("This is roff %x\n", roff);
+					*res = 0xE41 << 20 | I << 25 | P << 24 | U << 23 | rnint << 16 | rdint << 12 | roff;
 				}
-
 			}
 		}
 	}
-	return val;
+	return res;
 }
 
 uint32_t twentieth0(uint32_t num) {
@@ -988,13 +870,6 @@ uint32_t *branch(char *source) {
 	} else if (file_line > *labelAddress && file_line - *labelAddress <= 5) {
 		*offset -= 1;
 	}
-//	else if (file_line > *labelAddress && file_line - *labelAddress >= 4) {
-//		*offset -=1;
-//	}
-//	else if (file_line > *labelAddress && file_line) {
-//		*offset -=1;
-//	}
-
 	printf("offset = %x\n", *offset);
 
 	//either add 1 or 2 lines
@@ -1021,6 +896,9 @@ uint32_t *spec_andeq(char *source) {
 
 /* Translates special - lsl */
 uint32_t *spec_lsl(char *source) {
+
+	uint32_t *res = malloc(sizeof(uint32_t *));
+
 	uint32_t base = 0xE1A00000;
 
 	const char p[3] = " ,";
@@ -1033,13 +911,13 @@ uint32_t *spec_lsl(char *source) {
 		printf("REG PARAMETER NON-EXISTANT\n");
 		exit(EXIT_FAILURE);
 	}
-	uint32_t *regint = toCpuReg(reg);
+	uint32_t regint = toCpuReg(reg);
 
 	uint32_t extractednum = extractNum(expr);
 	if (extractednum >= 32) {
 		printf("rotation too large\n");
 		exit(EXIT_FAILURE);
 	}
-	*regint = (base | *regint << 12 | extractednum << 7 | *regint);
-	return regint;
+	*res = (base | regint << 12 | extractednum << 7 | regint);
+	return res;
 }

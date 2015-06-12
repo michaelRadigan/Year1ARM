@@ -239,26 +239,25 @@ int main(int argc, char **argv) {
 			exit(EXIT_FAILURE);
 		}
 
-		uint32_t out;
 		//Apply function
-		out = *encodingStruct->encFunc(buffTemp);
+		uint32_t *output = encodingStruct->encFunc(buffTemp);
 
-		out = LEtoBE(out);
+		*output = LEtoBE(*output);
 		//Write to file
-		writeUint32(ptr_WriteFile, out);
-		printf("hex out  = %x\n", out);
+		writeUint32(ptr_WriteFile, *output);
+		printf("hex out  = %x\n", *output);
 		free(buffTemp);
 		free(buffer);
+		free(output);
 		file_line++;
 	}
 
 	uint32_t *constant;
-	uint32_t out;
 	while (!isEmpty(LDRconsts)) {
 		constant = (uint32_t *)removeLowestElem(LDRconsts);
-		out = LEtoBE(*constant);
-		writeUint32(ptr_WriteFile, out);
-		printf("hex out in ldr consts = %x\n", out);
+		*constant = LEtoBE(*constant);
+		writeUint32(ptr_WriteFile, *constant);
+		printf("hex out in ldr consts = %x\n", *constant);
 		file_line++;
 		free(constant);
 	}
