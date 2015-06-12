@@ -168,6 +168,14 @@ void destroyLDRconsts(void) {
 	destroyDictionary(LDRconsts);
 }
 
+//void setUPregistervalue_dict(void) {
+//	regist_vals = createDictionary();
+//}
+
+//void destroyregistervalue_dict(void) {
+//	destroyDictionary(regist_vals);
+//}
+
 void setUPregister_dict(void) {
 	DICTIONARY *d = createDictionary();
 
@@ -221,6 +229,7 @@ void setUPregister_dict(void) {
 
 	register_dict = d;
 }
+
 void destroyRegisterDictionary(void) {
 	destroyDictionary(register_dict);
 }
@@ -382,6 +391,84 @@ uint32_t convertToImm(uint32_t extractedExp) {
 
 /*There is a lot of redundancy her that we could proably clean up*/
 
+// input source includes space at beginning for example is " lsr r6" or " asr #6" or " ror #0xA"
+// post : outputs bits 11 - 4 of instruction
+uint32_t calculateShift(char *source) {
+	const char delim[3] = " ,";
+	char *shifttype = strtok(source, delim);
+	char *expr = strtok(NULL, delim);
+	int imm;
+
+	if (expr == NULL) {
+		printf("REG PARAMETER NON-EXISTANT\n");
+		exit(EXIT_FAILURE);
+	}
+	if (expr[0] == '#') {
+		imm = 1;
+	} else if (expr[0] == 'r') {
+		imm = 0;
+	} else {
+		perror("Shift command doesn't exist");
+		exit(EXIT_FAILURE);
+	}
+
+//	uint32_t extractednum = extractNum(expr);
+//	if (extractednum >= 32) {
+//		printf("rotation too large\n");
+//		exit(EXIT_FAILURE);
+//	}
+	uint32_t res;
+	uint32_t shifttypeint;
+	uint32_t immval;
+	uint32_t *regval;
+	if (shifttype[0] == 'l') {
+		if (shifttype[2] == 'l') {
+			shifttypeint = 0x0;
+			if (imm) {
+				immval = extractNum(expr);
+				res = immval << 7 | shifttypeint << 5;
+			} else {
+				regval = toCpuReg(expr);
+				res = *regval << 8 | shifttypeint << 5 | 1 << 4;
+			}
+		} else if (shifttype[2] == 'r') {
+			shifttypeint = 0x1;
+			if (imm) {
+				immval = extractNum(expr);
+				res = immval << 7 | shifttypeint << 5;
+			} else {
+				regval = toCpuReg(expr);
+				res = *regval << 8 | shifttypeint << 5 | 1 << 4;
+			}
+		} else {
+			perror("Shift command doesn't exist");
+			exit(EXIT_FAILURE);
+		}
+	} else if (shifttype[0] == 'a') {
+		shifttypeint = 0x2;
+		if (imm) {
+			immval = extractNum(expr);
+			res = immval << 7 | shifttypeint << 5;
+		} else {
+			regval = toCpuReg(expr);
+			res = *regval << 8 | shifttypeint << 5 | 1 << 4;
+		}
+	} else if (shifttype[0] == 'r') {
+		shifttypeint = 0x3;
+		if (imm) {
+			immval = extractNum(expr);
+			res = immval << 7 | shifttypeint << 5;
+		} else {
+			regval = toCpuReg(expr);
+			res = *regval << 8 | shifttypeint << 5 | 1 << 4;
+		}
+	} else {
+		perror("Shift command doesn't exist");
+		exit(EXIT_FAILURE);
+	}
+	return res;
+}
+
 /* Translates and, eor, sub, rsb, add ,orr instructions*/
 uint32_t *dataProcessing1(char *source) {
 	assert(source!= NULL);
@@ -391,6 +478,7 @@ uint32_t *dataProcessing1(char *source) {
 	uint32_t rotAndImm;
 	// uint32_t finalOperand2 = 0;
 	char *operand2;
+	char *operand2shift;
 	const char delim[3] = " ,";
 	char *opcode = strtok(source, delim);
 	if (opcode == NULL) {
@@ -436,6 +524,8 @@ uint32_t *dataProcessing1(char *source) {
 		printf("OPCODE PARAMETER NON-EXISTANT");
 		exit(EXIT_FAILURE);
 	}
+	const char delimshift[3] = ",";
+	operand2shift = strtok(NULL, delimshift);
 
 	/* Check if operand 2 is an immediateValue */
 	if (operand2[0] == '#') {
@@ -456,16 +546,6 @@ uint32_t *dataProcessing1(char *source) {
 	else {
 		//THIS DOESNT ACTUALLY DO THE SHIFT!!
 		if (operand2[0] == 'r') {
-
-			/*   uint32_t *temp = malloc(sizeof(char *));
-			 // sscanf(operand2, "%s\n", temp);
-			 temp = (uint32_t *) toCpuReg(operand2);
-			 finalOperand2 = *temp;
-			 free(temp);
-			 }*/
-
-//<<<<<<< HEAD
-//=======
 			if (opcode[1] == 'n') {
 				first12bits = 0xE0000000;
 
@@ -480,17 +560,27 @@ uint32_t *dataProcessing1(char *source) {
 			} else if (opcode[1] == 'r') {
 				first12bits = 0xE1800000;
 			}
+
 			char *temp = malloc(sizeof(char *));
 			sscanf(operand2, "%s\n", temp);
-			uint32_t *roInt = (uint32_t *) toCpuReg(temp);
-			//   	    printf("roInt = %x\n", *roInt);
 			uint32_t *rnInt = (uint32_t *) toCpuReg(rn);
 			//   	    printf("rnInt = %x\n", *rnInt);
 			uint32_t *rdInt = (uint32_t *) toCpuReg(rd);
 			//   	    printf("rdInt = %x\n", *rdInt);
-			*rdInt = (first12bits | (*rdInt) << 16 | (*rnInt) << 12 | *roInt);
-			free(temp);
-			return rdInt;
+			uint32_t *roInt = (uint32_t *) toCpuReg(temp);
+			//   	    printf("roInt = %x\n", *roInt);
+			if (operand2shift == NULL) {
+				*rdInt =
+						(first12bits | (*rdInt) << 16 | (*rnInt) << 12 | *roInt);
+				free(temp);
+				return rdInt;
+			} else {
+				printf("operand2shift \"%s\"\n", operand2shift);
+				*rdInt = first12bits | calculateShift(operand2shift)
+						| *rdInt << 16 | *rnInt << 12 | *roInt;
+				return rdInt;
+
+			}
 		}
 	}
 //>>>>>>> origin/Oliver
@@ -748,7 +838,6 @@ uint32_t *sdt_ldr(char *source) {
 		if (*val < 0xff) {
 			//effectively a move
 			*val = startingBits | *rdint << 12 | *val;
-			return val;
 		} else {
 			uint32_t offset = 0x0;
 			if (file_length + getNumElems(LDRconsts) - file_line >= 2) {
@@ -771,7 +860,6 @@ uint32_t *sdt_ldr(char *source) {
 
 			startingBits = 0xE59F0000;
 			*val = startingBits | *rdint << 12 | offset;
-			return val;
 		}
 	} else {
 		startingBits = 0xE5900000;
@@ -784,38 +872,33 @@ uint32_t *sdt_ldr(char *source) {
 		free(t2);
 		if (expr2 == NULL) {
 			*val = startingBits | *rnint << 16 | *rdint << 12;
-			return val;
 		} else {
 //			expr2[strlen(expr2)-1] = '\0';
 			uint32_t *temp = malloc(sizeof(uint32_t *));
 			if (expr2[0] == '#') {
 				printf("This is expr2 \"%s\"\n", expr2);
-			*temp = extractNum(expr2);
-			if (isNegative(*temp)) {
-				*temp = flipSign(*temp);
-				startingBits = 0xE5100000;
-			}
-			printf("this is temp %x \n", *temp);
-			*val = startingBits | *rnint << 16 | *rdint << 12 | *temp;
-			return val;
-			}
-			else {
+				*temp = extractNum(expr2);
+				if (isNegative(*temp)) {
+					*temp = flipSign(*temp);
+					startingBits = 0xE5100000;
+				}
+				printf("this is temp %x \n", *temp);
+				*val = startingBits | *rnint << 16 | *rdint << 12 | *temp;
+			} else {
 				if (strchr(expr2, ']') != NULL) {
 					startingBits = 0xE7900000;
-					expr2[strlen(expr2)-1] = '\0';
+					expr2[strlen(expr2) - 1] = '\0';
 				} else {
 					startingBits = 0xE6900000;
 				}
-					uint32_t *roff = toCpuReg(expr2);
-					printf("This is roff %x\n", *roff);
-					*val = startingBits | *rnint << 16 | *rdint << 12 | *roff;
-					printf("This is roff %x\n", *roff);
-					return val;
-
+				uint32_t *roff = toCpuReg(expr2);
+				printf("This is roff %x\n", *roff);
+				*val = startingBits | *rnint << 16 | *rdint << 12 | *roff;
+				printf("This is roff %x\n", *roff);
 			}
 		}
 	}
-	return NULL;
+	return val;
 }
 
 uint32_t twentieth0(uint32_t num) {

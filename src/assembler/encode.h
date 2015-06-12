@@ -16,6 +16,7 @@
 
 DICTIONARY *register_dict;
 DICTIONARY *LDRconsts;
+//DICTIONARY *regist_vals;
 
 /* Struct for storing function pointers */
 
@@ -44,6 +45,10 @@ STR_ENC *lsl;
 void setUPregister_dict(void);
 
 void destroyRegisterDictionary(void);
+
+void setUPregistervalue_dict(void);
+
+void destroyregistervalue_dict(void);
 
 void setUPcode_binarycode(void);
 
@@ -97,5 +102,8 @@ uint32_t *spec_andeq(char *source);
 
 /* Translates special - lsl */
 uint32_t *spec_lsl(char *source);
+
+/* Returns calculated shift */
+uint32_t *calculateshift(char *source);
 
 #endif
