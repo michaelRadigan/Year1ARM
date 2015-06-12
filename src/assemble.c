@@ -2,281 +2,281 @@
 
 /* Structures
 
- If getting from dictionary, remember to cast back to the right type afterwards
+   If getting from dictionary, remember to cast back to the right type afterwards
 
- DICTIONARY *label_address := (char *str , uint32_t *location);
- DICTIONARY *opcode_function := (char *code , (*ptr_func) (char *source));
+   DICTIONARY *label_address := (char *str , uint32_t *location);
+   DICTIONARY *opcode_function := (char *code , (*ptr_func) (char *source));
 
- */
+*/
 
 DICTIONARY *setUPlabel_address(void) {
-	DICTIONARY *d = createDictionary();
-	return d;
+        DICTIONARY *d = createDictionary();
+        return d;
 }
 
 DICTIONARY *setUPopcode_function(void) {
 
-	//SetUp structs containing function pointers
-	setUPFuncStructs();
+        //SetUp structs containing function pointers
+        setUPFuncStructs();
 
-	DICTIONARY *d = createDictionary();
+        DICTIONARY *d = createDictionary();
 
-	//Functions for data Processing
-	putElem(d, "and", (void *) dp1);
-	putElem(d, "eor", (void *) dp1);
-	putElem(d, "sub", (void *) dp1);
-	putElem(d, "rsb", (void *) dp1);
-	putElem(d, "add", (void *) dp1);
-	putElem(d, "orr", (void *) dp1);
-	putElem(d, "mov", (void *) dp2);
-	putElem(d, "tst", (void *) dp3);
-	putElem(d, "teq", (void *) dp3);
-	putElem(d, "cmp", (void *) dp3);
+        //Functions for data Processing
+        putElem(d, "and", (void *) dp1);
+        putElem(d, "eor", (void *) dp1);
+        putElem(d, "sub", (void *) dp1);
+        putElem(d, "rsb", (void *) dp1);
+        putElem(d, "add", (void *) dp1);
+        putElem(d, "orr", (void *) dp1);
+        putElem(d, "mov", (void *) dp2);
+        putElem(d, "tst", (void *) dp3);
+        putElem(d, "teq", (void *) dp3);
+        putElem(d, "cmp", (void *) dp3);
 
-	//Functions for Multiply
-	putElem(d, "mul", (void *) m);
-	putElem(d, "mla", (void *) ma);
+        //Functions for Multiply
+        putElem(d, "mul", (void *) m);
+        putElem(d, "mla", (void *) ma);
 
-	//Functions for single data transfer
-	putElem(d, "ldr", (void *) ldr);
-	putElem(d, "str", (void *) str);
+        //Functions for single data transfer
+        putElem(d, "ldr", (void *) ldr);
+        putElem(d, "str", (void *) str);
 
-	//Functions for branching
-	putElem(d, "beq", (void *) b);
-	putElem(d, "bne", (void *) b);
-	putElem(d, "bge", (void *) b);
-	putElem(d, "blt", (void *) b);
-	putElem(d, "bgt", (void *) b);
-	putElem(d, "ble", (void *) b);
-	putElem(d, "b", (void *) b);
+        //Functions for branching
+        putElem(d, "beq", (void *) b);
+        putElem(d, "bne", (void *) b);
+        putElem(d, "bge", (void *) b);
+        putElem(d, "blt", (void *) b);
+        putElem(d, "bgt", (void *) b);
+        putElem(d, "ble", (void *) b);
+        putElem(d, "b", (void *) b);
 
-	//Functions for specials
-	putElem(d, "andeq", (void *) andeq);
-	putElem(d, "lsl", (void *) lsl);
+        //Functions for specials
+        putElem(d, "andeq", (void *) andeq);
+        putElem(d, "lsl", (void *) lsl);
 
-	return d;
+        return d;
 }
 
 /* Frees all memory allocated by the function dictionary */
 void destroyDictionaryfunctions(DICTIONARY *d) {
-	destroyFuncStructs();
-	destroyDictionary(d);
+        destroyFuncStructs();
+        destroyDictionary(d);
 }
 
 /* Checks if label exists, This will store it*/
 int storeLabel(char *source) {
-	char *t1 = calloc(1, sizeof(char *));
-	char *t2 = calloc(1, sizeof(char *));
-	sscanf(source, "%[^:] %[:] ", t1, t2);
+        char *t1 = calloc(1, sizeof(char *));
+        char *t2 = calloc(1, sizeof(char *));
+        sscanf(source, "%[^:] %[:] ", t1, t2);
 
-	//Not Label
-	if (t2[0] == '\0') {
-		return 0;
-	}
+        //Not Label
+        if (t2[0] == '\0') {
+                return 0;
+        }
 
-	uint32_t *linenumlabel = malloc(sizeof(uint32_t *));
-	*linenumlabel = file_line;
+        uint32_t *linenumlabel = malloc(sizeof(uint32_t *));
+        *linenumlabel = file_line;
 
-	putElem(label_address, t1, linenumlabel);
-	free(t2);
-	return 1;
+        putElem(label_address, t1, linenumlabel);
+        free(t2);
+        return 1;
 }
 
 /* Removes the label from the source string if it exists */
 char *removeLabel(char *source) {
-	char *t1 = calloc(1, sizeof(char *));
-	char *t2 = calloc(1, sizeof(char *));
-	sscanf(source, " %[^:] %*[ :] %[^:]\n\n", t1, t2);
-	if (t2[0] == 0) {
-		free(t2);
-		return (t1);
-	}
-	free(t1);
-	return (t2);
+        char *t1 = calloc(1, sizeof(char *));
+        char *t2 = calloc(1, sizeof(char *));
+        sscanf(source, " %[^:] %*[ :] %[^:]\n\n", t1, t2);
+        if (t2[0] == 0) {
+                free(t2);
+                return (t1);
+        }
+        free(t1);
+        return (t2);
 }
 
 int writeUint32(FILE * const stream, uint32_t value) {
-	/* These must be unsigned */
-	unsigned char buffer[sizeof(uint32_t)];
-	/* Usually 0xFF */
-	const unsigned charMask = (1 << CHAR_BIT) - 1;
-	for (int i = 0; i < sizeof(buffer); ++i) {
-		/* Place the MSB first */
-		buffer[sizeof(buffer) - i - 1] = value & charMask;
-		value >>= CHAR_BIT;
-	}
-	int count = fwrite(buffer, sizeof(buffer), 1, stream);
-	return count == 1;
+        /* These must be unsigned */
+        unsigned char buffer[sizeof(uint32_t)];
+        /* Usually 0xFF */
+        const unsigned charMask = (1 << CHAR_BIT) - 1;
+        for (int i = 0; i < sizeof(buffer); ++i) {
+                /* Place the MSB first */
+                buffer[sizeof(buffer) - i - 1] = value & charMask;
+                value >>= CHAR_BIT;
+        }
+        int count = fwrite(buffer, sizeof(buffer), 1, stream);
+        return count == 1;
 }
 
 /* Checks for file existance */
 int doesFileExist(const char *filename) {
-	struct stat st;
-	int result = stat(filename, &st);
-	return result == 0;
+        struct stat st;
+        int result = stat(filename, &st);
+        return result == 0;
 
 }
 
 /* Prints the content of a file*/
 int printFileContents(FILE *ptr) {
-	printf("\nThe File Contents are:\n");
-	int c;
-	while (1) {
-		c = fgetc(ptr);
-		if (feof(ptr)) {
-			break;
-		}
-		printf("%c", c);
-	}
-	printf("\n");
-	rewind(ptr);
-	return 0;
+        printf("\nThe File Contents are:\n");
+        int c;
+        while (1) {
+                c = fgetc(ptr);
+                if (feof(ptr)) {
+                        break;
+                }
+                printf("%c", c);
+        }
+        printf("\n");
+        rewind(ptr);
+        return 0;
 }
 
 uint32_t LEtoBE(uint32_t word) {
-	word = ((word << 8) & 0xFF00FF00) | ((word >> 8) & 0x00FF00FF);
-	word = (word << 16) | (word >> 16);
-	return word;
+        word = ((word << 8) & 0xFF00FF00) | ((word >> 8) & 0x00FF00FF);
+        word = (word << 16) | (word >> 16);
+        return word;
 }
 
 /* MAIN Program loop */
 int main(int argc, char **argv) {
-	assert(argc == 3);
+        assert(argc == 3);
 
-	const int MAX_LINE_LENGTH = 511;
+        const int MAX_LINE_LENGTH = 511;
 
-	//Setup Dictionaries
-	label_address = setUPlabel_address();
-	setUPcode_binarycode();
-	opcode_function = setUPopcode_function();
-	setUPregister_dict();
-	setUpLDRconsts();
-	//printf("Value of b %x\n", *(uint32_t *)getElem(code_binarycode, "b"));
+        //Setup Dictionaries
+        label_address = setUPlabel_address();
+        setUPcode_binarycode();
+        opcode_function = setUPopcode_function();
+        setUPregister_dict();
+        setUpLDRconsts();
+        //printf("Value of b %x\n", *(uint32_t *)getElem(code_binarycode, "b"));
 
-	//Setup File fields
-	FILE *ptr_SourceFile = NULL;
-	FILE *ptr_WriteFile = NULL;
+        //Setup File fields
+        FILE *ptr_SourceFile = NULL;
+        FILE *ptr_WriteFile = NULL;
 
-	char buff[MAX_LINE_LENGTH];
+        char buff[MAX_LINE_LENGTH];
 
-	ptr_SourceFile = fopen(argv[1], "r");
+        ptr_SourceFile = fopen(argv[1], "r");
 
-	if (ptr_SourceFile == NULL || !doesFileExist(argv[1])) {
-		printf("SOURCEFILE NON EXISTANT\n");
-		return 0;
-	}
+        if (ptr_SourceFile == NULL || !doesFileExist(argv[1])) {
+                printf("SOURCEFILE NON EXISTANT\n");
+                return 0;
+        }
 
-	printFileContents(ptr_SourceFile);
+        printFileContents(ptr_SourceFile);
 
-	//Will create file if non existant
-	ptr_WriteFile = fopen(argv[2], "w+");
+        //Will create file if non existant
+        ptr_WriteFile = fopen(argv[2], "w+");
 
-	printf("GOT HERE\n");
+        printf("GOT HERE\n");
 
-	/* Program Loop 1*/
-	/* Creates Dictionary for Labels and Memory Locations */
+        /* Program Loop 1*/
+        /* Creates Dictionary for Labels and Memory Locations */
 
-	file_line = 0;
+        file_line = 0;
 
-	while (fgets(buff, MAX_LINE_LENGTH, ptr_SourceFile)) {
-		//Check if empty line
-		if (buff[0] == '\n' || buff[0] == '\0' || buff[0] == EOF) {
-			continue;
-		}
-		storeLabel(buff);
-		file_line++;
-	}
+        while (fgets(buff, MAX_LINE_LENGTH, ptr_SourceFile)) {
+                //Check if empty line
+                if (buff[0] == '\n' || buff[0] == '\0' || buff[0] == EOF) {
+                        continue;
+                }
+                storeLabel(buff);
+                file_line++;
+        }
 
-	file_length = file_line-1;
-	printf("file_length = %x\n", file_length);
+        file_length = file_line-1;
+        printf("file_length = %x\n", file_length);
 
-	rewind(ptr_SourceFile);
-	file_line = 0;
+        rewind(ptr_SourceFile);
+        file_line = 0;
 
-	printf("Beginning Program loop2\n");
-	/* Program Loop 2*/
-	/* Reads Opcode and generate Binary Encoding */
-	while (fgets(buff, MAX_LINE_LENGTH, ptr_SourceFile)) {
+        printf("Beginning Program loop2\n");
+        /* Program Loop 2*/
+        /* Reads Opcode and generate Binary Encoding */
+        while (fgets(buff, MAX_LINE_LENGTH, ptr_SourceFile)) {
 
-		//Check if empty line
-		if (buff[0] == '\n' || buff[0] == '\0' || buff[0] == EOF) {
-	//		file_line++;
-			continue;
-		}
+                //Check if empty line
+                if (buff[0] == '\n' || buff[0] == '\0' || buff[0] == EOF) {
+                        //		file_line++;
+                        continue;
+                }
 
-		//Check if label exists and if so remove it also remove \n
-		char *buffer = strtok(buff, "\n");
-		buffer = removeLabel(buffer);
-		//Buffer now contains no label absolutely
+                //Check if label exists and if so remove it also remove \n
+                char *buffer = strtok(buff, "\n");
+                buffer = removeLabel(buffer);
+                //Buffer now contains no label absolutely
 
-		//Duplicate Buffer
-		char *buffTemp;
-		if ((buffTemp = malloc(sizeof(buffer))) == NULL) {
-			printf("Problem! couldn't allocate memory for buffTemp");
-			break;
-		}
-		buffTemp = strcpy(buffTemp, buffer);
+                //Duplicate Buffer
+                char *buffTemp;
+                if ((buffTemp = malloc(sizeof(buffer))) == NULL) {
+                        printf("Problem! couldn't allocate memory for buffTemp");
+                        break;
+                }
+                buffTemp = strcpy(buffTemp, buffer);
 
-		const char s[2] = " ";
-		char *token = strtok(buffer, s);
+                const char s[2] = " ";
+                char *token = strtok(buffer, s);
 
-		printf("\nThis is your buff = '%s'\n", buff);
-		printf("This is your token, should be opcode = '%s'\n\n", token);
+                printf("\nThis is your buff = '%s'\n", buff);
+                printf("This is your token, should be opcode = '%s'\n\n", token);
 
-		//Check if token is a label:
-		if (getElem(label_address, (void *) token) != NULL) {
-			file_line++;
-			continue;
-		}
+                //Check if token is a label:
+                if (getElem(label_address, (void *) token) != NULL) {
+                        file_line++;
+                        continue;
+                }
 
-		//Loop-up Opcode to get function
-		STR_ENC *encodingStruct;
+                //Loop-up Opcode to get function
+                STR_ENC *encodingStruct;
 
-		if ((encodingStruct = (STR_ENC *) getElem(opcode_function,
-				(void *) token)) == NULL) {
-			printf("FAILURE FROM DICTIONARY, OPCODE DOES NOT EXIST: %s\n",
-					token);
-			exit(EXIT_FAILURE);
-		}
+                if ((encodingStruct = (STR_ENC *) getElem(opcode_function,
+                                                (void *) token)) == NULL) {
+                        printf("FAILURE FROM DICTIONARY, OPCODE DOES NOT EXIST: %s\n",
+                                        token);
+                        exit(EXIT_FAILURE);
+                }
 
-		uint32_t out;
-		//Apply function
-		out = *encodingStruct->encFunc(buffTemp);
+                uint32_t out;
+                //Apply function
+                out = *encodingStruct->encFunc(buffTemp);
 
-		out = LEtoBE(out);
-		//Write to file
-		writeUint32(ptr_WriteFile, out);
-		printf("hex out  = %x\n", out);
-		free(buffTemp);
-		free(buffer);
-		file_line++;
-	}
+                out = LEtoBE(out);
+                //Write to file
+                writeUint32(ptr_WriteFile, out);
+                printf("hex out  = %x\n", out);
+                free(buffTemp);
+                free(buffer);
+                file_line++;
+        }
 
-	uint32_t *constant;
-	uint32_t out;
-	while (!isEmpty(LDRconsts)) {
-		constant = (uint32_t *)removeLowestElem(LDRconsts);
-		out = LEtoBE(*constant);
-		writeUint32(ptr_WriteFile, out);
-		printf("hex out in ldr consts = %x\n", out);
-		file_line++;
-		free(constant);
-	}
+        uint32_t *constant;
+        uint32_t out;
+        while (!isEmpty(LDRconsts)) {
+                constant = (uint32_t *)removeLowestElem(LDRconsts);
+                out = LEtoBE(*constant);
+                writeUint32(ptr_WriteFile, out);
+                printf("hex out in ldr consts = %x\n", out);
+                file_line++;
+                free(constant);
+        }
 
-	printf("Finished Program Loop 2\n");
+        printf("Finished Program Loop 2\n");
 
-	fclose(ptr_SourceFile);
-	fclose(ptr_WriteFile);
+        fclose(ptr_SourceFile);
+        fclose(ptr_WriteFile);
 
-	destroyDictionaryVALUES(label_address); // this is where we free the values we malloced in storeLabel function.
-	destroyDictionaryVALUES(code_binarycode);
-	destroyDictionary(label_address);
-	destroycode_binarycode();
-	destroyDictionaryfunctions(opcode_function);
-	destroyRegisterDictionary();
-	destroyDictionaryKEYS(LDRconsts);
-	destroyDictionaryVALUES(LDRconsts);
-	destroyLDRconsts();
-	printf("Finished program\n");
-	return EXIT_SUCCESS;
+        destroyDictionaryVALUES(label_address); // this is where we free the values we malloced in storeLabel function.
+        destroyDictionaryVALUES(code_binarycode);
+        destroyDictionary(label_address);
+        destroycode_binarycode();
+        destroyDictionaryfunctions(opcode_function);
+        destroyRegisterDictionary();
+        destroyDictionaryKEYS(LDRconsts);
+        destroyDictionaryVALUES(LDRconsts);
+        destroyLDRconsts();
+        printf("Finished program\n");
+        return EXIT_SUCCESS;
 }

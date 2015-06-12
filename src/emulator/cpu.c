@@ -9,7 +9,7 @@
  */
 cpu *cpu_ptr;
 instr_flags *instr_flags_ptr;
-
+stackByte *stack_ptr;
 
 /**
  * Carries out the fetch, decode, execute cycle

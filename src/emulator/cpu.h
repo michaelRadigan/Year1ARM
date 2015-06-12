@@ -54,7 +54,6 @@ typedef struct {
 
 extern pipeline_obj *pipeline_ptr;
 
-
 /**
  * CPU structure
  */

@@ -134,6 +134,15 @@ memory_instr_branch_init(void){
   instr_branch_ptr = calloc(1, sizeof(instr_branch_struct));
 }
 
+/**
+ * Sets up stack
+ */
+void
+stack_init(){
+  stack_init(stack_ptr, 9001); //#Over9000!!??   
+}
+
+
 
 /**
  * Frees instruction memory
@@ -237,6 +246,7 @@ memory_load_file(FILE *file){
   memory_instr_single_data_transfer_init();
   memory_instr_branch_init();
   memory_pipeline_init();
+  stack_init();
 	
   for(int i = 0; i < MEM_SIZE; i++){
     if(fread(memory->byte + i, BYTES, 1, file) == 1){
@@ -259,6 +269,7 @@ memory_load_file(FILE *file){
   memory_instr_mult_destroy();
   memory_instr_single_data_transfer_destroy();
   memory_instr_branch_destroy();
+  stack_destroy(stack_ptr);
 */
   fclose(file);
 }
