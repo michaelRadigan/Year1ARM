@@ -216,7 +216,7 @@ memoyr_pipeline_destroy(void){
 void
 check_file_error(FILE *file){
   if(feof(file)){
-
+    continue;
   }
   else if(ferror(file)){
     printf("File error\n");
