@@ -28,7 +28,7 @@ typedef struct dictionary{
 
 /* Function definitions */
 
-//Creates an Empty dictioary structure
+//Creates an Empty dictionary structure
 DICTIONARY *createDictionary(void);
 
 //Returns 1 if empty, 0 otherwise
@@ -43,10 +43,19 @@ VALUE *getElem(DICTIONARY *d , KEY *key);
 //Returns 1 if remove of key in d is successful, 0 otherwise
 int removeElem(DICTIONARY *d , KEY *key);
 
-//Returns 1 if all dictioary memory elemnts have been freed, 0 otherwise;
+//Deletes lowest node with lowest key and return value of that node
+VALUE *removeLowestElem(DICTIONARY *d);
+
+// returns number of elements in dictionary
+uint32_t getNumElems(DICTIONARY *d);
+
+//Returns 1 if all dictionary memory elements have been freed, 0 otherwise;
 int destroyDictionary(DICTIONARY *d);
 
-//Returns 1 if all dictioary memory elemnts have been freed, 0 otherwise;
+//Returns 1 if all dictionary memory elements have been freed, 0 otherwise;
 int destroyDictionaryVALUES(DICTIONARY *d);
+
+//Returns 1 if all dictionary memory elements have been freed, 0 otherwise;
+int destroyDictionaryKEYS(DICTIONARY *d);
 
 #endif
