@@ -2,16 +2,16 @@
 
 /* Structures
 
- If getting from dictionary, remember to cast back to the right type afterwards
+   If getting from dictionary, remember to cast back to the right type afterwards
 
- DICTIONARY *label_address := (char *str , uint32_t *location);
- DICTIONARY *opcode_function := (char *code , (*ptr_func) (char *source));
+   DICTIONARY *label_address := (char *str , uint32_t *location);
+   DICTIONARY *opcode_function := (char *code , (*ptr_func) (char *source));
 
- */
+*/
 
 DICTIONARY *setUPlabel_address(void) {
-	DICTIONARY *d = createDictionary();
-	return d;
+        DICTIONARY *d = createDictionary();
+        return d;
 }
 
 DICTIONARY *setUpalias_register(void) {
@@ -21,45 +21,45 @@ DICTIONARY *setUpalias_register(void) {
 
 DICTIONARY *setUPopcode_function(void) {
 
-	//SetUp structs containing function pointers
-	setUPFuncStructs();
+        //SetUp structs containing function pointers
+        setUPFuncStructs();
 
-	DICTIONARY *d = createDictionary();
+        DICTIONARY *d = createDictionary();
 
-	//Functions for data Processing
-	putElem(d, "and", (void *) dp1);
-	putElem(d, "eor", (void *) dp1);
-	putElem(d, "sub", (void *) dp1);
-	putElem(d, "rsb", (void *) dp1);
-	putElem(d, "add", (void *) dp1);
-	putElem(d, "orr", (void *) dp1);
-	putElem(d, "mov", (void *) dp2);
-	putElem(d, "tst", (void *) dp3);
-	putElem(d, "teq", (void *) dp3);
-	putElem(d, "cmp", (void *) dp3);
+        //Functions for data Processing
+        putElem(d, "and", (void *) dp1);
+        putElem(d, "eor", (void *) dp1);
+        putElem(d, "sub", (void *) dp1);
+        putElem(d, "rsb", (void *) dp1);
+        putElem(d, "add", (void *) dp1);
+        putElem(d, "orr", (void *) dp1);
+        putElem(d, "mov", (void *) dp2);
+        putElem(d, "tst", (void *) dp3);
+        putElem(d, "teq", (void *) dp3);
+        putElem(d, "cmp", (void *) dp3);
 
-	//Functions for Multiply
-	putElem(d, "mul", (void *) m);
-	putElem(d, "mla", (void *) ma);
+        //Functions for Multiply
+        putElem(d, "mul", (void *) m);
+        putElem(d, "mla", (void *) ma);
 
-	//Functions for single data transfer
-	putElem(d, "ldr", (void *) ldr);
-	putElem(d, "str", (void *) str);
+        //Functions for single data transfer
+        putElem(d, "ldr", (void *) ldr);
+        putElem(d, "str", (void *) str);
 
-	//Functions for branching
-	putElem(d, "beq", (void *) b);
-	putElem(d, "bne", (void *) b);
-	putElem(d, "bge", (void *) b);
-	putElem(d, "blt", (void *) b);
-	putElem(d, "bgt", (void *) b);
-	putElem(d, "ble", (void *) b);
-	putElem(d, "b", (void *) b);
+        //Functions for branching
+        putElem(d, "beq", (void *) b);
+        putElem(d, "bne", (void *) b);
+        putElem(d, "bge", (void *) b);
+        putElem(d, "blt", (void *) b);
+        putElem(d, "bgt", (void *) b);
+        putElem(d, "ble", (void *) b);
+        putElem(d, "b", (void *) b);
 
-	//Functions for specials
-	putElem(d, "andeq", (void *) andeq);
-	putElem(d, "lsl", (void *) lsl);
+        //Functions for specials
+        putElem(d, "andeq", (void *) andeq);
+        putElem(d, "lsl", (void *) lsl);
 
-	return d;
+        return d;
 }
 
 /* Sets up all Dictionry structures */
@@ -74,8 +74,8 @@ void setUpDictionaries(){
 
 /* Frees all memory allocated by the function dictionary */
 void destroyDictionaryfunctions(DICTIONARY *d) {
-	destroyFuncStructs();
-	destroyDictionary(d);
+        destroyFuncStructs();
+        destroyDictionary(d);
 }
 
 /* Frees all dictionaries */
@@ -93,34 +93,34 @@ void destroyAllDictionaries(){
 
 /* Checks if label exists, This will store it*/
 int storeLabel(char *source) {
-	char *t1 = calloc(1, sizeof(char *));
-	char *t2 = calloc(1, sizeof(char *));
-	sscanf(source, "%[^:] %[:] ", t1, t2);
+        char *t1 = calloc(1, sizeof(char *));
+        char *t2 = calloc(1, sizeof(char *));
+        sscanf(source, "%[^:] %[:] ", t1, t2);
 
-	//Not Label
-	if (t2[0] == '\0') {
-		return 0;
-	}
+        //Not Label
+        if (t2[0] == '\0') {
+                return 0;
+        }
 
-	uint32_t *linenumlabel = malloc(sizeof(uint32_t *));
-	*linenumlabel = file_line;
+        uint32_t *linenumlabel = malloc(sizeof(uint32_t *));
+        *linenumlabel = file_line;
 
-	putElem(label_address, t1, linenumlabel);
-	free(t2);
-	return 1;
+        putElem(label_address, t1, linenumlabel);
+        free(t2);
+        return 1;
 }
 
 /* Removes the label from the source string if it exists */
 char *removeLabel(char *source) {
-	char *t1 = calloc(1, sizeof(char *));
-	char *t2 = calloc(1, sizeof(char *));
-	sscanf(source, " %[^:] %*[ :] %[^:]\n\n", t1, t2);
-	if (t2[0] == 0) {
-		free(t2);
-		return (t1);
-	}
-	free(t1);
-	return (t2);
+        char *t1 = calloc(1, sizeof(char *));
+        char *t2 = calloc(1, sizeof(char *));
+        sscanf(source, " %[^:] %*[ :] %[^:]\n\n", t1, t2);
+        if (t2[0] == 0) {
+                free(t2);
+                return (t1);
+        }
+        free(t1);
+        return (t2);
 }
 
 
@@ -146,37 +146,38 @@ char *replaceAliases(char *source){
 
 /* Writes a unsigned 32 bit number to output stream */
 int writeUint32(FILE * const stream, uint32_t value) {
-	/* These must be unsigned */
-	unsigned char buffer[sizeof(uint32_t)];
-	/* Usually 0xFF */
-	const unsigned charMask = (1 << CHAR_BIT) - 1;
-	for (int i = 0; i < sizeof(buffer); ++i) {
-		/* Place the MSB first */
-		buffer[sizeof(buffer) - i - 1] = value & charMask;
-		value >>= CHAR_BIT;
-	}
-	int count = fwrite(buffer, sizeof(buffer), 1, stream);
-	return count == 1;
+        /* These must be unsigned */
+        unsigned char buffer[sizeof(uint32_t)];
+        /* Usually 0xFF */
+        const unsigned charMask = (1 << CHAR_BIT) - 1;
+        for (int i = 0; i < sizeof(buffer); ++i) {
+                /* Place the MSB first */
+                buffer[sizeof(buffer) - i - 1] = value & charMask;
+                value >>= CHAR_BIT;
+        }
+        int count = fwrite(buffer, sizeof(buffer), 1, stream);
+        return count == 1;
 }
 
 /* Checks for file existance */
 int doesFileExist(const char *filename) {
-	struct stat st;
-	int result = stat(filename, &st);
-	return result == 0;
+        struct stat st;
+        int result = stat(filename, &st);
+        return result == 0;
 
 }
 
 uint32_t LEtoBE(uint32_t word) {
-	word = ((word << 8) & 0xFF00FF00) | ((word >> 8) & 0x00FF00FF);
-	word = (word << 16) | (word >> 16);
-	return word;
+        word = ((word << 8) & 0xFF00FF00) | ((word >> 8) & 0x00FF00FF);
+        word = (word << 16) | (word >> 16);
+        return word;
 }
 
 /* MAIN Program loop */
 int main(int argc, char **argv) {
-	assert(argc == 3);
+        assert(argc == 3);
 
+<<<<<<< HEAD
 	const int MAX_LINE_LENGTH = 511;
 
 	//Setup Dictionaries
@@ -285,24 +286,17 @@ int main(int argc, char **argv) {
 			exit(EXIT_FAILURE);
 		}
 
-		/*
-<<<<<<< HEAD
-======= */
     //Replace all aliases
     buffTemp = replaceAliases(buffTemp);
 
-//>>>>>>> origin/master
 		//Apply function
 		uint32_t *output = encodingStruct->encFunc(buffTemp);
 
 		*output = LEtoBE(*output);
 		//Write to file
-//<<<<<<< HEAD
-	//	writeUint32(ptr_WriteFile, *output);
-//		printf("hex out  = %x\n", *output);
-//=======
+		writeUint32(ptr_WriteFile, *output);
+		printf("hex out  = %x\n", *output);
 		writeUint32(ptr_WriteFile, out);
-//>>>>>>> origin/master
 		free(buffTemp);
 		free(buffer);
 		free(output);

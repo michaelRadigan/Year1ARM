@@ -7,12 +7,15 @@ CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_BSD_SOURCE -std=c99 -Werror -pedantic
 
 all: assemble emulate
 
-emulate: emulator/cpu.o emulator/memory_proc.o emulator/ALU.o
+emulate: emulator/cpu.o emulator/memory_proc.o emulator/ALU.o emulator/stack.o
 
-assemble: assembler/dictionary.o assembler/encode.o emulator/cpu.o emulator/memory_proc.o emulator/ALU.o 
+assemble: assembler/dictionary.o assembler/encode.o
 
 clean:
 	rm -f $(wildcard *.o)
 	rm -f assembler/assemble
 	rm -f emulate
 	rm -f emulator/cpu.o
+	rm -f emulator/memory_proc.o
+	rm -f emulator/ALU.o
+	rm -f emulator/stack.o

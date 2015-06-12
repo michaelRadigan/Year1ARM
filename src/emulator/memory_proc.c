@@ -1,5 +1,5 @@
 #include "common_instances.h"
-
+#include "stack.h"
 
 /* Pointer declarations for structs*/
 
@@ -11,6 +11,7 @@ instr_data_proc_struct *instr_data_proc_ptr;
 instr_mult_struct *instr_mult_ptr;
 instr_single_data_trans_struct *instr_single_data_trans_ptr;
 instr_branch_struct *instr_branch_ptr;
+stackByte *stack_ptr;
 
 /**
  * Converts a word from Big Endian to Little Endian
@@ -237,6 +238,7 @@ memory_load_file(FILE *file){
   memory_instr_single_data_transfer_init();
   memory_instr_branch_init();
   memory_pipeline_init();
+  stack_init(stack_ptr, 9000); //Not sure how large this should be
 	
   for(int i = 0; i < MEM_SIZE; i++){
     if(fread(memory->byte + i, BYTES, 1, file) == 1){
@@ -259,6 +261,7 @@ memory_load_file(FILE *file){
   memory_instr_mult_destroy();
   memory_instr_single_data_transfer_destroy();
   memory_instr_branch_destroy();
+  stack_destroy(stack_ptr);
 */
   fclose(file);
 }
