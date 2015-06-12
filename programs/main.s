@@ -25,8 +25,8 @@ main:
                               @Sets up the sreen using InitialiseFrameBuffer method to create 
                               @a frame buffer with width 1960, height 1080, and bit depth 16.
            
-           mov r0, #1960
-           mov r1, #1025
+           mov r0, #1024
+           mov r1, #768
            mov r2, #16
            bl  InitialiseFrameBuffer    
            
@@ -38,12 +38,14 @@ main:
            
            mov r0, #16
            mov r1, #1
-           bl  SetGpioFunction
-           
+           bl flashACT               @SetGpioFunction
+           bl flashLED
+
            mov r0, #16
            mov r1, #1
-           bl  SetGpio
-  
+           bl flashACT                 @SetGpio
+           bl flashLED
+
   error$:  
            b  error$
 

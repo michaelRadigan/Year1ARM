@@ -16,7 +16,7 @@
 
 DICTIONARY *label_address;
 DICTIONARY *opcode_function;
-Dictionary *alias_register;
+DICTIONARY *alias_register;
 
 uint32_t file_line;
 uint32_t file_length;

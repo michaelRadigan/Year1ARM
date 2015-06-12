@@ -15,7 +15,7 @@ DICTIONARY *setUPlabel_address(void) {
 }
 
 DICTIONARY *setUpalias_register(void) {
-  Dictionary *d = createDictionary();
+  DICTIONARY *d = createDictionary();
   return d;
 }
 
