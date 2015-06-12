@@ -15,3 +15,4 @@ clean:
 	rm -f $(wildcard *.o)
 	rm -f assembler/assemble
 	rm -f emulate
+	rm -f emulator/cpu.o
