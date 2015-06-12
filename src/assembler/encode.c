@@ -811,6 +811,7 @@ uint32_t *multiplyAccum(char *source) {
 uint32_t *sdt_ldr(char *source) {
 	printf("source = %s\n", source);
 	const char p[3] = " ,";
+	const char delimshift[3] = ",";
 	//Remove function name 'ldr'
 	strtok(source, p);
 
@@ -826,7 +827,12 @@ uint32_t *sdt_ldr(char *source) {
 	}
 	char *expr2;
 	expr2 = strtok(NULL, p);
-	printf("This is expr, expr2 : %s : %s\n", expr, expr2);
+	printf("This is expr2 \"%s\"\n", expr2);
+
+	char *op2shift;
+	op2shift = strtok(NULL, delimshift);
+	printf("This is expr : expr2 : expr3 = %s : %s : %s\n", expr, expr2,
+			op2shift);
 
 	//3 ways of interpreting expr
 	uint32_t *rdint = toCpuReg(rd);
@@ -876,25 +882,44 @@ uint32_t *sdt_ldr(char *source) {
 //			expr2[strlen(expr2)-1] = '\0';
 			uint32_t *temp = malloc(sizeof(uint32_t *));
 			if (expr2[0] == '#') {
-				printf("This is expr2 \"%s\"\n", expr2);
 				*temp = extractNum(expr2);
-				if (isNegative(*temp)) {
-					*temp = flipSign(*temp);
-					startingBits = 0xE5100000;
+				if (strchr(expr2, ']') == NULL) {
+					startingBits = 0xE4900000;
+					if (isNegative(*temp)) {
+						*temp = flipSign(*temp);
+						startingBits = 0xE5100000;
+					}
+				} else {
+					if (isNegative(*temp)) {
+						*temp = flipSign(*temp);
+						startingBits = 0xE5100000;
+					}
 				}
 				printf("this is temp %x \n", *temp);
 				*val = startingBits | *rnint << 16 | *rdint << 12 | *temp;
 			} else {
-				if (strchr(expr2, ']') != NULL) {
-					startingBits = 0xE7900000;
-					expr2[strlen(expr2) - 1] = '\0';
+				uint32_t *roff;
+				startingBits = 0xE7900000;
+				if (op2shift != NULL) {
+					op2shift[strlen(op2shift) - 1] = '\0';
+					printf("This is expr2 \"%s\"\n", expr2);
+					roff = toCpuReg(expr2);
+					printf("This is op2shift %s\n", op2shift);
+					*val = startingBits | *rnint << 16 | *rdint << 12 | *roff
+							| calculateShift(op2shift);
+
 				} else {
-					startingBits = 0xE6900000;
+					if (strchr(expr2, ']') != NULL) {
+						expr2[strlen(expr2) - 1] = '\0';
+						roff = toCpuReg(expr2);
+					} else {
+						startingBits = 0xE6900000;
+						roff = toCpuReg(expr2);
+					}
+					printf("This is roff %x\n", *roff);
+					*val = startingBits | *rnint << 16 | *rdint << 12 | *roff;
 				}
-				uint32_t *roff = toCpuReg(expr2);
-				printf("This is roff %x\n", *roff);
-				*val = startingBits | *rnint << 16 | *rdint << 12 | *roff;
-				printf("This is roff %x\n", *roff);
+
 			}
 		}
 	}
