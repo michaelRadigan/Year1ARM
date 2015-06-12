@@ -15,7 +15,7 @@ DICTIONARY *setUPlabel_address(void) {
 }
 
 DICTIONARY *setUpalias_register(void) {
-  Dictionary *d = createDictionary();
+  DICTIONARY *d = createDictionary();
   return d;
 }
 
@@ -123,6 +123,28 @@ char *removeLabel(char *source) {
 	return (t2);
 }
 
+
+/* Replaces all aliases in the command with their proper representations */
+char *replaceAliases(char *source){
+  char *out = malloc(sizeof(char));
+  char *c = strtok(source, " ");
+  char *newChar = malloc(sizeof(char));
+  out = strcpy(c,out);
+  while( (c = strtok(NULL," "))!= NULL){
+    sscanf(c , "%[^,#=:<>]" , newChar);
+    if((newChar = getElem(alias_register,newChar)) == NULL){
+      printf("ALIAS Does not exist");
+      break;
+    }
+    out = strcat(out , newChar);
+  }
+  free(newChar);
+  free(source);
+  return out;
+}
+
+
+/* Writes a unsigned 32 bit number to output stream */
 int writeUint32(FILE * const stream, uint32_t value) {
 	/* These must be unsigned */
 	unsigned char buffer[sizeof(uint32_t)];
@@ -172,8 +194,6 @@ int main(int argc, char **argv) {
 		printf("SOURCEFILE NON EXISTANT\n");
 		return 0;
 	}
-
-	printFileContents(ptr_SourceFile);
 
 	//Will create file if non existant
 	ptr_WriteFile = fopen(argv[2], "w+");
@@ -235,10 +255,25 @@ int main(int argc, char **argv) {
 			file_line++;
 			continue;
 		}
-
-
-    //Check if we have an Alias
-
+    
+    //Check if alias command
+    if(strchr(buffTemp , '.') != NULL){
+      //Set Alias
+      char *reg;
+      if(strcmp( reg = strtok(NULL,s) , ".req") == 0){
+        reg = strtok(NULL,s);
+        putElem(alias_register,token,reg);
+      }
+      //Remove Alias
+      else if(strcmp( token , ".unreq" ) == 0){
+        if(removeElem(alias_register , reg)){
+          printf("ALIAS Does not exist!");
+          break;
+        }
+      }
+      file_line++;
+      continue;
+    }
 
 		//Loop-up Opcode to get function
 		STR_ENC *encodingStruct;
@@ -249,6 +284,9 @@ int main(int argc, char **argv) {
 					token);
 			exit(EXIT_FAILURE);
 		}
+
+    //Replace all aliases
+    buffTemp = replaceAliases(buffTemp);
 
 		uint32_t out;
 		//Apply function
