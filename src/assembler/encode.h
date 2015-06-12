@@ -16,7 +16,6 @@
 
 DICTIONARY *register_dict;
 DICTIONARY *LDRconsts;
-//DICTIONARY *regist_vals;
 
 /* Struct for storing function pointers */
 
@@ -46,10 +45,6 @@ void setUPregister_dict(void);
 
 void destroyRegisterDictionary(void);
 
-void setUPregistervalue_dict(void);
-
-void destroyregistervalue_dict(void);
-
 void setUPcode_binarycode(void);
 
 void destroycode_binarycode(void);
@@ -60,10 +55,7 @@ void destroyLDRconsts(void);
 
 /* Auxiliary functions defintions*/
 
-
-uint32_t *binaryConcat( uint32_t *b1, uint32_t *b2 , int pos);
-
-uint32_t *binaryReplace( uint32_t *b1 , int numberOfBits, uint32_t *b2 , int pos);
+uint32_t binaryReplace( uint32_t b1 , int numberOfBits, uint32_t *b2 , int pos);
 
 /* Setsup structs containing function pointers */
 void setUPFuncStructs(void);
