@@ -14,6 +14,11 @@ DICTIONARY *setUPlabel_address(void) {
 	return d;
 }
 
+DICTIONARY *setUpalias_register(void) {
+  DICTIONARY *d = createDictionary();
+  return d;
+}
+
 DICTIONARY *setUPopcode_function(void) {
 
 	//SetUp structs containing function pointers
@@ -57,10 +62,33 @@ DICTIONARY *setUPopcode_function(void) {
 	return d;
 }
 
+/* Sets up all Dictionry structures */
+void setUpDictionaries(){
+	label_address = setUPlabel_address();
+	setUPcode_binarycode();
+  alias_register = setUpalias_register();
+	opcode_function = setUPopcode_function();
+	setUPregister_dict();
+	setUpLDRconsts();
+}
+
 /* Frees all memory allocated by the function dictionary */
 void destroyDictionaryfunctions(DICTIONARY *d) {
 	destroyFuncStructs();
 	destroyDictionary(d);
+}
+
+/* Frees all dictionaries */
+void destroyAllDictionaries(){
+	destroyDictionaryVALUES(label_address); // this is where we free the values we malloced in storeLabel function.
+	destroyDictionaryVALUES(code_binarycode);
+	destroyDictionary(label_address);
+	destroycode_binarycode();
+	destroyDictionaryfunctions(opcode_function);
+	destroyRegisterDictionary();
+	destroyDictionaryKEYS(LDRconsts);
+	destroyDictionaryVALUES(LDRconsts);
+	destroyLDRconsts();
 }
 
 /* Checks if label exists, This will store it*/
@@ -95,6 +123,28 @@ char *removeLabel(char *source) {
 	return (t2);
 }
 
+
+/* Replaces all aliases in the command with their proper representations */
+char *replaceAliases(char *source){
+  char *out = malloc(sizeof(char));
+  char *c = strtok(source, " ");
+  char *newChar = malloc(sizeof(char));
+  out = strcpy(c,out);
+  while( (c = strtok(NULL," "))!= NULL){
+    sscanf(c , "%[^,#=:<>]" , newChar);
+    if((newChar = getElem(alias_register,newChar)) == NULL){
+      printf("ALIAS Does not exist");
+      break;
+    }
+    out = strcat(out , newChar);
+  }
+  free(newChar);
+  free(source);
+  return out;
+}
+
+
+/* Writes a unsigned 32 bit number to output stream */
 int writeUint32(FILE * const stream, uint32_t value) {
 	/* These must be unsigned */
 	unsigned char buffer[sizeof(uint32_t)];
@@ -117,22 +167,6 @@ int doesFileExist(const char *filename) {
 
 }
 
-/* Prints the content of a file*/
-int printFileContents(FILE *ptr) {
-	printf("\nThe File Contents are:\n");
-	int c;
-	while (1) {
-		c = fgetc(ptr);
-		if (feof(ptr)) {
-			break;
-		}
-		printf("%c", c);
-	}
-	printf("\n");
-	rewind(ptr);
-	return 0;
-}
-
 uint32_t LEtoBE(uint32_t word) {
 	word = ((word << 8) & 0xFF00FF00) | ((word >> 8) & 0x00FF00FF);
 	word = (word << 16) | (word >> 16);
@@ -146,12 +180,7 @@ int main(int argc, char **argv) {
 	const int MAX_LINE_LENGTH = 511;
 
 	//Setup Dictionaries
-	label_address = setUPlabel_address();
-	setUPcode_binarycode();
-	opcode_function = setUPopcode_function();
-	setUPregister_dict();
-	setUpLDRconsts();
-	//printf("Value of b %x\n", *(uint32_t *)getElem(code_binarycode, "b"));
+  setUpDictionaries();
 
 	//Setup File fields
 	FILE *ptr_SourceFile = NULL;
@@ -165,8 +194,6 @@ int main(int argc, char **argv) {
 		printf("SOURCEFILE NON EXISTANT\n");
 		return 0;
 	}
-
-	printFileContents(ptr_SourceFile);
 
 	//Will create file if non existant
 	ptr_WriteFile = fopen(argv[2], "w+");
@@ -228,6 +255,25 @@ int main(int argc, char **argv) {
 			file_line++;
 			continue;
 		}
+    
+    //Check if alias command
+    if(strchr(buffTemp , '.') != NULL){
+      //Set Alias
+      char *reg;
+      if(strcmp( reg = strtok(NULL,s) , ".req") == 0){
+        reg = strtok(NULL,s);
+        putElem(alias_register,token,reg);
+      }
+      //Remove Alias
+      else if(strcmp( token , ".unreq" ) == 0){
+        if(removeElem(alias_register , reg)){
+          printf("ALIAS Does not exist!");
+          break;
+        }
+      }
+      file_line++;
+      continue;
+    }
 
 		//Loop-up Opcode to get function
 		STR_ENC *encodingStruct;
@@ -239,13 +285,24 @@ int main(int argc, char **argv) {
 			exit(EXIT_FAILURE);
 		}
 
+		/*
+<<<<<<< HEAD
+======= */
+    //Replace all aliases
+    buffTemp = replaceAliases(buffTemp);
+
+//>>>>>>> origin/master
 		//Apply function
 		uint32_t *output = encodingStruct->encFunc(buffTemp);
 
 		*output = LEtoBE(*output);
 		//Write to file
-		writeUint32(ptr_WriteFile, *output);
-		printf("hex out  = %x\n", *output);
+//<<<<<<< HEAD
+	//	writeUint32(ptr_WriteFile, *output);
+//		printf("hex out  = %x\n", *output);
+//=======
+		writeUint32(ptr_WriteFile, out);
+//>>>>>>> origin/master
 		free(buffTemp);
 		free(buffer);
 		free(output);
@@ -267,15 +324,8 @@ int main(int argc, char **argv) {
 	fclose(ptr_SourceFile);
 	fclose(ptr_WriteFile);
 
-	destroyDictionaryVALUES(label_address); // this is where we free the values we malloced in storeLabel function.
-	destroyDictionaryVALUES(code_binarycode);
-	destroyDictionary(label_address);
-	destroycode_binarycode();
-	destroyDictionaryfunctions(opcode_function);
-	destroyRegisterDictionary();
-	destroyDictionaryKEYS(LDRconsts);
-	destroyDictionaryVALUES(LDRconsts);
-	destroyLDRconsts();
+  destroyAllDictionaries();
+
 	printf("Finished program\n");
 	return EXIT_SUCCESS;
 }

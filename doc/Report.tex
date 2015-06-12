@@ -1,28 +1,41 @@
 \documentclass[11pt]{article}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={210mm,297mm},
+ left=30mm,
+ right=30mm,
+ top=40mm,
+ bottom=40mm,
+ }
 \usepackage{wrapfig}
 \usepackage{graphicx}
 \graphicspath{ {Images/} }
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
 
-\usepackage{fullpage}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\today}
+\lhead{Group 16 - FlappyPi}
+
 
 \begin{document}
 
 \title{
 	{\huge\textbf{FlappyPi}} \\		
-	Documentation of our 'original' extension
+	Group 16
 	}
 
 \author{Henryk Hadass \and Mickey Li \and Michael Radigan \and Oliver Wheeler}
 \date{\today}
 \maketitle
 
-\noindent
-\rule{8cm}{0.6pt}
 
 \tableofcontents
 
-\noindent
-\rule{8cm}{0.6pt}
 \begin{wrapfigure}{r}{0.25\textwidth}
   \vspace{-10pt}
   \begin{center}
@@ -30,47 +43,109 @@
   \end{center}
   \vspace{-30pt}
   \caption{The bird...}
-  \vspace{-20pt}
+  \vspace{-10pt}
 \end{wrapfigure}
 \section{Introduction}
 On completing the challenges involved in developing the Emulator and Assembler modules of this project, we tried to come up with a fun and simple game to make use of the Raspberry pi we had at our disposal and the code we had created. What better game then to create our very own retro 8-bit style 'Flappy Bird' clone.
 
-This idea will throw up several challenges which we will have to overcome, such as creating the display driver, creating button controls and of course developing the main game loop. But the decision we have to make is whether we will choose to program the game in C, and as a result add instructions to the emulator and assembler, or program the game in assembler. Either way, this will prove to be an interesting extension to this project!
-
+This idea will throw up many challenges which we will try our best to overcome. They will include implementing the stack, aliasing, opcode-suffixes, multi-file programs and more opcodes within our current assembler and emulator, as well as writing the assembler scripts for the graphics drivers and game loops and maths engine for our game. 
 
 
 \pagebreak
 
 \section{Implementation}
 
+\subsection{Assembler}
+The design of the Assembler revolves around the use of several dictionaries for lookups.We have 3 main modules: \textbf{assemble.c}, \textbf{encode.c} and \textbf{dictionary.c} (and their respective header files).
 
-\noindent
-\rule{8cm}{0.6pt}
+\begin{description}
+\item[assemble.c]
+The entry point to the program and contains the main program loop. It creates 3 lookup dictionaries - one for mapping labels to memory locations, opcodes/conditions to their binary encodings and opcodes to translation functions. 
+
+We are using the 2-pass method to implement the assembling, so on the first pass, we read the file and note down all the label strings and put them into the dictionary with their respective memory locations. On the second pass, we lookup the opcode of each line in the opcode-function lookup dictionary. This returns a function from \textbf{encode.c}. This function will translate the line from source code to a binary string, which is then written to a file.
+
+\item[encode.c]
+Contains all of the functions needed to translate each specific instruction into its binary representation. They all follow the same format so they can be used and stored easily in the dictionary.
+
+\item[dictionary.c]
+A polymorphic abstract data type based on an AVL binary search tree. We chose a BST as it would be more appropriate for the possible large data sets of this task. It is used extensively in the implementation of this assembler.
+
+\end{description}
+
+\subsection{Extension: FlappyPI}
+
+We split the implementation of this into 2 parts:
+\begin{description}
+
+\item[FlappyPi] \hfill \\
+	The creation of the game which includes the creation of the graphics, maths engine, player interface and main game loop. To keep the additions to our emulator and assembler to a minimum, we have decided to attempt to create this game in assembler code rather than C.
+
+\item[Emulator and Assembler] \hfill \\
+	The development of our Emulator and Assembler will include extending the number of operation codes supported (including conditional suffixes onto existing codes) and the following:
+	\begin{description}
+	\item[A stack]
+		
+	\item[Aliasing support] 
+	\item[Multi-file programs]
+	\item[Block data transfers]
+	\end{description}
+	
+\end{description}
+
+The aim of this split is so that as the game gets developed, so does out assembler and emulator and as a result, if all goes to plan our own assembler and emulator should eventually support out game. (In the meantime, we can develop the game effectively using the gccCompiler).
+
+
 \section{Challenges/Problems}
 
-\noindent
-\rule{8cm}{0.6pt}
+\subsection{Assembler}
+
+\subsection{Extension: FlappyPI}
+
+
 \section{Evaluation of Testing}
 
-\noindent
-\rule{8cm}{0.6pt}
-\section{Project Evaluation}
 
+
+
+\section{Project Evaluation}
+This project has been an interesting journey, and with any journey has had its ups and downs, but overall we think that it has been successful! At the end of this project we sat down and, as a group, reflected on our communication, organisation and effectiveness of our approach to the project.
 \subsection{Group Reflection}
 
-\subsection{Individual Reflection}
+\begin{description}
+\item[Communication]
+
+
+\item[Organisation]
+
+
+\item[Effectiveness]
+
+\end{description}
+
+\subsection{Individual Reflections}
 
 \subsubsection*{Henryk Hadass}
 
 \subsubsection*{Mickey Li}
 
+
 \subsubsection*{Michael Radigan}
+Unfortunately, I received very little useful feedback from the webPA peer
+assessment, my personal reflecion will therefore be based mainly on my
+experiences over the last few weeks. I think I fitted into the group fairly 
+well, although I could have made more of an attempt to be involved with
+the process of planning, which I will attempt do in future group projects.
+I think that with this particular group of people that this in fact may have
+been a good thing.
+
+My main weakness relative to other members of my group was possibly my work
+ethic; I think that the work I did was of a good standard but in future
+projects I will try to keep up with the pace set by my team members.
+
+
 
 \subsubsection*{Oliver Wheeler}
 
-
-\noindent
-\rule{8cm}{0.6pt}
 \section{Conclusion}
 
 \end{document}

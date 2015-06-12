@@ -72,8 +72,8 @@ typedef struct cpu{
   uint32_t r10;
   uint32_t r11;
   uint32_t r12;
-  uint32_t rsp;//Ignored in this implementation
-  uint32_t rlr;//Ignored in this implementation
+  uint32_t sp;//Ignored in this implementation
+  uint32_t lr;//Ignored in this implementation
   uint32_t pc;
   uint32_t cpsr; 
 }cpu;
@@ -124,7 +124,7 @@ typedef enum{
  * ARM Operation Codes
  */
 typedef enum{
-  //Continuity of OpCodes is not maintained because we 
+  // Continuity of OpCodes is not maintained because we 
   // are only dealing with a subset of them
   OC_AND = 0x0,
   OC_EOR = 0x1,
@@ -167,8 +167,8 @@ typedef enum{
   R10  = 0xA,
   R11  = 0xB,
   R12  = 0xC,
-  RSP  = 0xD,// Is ignored in this implementation
-  RLR  = 0xE,// Is ignored in this implementation
+  SP   = 0xD,// Is ignored in this implementation
+  LR   = 0xE,// Is ignored in this implementation
   PC   = 0xF,
   CPSR = 0x10
 }cpu_reg;
@@ -219,13 +219,13 @@ void execute_branch(void);
 void register_select_write(uint32_t calc, uint32_t reg);
 uint32_t register_select_read(uint32_t reg);
 void register_select_write_opcode(uint32_t opcode, uint32_t result, uint32_t rd_reg);
+void transfer_data(uint32_t memory_access_index, uint32_t s_or_d_reg, uint32_t s_or_d_reg_contents);
 uint32_t shift_type_dispatch(uint32_t shift_type, uint32_t shift_amount, uint32_t reg_val);
 uint32_t execute_shift_type(uint32_t (*execute_shift_type_ptr)(uint32_t, uint32_t),
 		uint32_t shift_amount, uint32_t reg_val);
 uint32_t opcode_dispatch(uint32_t opcode, uint32_t left_operand, uint32_t right_operand);
 uint32_t execute_op_code(uint32_t (*execute_op_code_ptr)(uint32_t, uint32_t),
 	    uint32_t left_operand, uint32_t right_operand);
-
 
 
 void word_load(uint32_t memory_access_index, uint32_t s_or_d_reg);
