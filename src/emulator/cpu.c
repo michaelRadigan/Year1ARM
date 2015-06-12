@@ -235,7 +235,16 @@ decode_data_proc(uint32_t instr){
   uint32_t I_flag = extract_bits(instr, FLAG_I_MASK, 25);
   instr_data_proc_ptr->I_flag = I_flag;
 
-  //Opcode
+  //Opcode  //Deallocate memory
+
+  /*
+  memory_machine_destroy(&memory);
+  memory_cpu_destroy();
+  memory_instr_data_proc_destroy();
+  memory_instr_mult_destroy();
+  memory_instr_single_data_transfer_destroy();
+  memory_instr_branch_destroy();
+*/
   uint32_t op_code = extract_bits(instr, OPCODE_MASK, 21);
   instr_data_proc_ptr->op_code = op_code;
 	
@@ -246,13 +255,40 @@ decode_data_proc(uint32_t instr){
   //Rn reg
   uint32_t rn_reg = extract_bits(instr, REG_1_MASK, 16);
   instr_data_proc_ptr->rn_reg = rn_reg;
-	
+	  //Deallocate memory
+
+  /*
+  memory_machine_destroy(&memory);
+  memory_cpu_destroy();
+  memory_instr_data_proc_destroy();
+  memory_instr_mult_destroy();
+  memory_instr_single_data_transfer_destroy();
+  memory_instr_branch_destroy();
+*/
   //Rd reg
   uint32_t rd_reg = extract_bits(instr, REG_2_MASK, 12);
   instr_data_proc_ptr->rd_reg = rd_reg;
 	
   //Operand2
-  uint32_t operand_2 = extract_bits(instr, OPERAND_MASK, 0);
+  uint32_t operand_2 = extract_bits(  //Deallocate memory
+
+  /*
+  memory_machine_destroy(&memory);
+  memory_cpu_destroy();
+  memory_instr_data_proc_destroy();
+  memory_instr_mult_destroy();
+  memory_instr_single_data_transfer_destroy();
+  memory_instr_branch_destroy();
+*/instr, OPERAND_MASK, 0);  //Deallocate memory
+
+  /*
+  memory_machine_destroy(&memory);
+  memory_cpu_destroy();
+  memory_instr_data_proc_destroy();
+  memory_instr_mult_destroy();
+  memory_instr_single_data_transfer_destroy();
+  memory_instr_branch_destroy();
+*/
   instr_data_proc_ptr->operand_2 = operand_2;
 }
 
@@ -509,57 +545,14 @@ execute_single_data_trans(void){
       //Offset is subtracted from base register
       memory_access_index = base_reg_contents - offset_value;
     }
-
-    //Transfer data 
-    if(L_flag_set()){
-      //Write GPIO to register or load word into register
-
-      if(gpio_memory_location(memory_access_index)){ 		
-        register_select_write(memory_access_index, s_or_d_reg);
-        return;
-      }
-      else{ 
-        word_load(memory_access_index, s_or_d_reg);
-      }
-    }  
-    else{
-      //Check GPIO and store word into memory
-		
-      if(gpio_memory_location(memory_access_index)){ 		
-        return;
-      }
-      else{ 
-        word_store(memory_access_index, s_or_d_reg_contents);
-      }
-    }
+    transfer_data(memory_access_index, s_or_d_reg, s_or_d_reg_contents);
   }
   else{
     //Post-Indexing
     //Offset is added/subtracted to the base register after transferring the data.
 	
-    //Transfer data 
-    if(L_flag_set()){
-      //Write GPIO to register or load word into register
-
-      if(gpio_memory_location(memory_access_index)){ 		
-        register_select_write(memory_access_index, s_or_d_reg);
-        return;
-      }
-      else{ 
-        word_load(memory_access_index, s_or_d_reg);
-      }
-    }  
-    else{
-      //Check GPIO and store word into memory
-		
-      if(gpio_memory_location(memory_access_index)){ 		
-        return;
-      }
-      else{ 
-        word_store(memory_access_index, s_or_d_reg_contents);
-      }
-    }
-    
+    transfer_data(memory_access_index, s_or_d_reg, s_or_d_reg_contents);
+        
     if(U_flag_set()){
       //Offset is added to base register
       memory_access_index = base_reg_contents + offset_value;
@@ -572,6 +565,7 @@ execute_single_data_trans(void){
   }
   update_CPSR();
 }
+
 
 
 /**
@@ -676,6 +670,39 @@ register_select_write_opcode(uint32_t op_code, uint32_t result, uint32_t rd_reg)
     case OC_ORR : register_select_write(result, rd_reg); break;
     case OC_MOV : register_select_write(result, rd_reg); break;
     default : printf("Opcode reg write error");
+  }
+}
+
+
+/**
+ * Transfers data to/from memory
+ * @param memory_access_index The index into memory
+ * @param s_or_d_reg          The source or destination register
+ * @param s_or_d_reg_contents The contents of the source or destination register
+ */
+void
+transfer_data(uint32_t memory_access_index, uint32_t s_or_d_reg, uint32_t s_or_d_reg_contents){
+
+  if(L_flag_set()){
+  //Write GPIO to register or load word into register
+
+    if(gpio_memory_location(memory_access_index)){ 		
+      register_select_write(memory_access_index, s_or_d_reg);
+        return;
+    }
+    else{ 
+      word_load(memory_access_index, s_or_d_reg);
+    }
+  }  
+  else{
+  //Check GPIO and store word into memory
+		
+    if(gpio_memory_location(memory_access_index)){ 		
+      return;
+    }
+    else{ 
+      word_store(memory_access_index, s_or_d_reg_contents);
+    }
   }
 }
 
