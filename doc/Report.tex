@@ -33,13 +33,9 @@
 \date{\today}
 \maketitle
 
-\noindent
-\rule{8cm}{0.6pt}
 
 \tableofcontents
 
-\noindent
-\rule{8cm}{0.6pt}
 \begin{wrapfigure}{r}{0.25\textwidth}
   \vspace{-10pt}
   \begin{center}
@@ -47,13 +43,12 @@
   \end{center}
   \vspace{-30pt}
   \caption{The bird...}
-  \vspace{-20pt}
+  \vspace{-10pt}
 \end{wrapfigure}
 \section{Introduction}
 On completing the challenges involved in developing the Emulator and Assembler modules of this project, we tried to come up with a fun and simple game to make use of the Raspberry pi we had at our disposal and the code we had created. What better game then to create our very own retro 8-bit style 'Flappy Bird' clone.
 
 This idea will throw up many challenges which we will try our best to overcome. They will include implementing the stack, aliasing, opcode-suffixes, multi-file programs and more opcodes within our current assembler and emulator, as well as writing the assembler scripts for the graphics drivers and game loops and maths engine for our game. 
-
 
 
 \pagebreak
@@ -78,6 +73,26 @@ A polymorphic abstract data type based on an AVL binary search tree. We chose a 
 \end{description}
 
 \subsection{Extension: FlappyPI}
+
+We split the implementation of this into 2 parts:
+\begin{description}
+
+\item[FlappyPi] \hfill \\
+	The creation of the game which includes the creation of the graphics, maths engine, player interface and main game loop. To keep the additions to our emulator and assembler to a minimum, we have decided to attempt to create this game in assembler code rather than C.
+
+\item[Emulator and Assembler] \hfill \\
+	The development of our Emulator and Assembler will include extending the number of operation codes supported (including conditional suffixes onto existing codes) and the following:
+	\begin{description}
+	\item[A stack]
+		
+	\item[Aliasing support] 
+	\item[Multi-file programs]
+	\item[Block data transfers]
+	\end{description}
+	
+\end{description}
+
+The aim of this split is so that as the game gets developed, so does out assembler and emulator and as a result, if all goes to plan our own assembler and emulator should eventually support out game. (In the meantime, we can develop the game effectively using the gccCompiler).
 
 
 \section{Challenges/Problems}
@@ -112,6 +127,7 @@ This project has been an interesting journey, and with any journey has had its u
 \subsubsection*{Henryk Hadass}
 
 \subsubsection*{Mickey Li}
+
 
 \subsubsection*{Michael Radigan}
 
