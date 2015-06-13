@@ -115,7 +115,7 @@ char *removeLabel(char *source) {
 	char *t1 = calloc(1, sizeof(char *));
 	char *t2 = calloc(1, sizeof(char *));
 	sscanf(source, " %[^:] %*[ :] %[^:]\n\n", t1, t2);
-	if (t2[0] == 0) {
+	if (t2[0] == 0 || t2[0] =='\0') {
 		free(t2);
 		return (t1);
 	}
@@ -128,18 +128,26 @@ char *removeLabel(char *source) {
 char *replaceAliases(char *source){
   char *out = malloc(5 * sizeof(source));
   char *c = strtok(source, " ");
-  out = strcpy(c,out);
+  out = strcpy(out,c);
+  
   int len = strlen(out);
   while( (c = strtok(NULL," "))!= NULL){
-    char *newtoken = malloc(sizeof(char));
+    char *newtoken; // = malloc(sizeof(char));
     sscanf(c , "%[^,#=:<>]" , newtoken);
     char *cp_newToken = malloc(sizeof(char));
-    if((newtoken = getElem(alias_register,newtoken)) == NULL){
-      printf("ALIAS Does not exist");
-      break;
-    }
+    cp_newToken = strcpy(cp_newToken,newtoken);
+    
     //Insert space
     out[len++] = ' ';
+
+    //Get possible alias from dictionary  
+    if((newtoken = getElem(alias_register,newtoken)) == NULL){
+      //if not alias, then concat c back on
+    //free(newtoken);
+      out = strcat(out, c);
+      continue;
+    }
+    //Insert space
 
     //Insert chars before alias
     int i = 0;
@@ -149,9 +157,8 @@ char *replaceAliases(char *source){
     //Insert alias
     for(int j = 0; newtoken[j] != '\0' ; j++){
       out[len++] = newtoken[j];
-      len++;
     }
-    //Update search param i by token length
+    //Update search param i by alias length
     i += strlen(cp_newToken);
 
     //Insert chars after alias
@@ -159,7 +166,6 @@ char *replaceAliases(char *source){
       out[len++] = c[i];
     }
     free(cp_newToken);
-    free(newtoken);
   }
   free(source);
   return out;
@@ -247,6 +253,11 @@ int main(int argc, char **argv) {
 	/* Reads Opcode and generate Binary Encoding */
 	while (fgets(buff, MAX_LINE_LENGTH, ptr_SourceFile)) {
 
+    //buff = original line
+    //buffer = original line without label, gets strtoked
+    //buffTemp = duplicate of buffer
+    //token = first elem of buffer, should be opcode.
+
 		//Check if empty line
 		if (buff[0] == '\n' || buff[0] == '\0' || buff[0] == EOF) {
 	//		file_line++;
@@ -256,7 +267,7 @@ int main(int argc, char **argv) {
 		//Check if label exists and if so remove it also remove \n
 		char *buffer = strtok(buff, "\n");
 		buffer = removeLabel(buffer);
-		//Buffer now contains no label absolutely
+    //Buffer now contains no label absolutely
 
 		//Duplicate Buffer
 		char *buffTemp;
@@ -270,7 +281,7 @@ int main(int argc, char **argv) {
 		char *token = strtok(buffer, s);
 
 		printf("\nThis is your buff = '%s'\n", buff);
-		printf("This is your token, should be opcode = '%s'\n\n", token);
+    printf("This is your token, should be opcode = '%s'\n\n", token);
 
 		//Check if token is a label:
 		if (getElem(label_address, (void *) token) != NULL) {
@@ -288,7 +299,7 @@ int main(int argc, char **argv) {
       }
       //Remove Alias
       else if(strcmp( token , ".unreq" ) == 0){
-        if(removeElem(alias_register , reg)){
+        if(!removeElem(alias_register , reg)){
           printf("ALIAS Does not exist!");
           break;
         }
