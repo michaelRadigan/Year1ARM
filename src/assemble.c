@@ -319,7 +319,7 @@ int main(int argc, char **argv) {
 		}
 
     //Replace all aliases
-    buffTemp = replaceAliases(buffTemp);
+//    buffTemp = replaceAliases(buffTemp);
 
 		uint32_t *output = encodingStruct->encFunc(buffTemp);
 
