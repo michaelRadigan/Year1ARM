@@ -5,7 +5,7 @@ build/output.elf:     file format elf32-littlearm
 Disassembly of section .init:
 
 00008000 <_start>:
-    8000:	ea0000a6 	b	82a0 <main>
+    8000:	ea000094 	b	8258 <main>
 
 00008004 <flashACT>:
     8004:	e59f0080 	ldr	r0, [pc, #128]	; 808c <wait22$+0x10>
@@ -195,69 +195,45 @@ Disassembly of section .text:
     824c:	e1a00004 	mov	r0, r4
     8250:	e8bd8010 	pop	{r4, pc}
     8254:	0000a000 	.word	0x0000a000
-    8258:	e59f003c 	ldr	r0, [pc, #60]	; 829c <wait2$+0x10>
-    825c:	e3a01001 	mov	r1, #1
-    8260:	e1a01901 	lsl	r1, r1, #18
-    8264:	e5801004 	str	r1, [r0, #4]
-    8268:	e3a01001 	mov	r1, #1
-    826c:	e1a01801 	lsl	r1, r1, #16
 
-00008270 <loop1$>:
-    8270:	e5801028 	str	r1, [r0, #40]	; 0x28
-    8274:	e3a0283f 	mov	r2, #4128768	; 0x3f0000
+00008258 <main>:
+    8258:	e3a0d902 	mov	sp, #32768	; 0x8000
+    825c:	e3a00b01 	mov	r0, #1024	; 0x400
+    8260:	e3a01c03 	mov	r1, #768	; 0x300
+    8264:	e3a02010 	mov	r2, #16
+    8268:	ebffffe2 	bl	81f8 <InitialiseFrameBuffer>
+    826c:	e3300000 	teq	r0, #0
+    8270:	1a000008 	bne	8298 <no_error$>
+    8274:	e3a00010 	mov	r0, #16
+    8278:	e3a01001 	mov	r1, #1
+    827c:	ebffff60 	bl	8004 <flashACT>
+    8280:	ebffff70 	bl	8048 <flashLED>
+    8284:	e3a00010 	mov	r0, #16
+    8288:	e3a01001 	mov	r1, #1
+    828c:	ebffff5c 	bl	8004 <flashACT>
+    8290:	ebffff6c 	bl	8048 <flashLED>
 
-00008278 <wait1$>:
-    8278:	e2422001 	sub	r2, r2, #1
-    827c:	e3520000 	cmp	r2, #0
-    8280:	1afffffc 	bne	8278 <wait1$>
-    8284:	e580101c 	str	r1, [r0, #28]
-    8288:	e3a0283f 	mov	r2, #4128768	; 0x3f0000
+00008294 <error$>:
+    8294:	eafffffe 	b	8294 <error$>
 
-0000828c <wait2$>:
-    828c:	e2422001 	sub	r2, r2, #1
-    8290:	e3520000 	cmp	r2, #0
-    8294:	1afffffc 	bne	828c <wait2$>
-    8298:	eafffff4 	b	8270 <loop1$>
-    829c:	20200000 	.word	0x20200000
+00008298 <no_error$>:
+    8298:	e1a04000 	mov	r4, r0
 
-000082a0 <main>:
-    82a0:	e3a0d902 	mov	sp, #32768	; 0x8000
-    82a4:	e3a00b01 	mov	r0, #1024	; 0x400
-    82a8:	e3a01c03 	mov	r1, #768	; 0x300
-    82ac:	e3a02010 	mov	r2, #16
-    82b0:	ebffffd0 	bl	81f8 <InitialiseFrameBuffer>
-    82b4:	e3300000 	teq	r0, #0
-    82b8:	1a000008 	bne	82e0 <no_error$>
-    82bc:	e3a00010 	mov	r0, #16
-    82c0:	e3a01001 	mov	r1, #1
-    82c4:	ebffff4e 	bl	8004 <flashACT>
-    82c8:	ebffff5e 	bl	8048 <flashLED>
-    82cc:	e3a00010 	mov	r0, #16
-    82d0:	e3a01001 	mov	r1, #1
-    82d4:	ebffff4a 	bl	8004 <flashACT>
-    82d8:	ebffff5a 	bl	8048 <flashLED>
+0000829c <render$>:
+    829c:	e5943020 	ldr	r3, [r4, #32]
+    82a0:	e3a01c03 	mov	r1, #768	; 0x300
 
-000082dc <error$>:
-    82dc:	eafffffe 	b	82dc <error$>
+000082a4 <draw_row$>:
+    82a4:	e3a02b01 	mov	r2, #1024	; 0x400
 
-000082e0 <no_error$>:
-    82e0:	e1a04000 	mov	r4, r0
-
-000082e4 <render$>:
-    82e4:	e5943020 	ldr	r3, [r4, #32]
-    82e8:	e3a01c03 	mov	r1, #768	; 0x300
-
-000082ec <draw_row$>:
-    82ec:	e3a02b01 	mov	r2, #1024	; 0x400
-
-000082f0 <draw_pixels$>:
-    82f0:	e1c300b0 	strh	r0, [r3]
-    82f4:	e2833002 	add	r3, r3, #2
-    82f8:	e2422001 	sub	r2, r2, #1
-    82fc:	e3320000 	teq	r2, #0
-    8300:	1afffffa 	bne	82f0 <draw_pixels$>
-    8304:	e2411001 	sub	r1, r1, #1
-    8308:	e2800001 	add	r0, r0, #1
-    830c:	e3310000 	teq	r1, #0
-    8310:	1afffff5 	bne	82ec <draw_row$>
-    8314:	eafffff2 	b	82e4 <render$>
+000082a8 <draw_pixels$>:
+    82a8:	e1c300b0 	strh	r0, [r3]
+    82ac:	e2833002 	add	r3, r3, #2
+    82b0:	e2422001 	sub	r2, r2, #1
+    82b4:	e3320000 	teq	r2, #0
+    82b8:	1afffffa 	bne	82a8 <draw_pixels$>
+    82bc:	e2411001 	sub	r1, r1, #1
+    82c0:	e2800001 	add	r0, r0, #1
+    82c4:	e3310000 	teq	r1, #0
+    82c8:	1afffff5 	bne	82a4 <draw_row$>
+    82cc:	eafffff2 	b	829c <render$>

@@ -10,9 +10,6 @@ Discarded input sections
  .bss           0x0000000000000000        0x0 build/frame_buffer.o
  .ARM.attributes
                 0x0000000000000000       0x14 build/frame_buffer.o
- .bss           0x0000000000000000        0x0 build/gpio.o
- .ARM.attributes
-                0x0000000000000000       0x14 build/gpio.o
  .bss           0x0000000000000000        0x0 build/main.o
  .ARM.attributes
                 0x0000000000000000       0x14 build/main.o
@@ -30,7 +27,6 @@ Linker script and memory map
 LOAD build/mailbox.o
 LOAD build/drawing.o
 LOAD build/frame_buffer.o
-LOAD build/gpio.o
 LOAD build/main.o
 LOAD build/gpio_pins.o
 
@@ -42,7 +38,7 @@ LOAD build/gpio_pins.o
                 0x0000000000008004                flashACT
                 0x0000000000008048                flashLED
 
-.text           0x0000000000008090      0x288
+.text           0x0000000000008090      0x240
  *(.text)
  .text          0x0000000000008090       0x78 build/mailbox.o
                 0x0000000000008090                GetMailboxBase
@@ -55,9 +51,8 @@ LOAD build/gpio_pins.o
                 0x0000000000008174                DrawLine
  .text          0x00000000000081f8       0x60 build/frame_buffer.o
                 0x00000000000081f8                InitialiseFrameBuffer
- .text          0x0000000000008258       0x48 build/gpio.o
- .text          0x00000000000082a0       0x78 build/main.o
- .text          0x0000000000008318        0x0 build/gpio_pins.o
+ .text          0x0000000000008258       0x78 build/main.o
+ .text          0x00000000000082d0        0x0 build/gpio_pins.o
 
 .data           0x0000000000009000     0x2000
  *(.data)
@@ -66,7 +61,6 @@ LOAD build/gpio_pins.o
  *fill*         0x0000000000009008      0xff8 
  .data          0x000000000000a000     0x1000 build/frame_buffer.o
                 0x000000000000a000                FrameBufferInfo
- .data          0x000000000000b000        0x0 build/gpio.o
  .data          0x000000000000b000        0x0 build/main.o
  .data          0x000000000000b000        0x0 build/gpio_pins.o
 
