@@ -229,33 +229,36 @@ uint32_t getNum(treeNode *node) {
 	return res;
 }
 
-void destroyENTRY(treeNode *node) {
+treeNode *destroyENTRY(treeNode *node) {
 	if (node == NULL) {
-		return;
+		return NULL;
 	}
 	destroyENTRY(node->left);
 	destroyENTRY(node->right);
+//	free(node->key);
+//	free(node->value);
 	free(node);
 	node = NULL;
+	return node;
 }
 
-void destroyENTRYVALUES(treeNode *node) {
+treeNode *destroyENTRYVALUES(treeNode *node) {
 	if (node == NULL) {
-		return;
+		return NULL;
 	}
-	destroyENTRY(node->left);
-	destroyENTRY(node->right);
+	node->left = destroyENTRYVALUES(node->left);
+	node->right = destroyENTRYVALUES(node->right);
 	free(node->value);
-	node = NULL;
+	return node;
 }
-void destroyENTRYKEYS(treeNode *node) {
+treeNode *destroyENTRYKEYS(treeNode *node) {
 	if (node == NULL) {
-		return;
+		return NULL;
 	}
-	destroyENTRY(node->left);
-	destroyENTRY(node->right);
+	node->left = destroyENTRYKEYS(node->left);
+	node->right = destroyENTRYKEYS(node->right);
 	free(node->key);
-	node = NULL;
+	return node;
 }
 
 void inorder(treeNode *root) {
@@ -330,8 +333,8 @@ int destroyDictionary(DICTIONARY *d) {
 		perror("Tried to destroy dictionary that does not exist");
 		return 0;
 	}
-	destroyENTRY(d->tree);
-	d->tree = NULL;
+	d->tree = destroyENTRY(d->tree);
+	free(d);
 	return 1;
 }
 
@@ -341,8 +344,7 @@ int destroyDictionaryVALUES(DICTIONARY *d) {
 		perror("Tried to destroy dictionary that does not exist");
 		return 0;
 	}
-	destroyENTRYVALUES(d->tree);
-	d->tree = NULL;
+	d->tree = destroyENTRYVALUES(d->tree);
 	return 1;
 }
 
@@ -352,8 +354,7 @@ int destroyDictionaryKEYS(DICTIONARY *d) {
 		perror("Tried to destroy dictionary that does not exist");
 		return 0;
 	}
-	destroyENTRYKEYS(d->tree);
-	d->tree = NULL;
+	d->tree = destroyENTRYKEYS(d->tree);
 	return 1;
 }
 
