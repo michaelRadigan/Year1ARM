@@ -304,7 +304,6 @@ int main(int argc, char **argv) {
           break;
         }
       }
-      file_line++;
       continue;
     }
 
