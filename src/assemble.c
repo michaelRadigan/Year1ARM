@@ -253,6 +253,7 @@ int main(int argc, char **argv) {
 	/* Reads Opcode and generate Binary Encoding */
 	while (fgets(buff, MAX_LINE_LENGTH, ptr_SourceFile)) {
 
+	printf("file_line = %x\n", file_line);
     //buff = original line
     //buffer = original line without label, gets strtoked
     //buffTemp = duplicate of buffer
@@ -318,7 +319,7 @@ int main(int argc, char **argv) {
 		}
 
     //Replace all aliases
-    buffTemp = replaceAliases(buffTemp);
+//    buffTemp = replaceAliases(buffTemp);
 
 		uint32_t *output = encodingStruct->encFunc(buffTemp);
 
