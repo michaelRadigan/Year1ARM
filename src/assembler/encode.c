@@ -165,6 +165,8 @@ void setUpLDRconsts(void) {
 }
 
 void destroyLDRconsts(void) {
+	destroyDictionaryVALUES(LDRconsts);
+//	destroyDictionaryKEYS(LDRconsts);
 	destroyDictionary(LDRconsts);
 }
 
@@ -223,12 +225,13 @@ void setUPregister_dict(void) {
 }
 
 void destroyRegisterDictionary(void) {
+	destroyDictionaryVALUES(register_dict);
 	destroyDictionary(register_dict);
 }
 
 void destroycode_binarycode(void) {
+	destroyDictionaryVALUES(code_binarycode);
 	destroyDictionary(code_binarycode);
-	// free(BR);
 }
 
 /*  
@@ -271,22 +274,9 @@ uint32_t binaryReplace(uint32_t b1, int numberOfBits, uint32_t *b2, int pos) {
 
 uint32_t toCpuReg(char *str) {
 
-	/*  //only the beginning r will ever be lowercase
-	 str[0] = tolower(str[0]);
-	 uint32_t *ret;
-
-	 if((ret = getElem(register_dict,str))==NULL){
-	 printf("ILLEGAL REGISTER\n");
-	 exit(EXIT_FAILURE);
-	 }
-
-	 return ret;*/
-
 	str[0] = toupper(str[0]);
-//	uint32_t *num = malloc(sizeof(uint32_t *));
 	uint32_t res;
-	//  uint32_t  *res;
-	// return (cpu_reg *)str;
+
 	if (strcmp(str, "R0") == 0) {
 		res = R0;
 	} else if (strcmp(str, "R1") == 0) {
@@ -499,7 +489,6 @@ uint32_t *dataProcessing1(char *source) {
 		rotAndImm = convertToImm(*temp);
 		free(temp);
 	}
-
 	/* Else It is a shift */
 	else {
 		if (operand2[0] == 'r') {
