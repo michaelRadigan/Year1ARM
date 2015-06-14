@@ -25,10 +25,10 @@
 .align 12           @Necessary to ensure correct communication with GPU which expects page alignment
 .globl FrameBufferInfo
 FrameBufferInfo:
-    .int 1960 /* #0  physical width */    @GPU scales frame buffer to fit physical screen
-    .int 1080 /* #4  physical height */   
-    .int 1960 /* #8  virtual  width */    @Frame buffers dimensions
-    .int 1080 /* #12 virtual  height */   
+    .int 1024 /* #0  physical width */    @GPU scales frame buffer to fit physical screen
+    .int 768  /* #4  physical height */   
+    .int 1024 /* #8  virtual  width */    @Frame buffers dimensions
+    .int 768  /* #12 virtual  height */   
     .int 0    /* #16 GPU - Pitch */       @The number of bytes on each row - in this case 2 * 1024 = 2048 
     .int 16   /* #20 Bit depth */         @The number of bits to allocate to each pixel - in this case 16 means we are using High Colour mode
     .int 0    /* #24 X */                 @X offset for top left corner when copying frame buffer to screen
