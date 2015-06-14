@@ -23,29 +23,18 @@ main:
            mov sp, #0x8000
 
                               @Sets up the sreen using InitialiseFrameBuffer method to create 
-                              @a frame buffer with width 1024, height 768, and bit depth 16.
+                              @a frame buffer with width 1024, height 768, and bit depth 32.
            
            mov r0, #1024
            mov r1, #768
-           mov r2, #16
+           mov r2, #16                            //#32
            bl  InitialiseFrameBuffer    
            
                               @Check for a failed frame buffer. r0 will contain the result
-                              @of the frame buffer set-up. 0 for success in which case we       
-                              @turn on the ACT LED
+                              @of the frame buffer set-up. Returns 0 for failure in which 
+                              @case we do nothing. Flash ACT LED for success
            teq r0, #0
            bne no_error$
-           
-           mov r0, #16
-           mov r1, #1
-           //bl flashACT        @SetGpioFunction
-           //bl flashLED
-
-           mov r0, #16
-           mov r1, #1
-           //bl flashACT        @SetGpio 
-           //bl flashLED
-
   error$:  
            b  error$
 
@@ -70,9 +59,9 @@ render$:
                       x .req r2
                       mov x, #1024
                       draw_pixels$:
-                                    ldr colour, =0xc1d1e0
-                                    strh colour, [fbAddr]
-                                    add fbAddr, #2
+                                    ldr colour, =0xFFa1accb
+                                    str colour, [fbAddr]
+                                    add fbAddr, #4
                                     sub x, #1
                                     teq x, #0
                                     bne draw_pixels$
