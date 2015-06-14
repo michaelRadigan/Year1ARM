@@ -80,28 +80,31 @@ void destroyDictionaryfunctions(DICTIONARY *d) {
 
 /* Frees all dictionaries */
 void destroyAllDictionaries(){
-	destroyDictionaryVALUES(label_address); // this is where we free the values we malloced in storeLabel function.
-	destroyDictionaryVALUES(code_binarycode);
+	destroyDictionaryKEYS(label_address);
+	destroyDictionaryVALUES(label_address); // this is where we free the values we malloced in storeLabel function
 	destroyDictionary(label_address);
+
+
 	destroycode_binarycode();
 	destroyDictionaryfunctions(opcode_function);
 	destroyRegisterDictionary();
-	destroyDictionaryKEYS(LDRconsts);
-	destroyDictionaryVALUES(LDRconsts);
 	destroyLDRconsts();
+	destroyDictionary(alias_register);
+
 }
 
 /* Checks if label exists, This will store it*/
 int storeLabel(char *source) {
-	char *t1 = calloc(1, sizeof(char *));
-	char *t2 = calloc(1, sizeof(char *));
+	char *t1 = malloc(sizeof(char *));
+	char *t2 = malloc(sizeof(char *));
 	sscanf(source, "%[^:] %[:] ", t1, t2);
 
 	//Not Label
 	if (t2[0] == '\0') {
+		free(t1);
+		free(t2);
 		return 0;
 	}
-
 	uint32_t *linenumlabel = malloc(sizeof(uint32_t *));
 	*linenumlabel = file_line;
 
