@@ -23,36 +23,28 @@ main:
            mov sp, #0x8000
 
                               @Sets up the sreen using InitialiseFrameBuffer method to create 
-                              @a frame buffer with width 1960, height 1080, and bit depth 16.
+                              @a frame buffer with width 1024, height 768, and bit depth 32.
            
            mov r0, #1024
            mov r1, #768
-           mov r2, #16
+           mov r2, #16                            //#32
            bl  InitialiseFrameBuffer    
            
                               @Check for a failed frame buffer. r0 will contain the result
-                              @of the frame buffer set-up. 0 for success in which case we       
-                              @turn on the ACT LED
+                              @of the frame buffer set-up. Returns 0 for failure in which 
+                              @case we do nothing. Flash ACT LED for success
            teq r0, #0
            bne no_error$
-           
-           mov r0, #16
-           mov r1, #1
-           bl flashACT               @SetGpioFunction
-           bl flashLED
-
-           mov r0, #16
-           mov r1, #1
-           bl flashACT                 @SetGpio
-           bl flashLED
-
   error$:  
            b  error$
 
   no_error$:
+           push {r0 - r4}
+           bl flashACT
+           pop {r0 - r4}
            fbInfoAddr  .req r4    @Aliasing the frame buffer info address stored in r4
            mov fbInfoAddr, r0     @Get the frame buffer pointer from it, to start drawing to the screen
-
+           
 
                                   @Set pixels forever 
            
@@ -67,8 +59,9 @@ render$:
                       x .req r2
                       mov x, #1024
                       draw_pixels$:
-                                    strh colour, [fbAddr]
-                                    add fbAddr, #2
+                                    ldr colour, =0xFFa1accb
+                                    str colour, [fbAddr]
+                                    add fbAddr, #4
                                     sub x, #1
                                     teq x, #0
                                     bne draw_pixels$
@@ -76,7 +69,8 @@ render$:
                       sub y, #1
                       add colour, #1
                       teq y, #0
-                      bne draw_row$ 
+                      bne draw_row$
+           bl flashACT 
            b render$    
            
 .unreq fbAddr
