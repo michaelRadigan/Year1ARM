@@ -90,7 +90,6 @@ void destroyAllDictionaries(){
 	destroyRegisterDictionary();
 	destroyLDRconsts();
 	destroyDictionary(alias_register);
-
 }
 
 /* Checks if label exists, This will store it*/
@@ -285,7 +284,7 @@ int main(int argc, char **argv) {
 		char *token = strtok(buffer, s);
 
 		printf("\nThis is your buff = '%s'\n", buff);
-    printf("This is your token, should be opcode = '%s'\n\n", token);
+    printf("Token before processing, should be opcode = '%s'\n\n", token);
 
 		//Check if token is a label:
 		if (getElem(label_address, (void *) token) != NULL) {
@@ -310,6 +309,12 @@ int main(int argc, char **argv) {
       }
       continue;
     }
+    
+    if(strlen(token) > 3 || strcmp(token,"andeq") != 0){
+      token[3] = '\0';
+    }
+
+    printf("Token after processing, should be opcode = '%s'\n\n", token);    //Check if Opcode has additional condition characters on it.
 
 		//Loop-up Opcode to get function
 		STR_ENC *encodingStruct;
@@ -322,6 +327,7 @@ int main(int argc, char **argv) {
 		}
 
     //Replace all aliases
+    //TODO
     //buffTemp = replaceAliases(buffTemp);
 
 		uint32_t *output = encodingStruct->encFunc(buffTemp);
