@@ -59,6 +59,10 @@ DICTIONARY *setUPopcode_function(void) {
 	putElem(d, "andeq", (void *) andeq);
 	putElem(d, "lsl", (void *) lsl);
 
+  //Functions for stacks
+  putElem(d, "stm", (void *) stm);
+  putElem(d, "ldm", (void *) ldm);
+
 	return d;
 }
 
@@ -328,7 +332,7 @@ int main(int argc, char **argv) {
 
     //Replace all aliases
     //TODO
-    //buffTemp = replaceAliases(buffTemp);
+    buffTemp = replaceAliases(buffTemp);
 
 		uint32_t *output = encodingStruct->encFunc(buffTemp);
 

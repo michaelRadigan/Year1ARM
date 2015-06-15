@@ -39,6 +39,8 @@ STR_ENC *str;
 STR_ENC *b;
 STR_ENC *andeq;
 STR_ENC *lsl;
+STR_ENC *stm;
+STR_ENC *ldm;
   
 /* Function defintions */
 void setUPregister_dict(void);
@@ -97,5 +99,11 @@ uint32_t *spec_lsl(char *source);
 
 /* Returns calculated shift */
 uint32_t *calculateshift(char *source);
+
+/* Translates stm (push) - stm */
+uint32_t *push_stm(char *source);
+
+/* Translates ldm (pop) - ltm */
+uint32_t *pop_ldm(char *source);
 
 #endif

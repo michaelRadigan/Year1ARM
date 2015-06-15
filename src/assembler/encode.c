@@ -102,6 +102,12 @@ void setUPFuncStructs(void) {
 
 	lsl = malloc(sizeof(STR_ENC));
 	lsl->encFunc = &spec_lsl;
+
+  stm = malloc(sizeof(STR_ENC));
+  stm->encFunc = &push_stm;
+
+  ldm = malloc(sizeof(STR_ENC));
+  ldm->encFunc = &pop_ldm;
   
 }
 
@@ -116,6 +122,8 @@ void destroyFuncStructs(void) {
 	free(b);
 	free(andeq);
 	free(lsl);
+  free(stm);
+  free(ldm);
 }
 
 uint32_t *dAlloc(uint32_t val){
@@ -899,3 +907,63 @@ uint32_t *spec_lsl(char *source) {
 	*res = (base | regint << 12 | extractednum << 7 | regint);
 	return res;
 }
+
+
+/* Traslates stm (push) - stm */
+uint32_t *push_stm(char *source){
+  uint32_t *res = malloc(sizeof(uint32_t *));
+	assert(source!=NULL);
+
+	const char p[3] = " ,";
+
+	//Remove function name 'stm/ldm'
+	char *token = strtok(source, p);
+  uint32_t cond = getCond(token);
+
+	//Parse source string
+	char *rn;
+  char *regList;
+
+	if ((rn = strtok(NULL, p)) == NULL) {
+		printf("OPCODE PARAMETER NONEXISTANT");
+		exit(EXIT_FAILURE);
+	}
+  
+  if ((regList = strtok(NULL,p)) == NULL){
+    printf("OPCODE PARAMETER NONEXISTANT");
+    exit(EXIT_FAILURE);
+  }
+
+  //Parse rn to binary
+  uint32_t rnint = toCpuReg(rn);
+  uint32_t list = 0;
+
+  //Parse regList to binary;
+  
+  char *regList_cp = malloc(sizeof(regList));
+  sscanf(regList,"%[^{}]",regList_cp);
+  
+  for(char *r = strtok(regList_cp,p);
+      r != NULL;
+      r = strtok(NULL,p)){
+
+    uint32_t rint = toCpuReg(r);
+    uint32_t val = 1 << rint;
+    list = val | list;
+  }
+
+  *res = cond << 28 | 0x1 << 27 | rnint << 16 | list;
+  return res;
+}
+
+
+/* Translates ldm (pop) - ltm */
+uint32_t *pop_ldm(char *source){
+
+  uint32_t *res = push_stm(source);
+
+  *res = binaryReplace(0x1,1,res,20);
+
+  return res;
+}
+
