@@ -239,7 +239,6 @@ memory_load_file(FILE *file){
   memory_instr_single_data_transfer_init();
   memory_instr_branch_init();
   memory_pipeline_init();
-  stack_init(stack_ptr, 9000); //Not sure how large this should be
 	
   for(int i = 0; i < MEM_SIZE; i++){
     if(fread(memory->byte + i, BYTES, 1, file) == 1){
