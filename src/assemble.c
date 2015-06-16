@@ -93,7 +93,6 @@ void destroyAllDictionaries() {
 
 /* Checks if label exists, This will store it*/
 int storeLabel(char *source) {
-<<<<<<< HEAD
         char *t1 = calloc(1, sizeof(char *));
         char *t2 = calloc(1, sizeof(char *));
         sscanf(source, "%[^:] %[:] ", t1, t2);
@@ -105,7 +104,7 @@ int storeLabel(char *source) {
 
         uint32_t *linenumlabel = malloc(sizeof(uint32_t *));
         *linenumlabel = file_line;
-=======
+/*=======
 	char *t1 = malloc(sizeof(char *));
 	char *t2 = malloc(sizeof(char *));
 	sscanf(source, "%[^:] %[:] ", t1, t2);
@@ -118,7 +117,7 @@ int storeLabel(char *source) {
 	}
 	uint32_t *linenumlabel = malloc(sizeof(uint32_t *));
 	*linenumlabel = file_line;
->>>>>>> ea2f4aca46e8bcc6d61eeac7c1dcb23c30469339
+>>>>>>> ea2f4aca46e8bcc6d61eeac7c1dcb23c30469339*/
 
         putElem(label_address, t1, linenumlabel);
         free(t2);
@@ -372,7 +371,11 @@ int main(int argc, char **argv) {
 
 		*output = LEtoBE(*output);
 		writeUint32(ptr_WriteFile, *output);
+<<<<<<< HEAD
 >>>>>>> ea2f4aca46e8bcc6d61eeac7c1dcb23c30469339
+=======
+		printf("output = %x\n", *output);
+>>>>>>> 1385eac9298fd9a8d4906af8b47d6d2089285ae2
 		free(buffTemp);
 		free(buffer);
 		free(output);
