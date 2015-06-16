@@ -1,21 +1,206 @@
 \documentclass[11pt]{article}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={210mm,297mm},
+ left=30mm,
+ right=30mm,
+ top=40mm,
+ bottom=40mm,
+ }
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\graphicspath{ {Images/} }
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
 
-\usepackage{fullpage}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\today}
+\lhead{Group 16 - FlappyPi}
+\cfoot{\thepage}
+
 
 \begin{document}
 
-\title{Our Extension...}
-\author{TODO}
+\title{
+	{\huge\textbf{FlappyPi}} \\		
+	Group 16
+	}
 
+\author{Henryk Hadass \and Mickey Li \and Michael Radigan \and Oliver Wheeler}
+\date{\today}
 \maketitle
 
-\section{Introduction}
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-culpa qui officia deserunt mollit anim id est laborum.
+\tableofcontents
+
+\begin{wrapfigure}{r}{0.25\textwidth}
+  \vspace{-10pt}
+  \begin{center}
+    \includegraphics[width=0.25\textwidth]{flappyBird.png}
+  \end{center}
+  \vspace{-30pt}
+  \caption{The bird...}
+  \vspace{-10pt}
+\end{wrapfigure}
+\section{Introduction}
+On completing the challenges involved in developing the Emulator and Assembler modules of this project, we tried to come up with a fun and simple game to make use of the Raspberry pi we had at our disposal and the code we had created. What better game then to create our very own retro 8-bit style 'Flappy Bird' clone.
+
+This idea will throw up many challenges which we will try our best to overcome. They will include implementing the stack, aliasing, opcode-suffixes, multi-file programs and more opcodes within our current assembler and emulator, as well as writing the assembler scripts for the graphics drivers and game loops and maths engine for our game. 
+
+
+\pagebreak
+
+\section{Implementation}
+
+\subsection{Assembler}
+The design of the Assembler revolves around the use of several dictionaries for lookups.We have 3 main modules: \textbf{assemble.c}, \textbf{encode.c} and \textbf{dictionary.c} (and their respective header files).
+
+\begin{description}
+\item[assemble.c]
+The entry point to the program and contains the main program loop. It creates 3 lookup dictionaries - one for mapping labels to memory locations, opcodes/conditions to their binary encodings and opcodes to translation functions. 
+
+We are using the 2-pass method to implement the assembling, so on the first pass, we read the file and note down all the label strings and put them into the dictionary with their respective memory locations. On the second pass, we lookup the opcode of each line in the opcode-function lookup dictionary. This returns a function from \textbf{encode.c}. This function will translate the line from source code to a binary string, which is then written to a file.
+
+\item[encode.c]
+Contains all of the functions needed to translate each specific instruction into its binary representation. They all follow the same format so they can be used and stored easily in the dictionary.
+
+\item[dictionary.c]
+A polymorphic abstract data type based on an AVL binary search tree. We chose a BST as it would be more appropriate for the possible large data sets of this task. It is used extensively in the implementation of this assembler.
+
+\end{description}
+
+\subsection{Extension: FlappyPI}
+
+We split the implementation of this into 2 parts:
+\begin{description}
+
+\item[FlappyPi] \hfill \\
+	The creation of the game which includes the creation of the graphics, maths engine, player interface and main game loop. To keep the additions to our emulator and assembler to a minimum, we have decided to attempt to create this game in assembler code rather than C.
+	
+	So in brief, we will have assembler files specifying the location of the bird sprite, pre-set columns from the top and bottom of the screen and also the movement mathematics of the sprite. The input will be in the form of a single button into the GPIO ports of the Raspberry Pi. If we had more time, we would also attempt features such as dynamically creating randomly generated columns, sound and possibly background graphics, but these would be much harder to create.
+	
+
+\item[Emulator and Assembler] \hfill \\
+	The development of our Emulator and Assembler will include extending the number of operation codes supported (including conditional suffixes onto existing codes) and the following:
+	\begin{description}
+	\item[A stack]
+		We had to include support for $Push()$ and $Pop()$ functions within both the emulator and assembler, within the emulator we had to create a stack ADT which we would then use as our stack.
+	\item[Opcode Suffixes]
+		Some of the code within FlappyPi would involve the addition of a suffix indicating the condition at which an instruction is going to be executed. 
+	\item[Aliasing support] 
+		The code for FlappyPi also began to get very cluttered and confusing to understand with the large number of registers we would use and reuse in one assembly function. So we introduced the $.req$ and the $.unreq$ functions to improve the readability of our code.
+	\item[Multi-file programs]
+		FlappyPi also ended up being rather long, and it would make logical sense to split up the different parts into different files. As a result we added this support to the assembler.
+		
+	\end{description}
+	
+\end{description}
+
+The aim of this split is so that as the game gets developed, so does out assembler and emulator and as a result, if all goes to plan our own assembler and emulator should eventually support out game. (In the meantime, we can develop the game effectively using the gccCompiler).
+
+\section{Challenges and Problems}
+There were many problems and challenges throughout this project but one main problem stood out overall. The problem involves the fact that we all worked on the code, and understanding each others code was sometimes rather challenging - and in some circumstances cause us to write useless and erroneous code.
+
+\subsection{Assembler}
+Most of the problems we encountered with the assembler was due to our inexperience with the C language.
+\begin{itemize}
+\item Creating the Binary search tree was a very interesting challenge and has made the implementation of the assembler much easier. In the end we created an AVL tree which was a great addition to this abstract data type.
+
+\item It took us a while to understand and use the C $strtok()$ string tokeniser function effectively and in hindsight, we should have probably created our own tokeniser.
+
+\item On first compilation we had many problems with memory as we did not fully understand the concepts of memory allocation and pointers properly. However this was quickly sorted out, and understood or errors an we fixed thing quickly.
+
+\item During the testing phase, we uncovered many instructions that we did not anticipate, or that we lost track of and as a result did not implement correctly or even consider. This may be have due to a mix up in communication during the middle period of development. This ended taking up a lot of our time to sort out, and in hindsight more effective communication would have bee sufficient to sort out the problem.
+
+\end{itemize}
+\subsection{Extension: FlappyPI}
+Our extension has turned out to be extremely challenging indeed. Partially due to the amount of code we had to write, and partially due to the advanced concepts involved - especially for the creation of the graphics in assembly code.
+
+
+
+
+\section{Evaluation of Testing}
+Testing started off very slowly as it was difficult to track the cause of the errors as there were so many. This may have been due to a prolonged period of committing code without any testing, and just being satisfied with compiling code as opposed to working code.
+
+
+We originally planned to create unit tests for each of our modules and demonstrate a use of Test Driven Development, and in fact with the provided test suite, we did indeed achieve this to an extent. A test suite was going originally planned to be developed for the FlappyPi game, however due to time constraints we were not able to implement this fully.
+
+
+
+\section{Project Evaluation}
+This project has been an interesting journey, and with any journey has had its ups and downs, but overall we think that it has been successful! At the end of this project we sat down and, as a group, reflected on our communication, organisation and effectiveness of our approach to the project.
+
+\subsection{Group Reflection}
+Our reflection can be split into several of the following categories:
+\begin{description}
+\item[Communication]
+Our communication greatly improved throughout the course of the project. Whilst our communication was still not perfect at the end of our project, I think that we have all learned valuable skills which we can apply to future endeavours.
+
+\item[Organisation]
+Organisation was not the largest issue for us throughout the project as we had clear goals and deadlines. Our main issue was not regularly meeting our personal deadlines which hindered the progress of the group. Whether this was an organisational issue or simply due to the innate difficulty of pre-judging the difficulty of a task is an isuue which could be debated.
+
+\item[Effectiveness]
+At the beginning it was difficult to distribute the tasks evenly due to our weak, high-level understanding of the specification. As the project progressed, our understanding improved, allowing us to program more effectively by compartmentalising various elements of the project. This allowed us to concentrate solely on our respective tasks.
+
+Our main time consumer was debugging which was due to the fact that it was initially difficult to ascertain what was going wrong in our code. However, in the end, all of our mistakes came from not reading the specification carefully enough and thus missing some subtle elements. Overall, it is estimated that we spent as much time debugging as coding, if not more.
+
+\item[Improvements]
+Of the several improvement which we could do here are several:
+	\begin{itemize}
+		\item 
+		Testing before committing code
+		\item 
+		Agreeing on a coding style format at the start of the project  for consistency between modules. 
+		\item
+		All team members being up to date with the current situation of the project to prevent miscommunication.
+		\item
+		Effective delegation of tasks so as to evenly distribute the workload.
+		\item
+		More correlation of similar methods between emulator and assembler.
+		 
+
+	\end{itemize}
+\end{description}
+
+\subsection{Individual Reflections}
+
+\subsubsection*{Henryk Hadass}
+Once our group had received the project specification we decided on a strategy on how to best prepare ourselves in order to complete the project as successfully as we could. We came to the conclusion that it would be best if we pushed ourselves to learn the majority of C through a combination of recommend books and lecture notes by the weekend of the 22nd May. By the Monday only half the group had managed to make enough progress, so I ended up designing the structure of the emulator and began to code it up. As a result I ended up implementing the vast majority of the emulator with Michael implementing the mathematical ALU operations and the stack. However once the whole group came up to speed we distributed tasks very well and as such we were able to implement the majority of the remaining parts fairly rapidly. 
+
+I was surprised how quickly I was able to pick up C, given that the other high-level languages which I had picked up so far on this course had taken several weeks to gain some level of mastery at. I suppose one reason for this was that I dedicated several consecutive days in which I did nothing other than learn the language. I was also pleased with how I was able to design the layout of the emulator section by basing it on the structure of the CPU as covered in the Architecture lectures and I think that this confirmed that personally I would consider myself a better designer than a coder. I think that one of my greater weakness was my delegation of tasks to other team members which led to a large amount of redundant code in the emulator.
+
+Overall, when working with other groups in the future I would make sure that the work is distribute more evenly and I would like to improve my skills of delegating.
+
+
+
+\subsubsection*{Mickey Li}
+I did not receive very much feedback from webPa, but I have found the past few weeks to be rather enlightening with respect to working as part of a group. I found that I integrated with the group well and felt comfortable working with my team mates. I believe I provided some structure to the performance of our group in the form of setting out our own deadlines - which we achieved most of the time - and as a motivating force to keep us moving forward. I personally felt most useful when i was designing the assembler in a way where it would be easy for the others to work with me.
+
+However I must be honest and say that the overall quality of my code was my main weakness. Although I would spend a decent amount of time coding, it would take much longer to debug and sort out afterwards. I think part of this problem was that I jumped in a bit too quickly without knowing the material fully. Also i regret not helping out more at the beginning as it took me a bit longer than anticipated to become productive. Overall I was a bit less productive that i thought I would be, and perhaps next time, I will endeavour to know the material before I jump in. Apart from that I have been satisfied with my performance this project.
+
+
+\subsubsection*{Michael Radigan}
+Unfortunately, I received very little useful feedback from the webPA peer assessment, my personal reflection will therefore be based mainly on my experiences over the last few weeks. I think I fitted into the group fairly  well, although I could have made more of an attempt to be involved with the process of planning, which I will attempt do in future group projects. I think that with this particular group of people that this in fact may have
+been a good thing.
+
+My main weakness relative to other members of my group was possibly my work
+ethic; I think that the work I did was of a good standard but in future
+projects I will try to keep up with the pace set by my team members. This isalluded to in my webPA assessment.
+
+I think that my main strength was my ability to quickly understand the code written by others. I think that this really helped with collaboration throughout the project.
+
+\subsubsection*{Oliver Wheeler}
+The feedback I received from the webPA peer assessment was minimal but true.
+During the first week, I was poor at communicating with the rest of the group and had trouble keeping up with the pace of the project. I found it difficult to keep track of how the Emulator was implemented.
+However, despite having a slow start, after the first week I began to integrate into the group quickly and was able to impact the group in a positive way. I quickly transitioned from a dead-weight to a real asset when I began to work on the Assembler. I wrote the dictionary and some of the functions for decoding certain instructions. I also performed extensive debugging. My main strengths lied in testing code before committing and fixing/improving functions that were started by other members of the team. The amount of time I spent on writing and debugging the Assembler made it easier to quickly and correctly assess problems. 
+
+\section{Conclusion}
+During the course of the project we learnt how we can improve ourselves when involved with team projects. We experienced the difficulties that come with a collaborative technical project and how to overcome them. Overall we can consider this project as a success both with regards to the end result and also as an educational and professional experience.
+
+
 
 \end{document}

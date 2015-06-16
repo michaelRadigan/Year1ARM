@@ -9,9 +9,10 @@ all: assemble emulate
 
 emulate: emulator/cpu.o emulator/memory_proc.o emulator/ALU.o
 
-assemble: assembler/dictionary.o assembler/encode.o emulator/cpu.o emulator/memory_proc.o emulator/ALU.o 
+assemble: assembler/genericstack.o assembler/dictionary.o assembler/encode.o emulator/cpu.o emulator/memory_proc.o emulator/ALU.o 
 
 clean:
 	rm -f $(wildcard *.o)
 	rm -f assembler/assemble
 	rm -f emulate
+	rm -f emulator/cpu.o

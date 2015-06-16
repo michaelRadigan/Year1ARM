@@ -13,6 +13,10 @@
 //For access to cpu registers enum
 #include "../emulator/cpu.h"
 
+
+DICTIONARY *register_dict;
+DICTIONARY *LDRconsts;
+
 /* Struct for storing function pointers */
 
 
@@ -35,20 +39,25 @@ STR_ENC *str;
 STR_ENC *b;
 STR_ENC *andeq;
 STR_ENC *lsl;
+STR_ENC *stm;
+STR_ENC *ldm;
   
 /* Function defintions */
+void setUPregister_dict(void);
 
+void destroyRegisterDictionary(void);
 
 void setUPcode_binarycode(void);
 
 void destroycode_binarycode(void);
 
+void setUpLDRconsts(void);
+
+void destroyLDRconsts(void);
+
 /* Auxiliary functions defintions*/
 
-
-uint32_t *binaryConcat( uint32_t *b1, uint32_t *b2 , int pos);
-
-uint32_t *binaryReplace( uint32_t *b1 , int numberOfBits, uint32_t *b2 , int pos);
+uint32_t binaryReplace( uint32_t b1 , int numberOfBits, uint32_t *b2 , int pos);
 
 /* Setsup structs containing function pointers */
 void setUPFuncStructs(void);
@@ -87,5 +96,14 @@ uint32_t *spec_andeq(char *source);
 
 /* Translates special - lsl */
 uint32_t *spec_lsl(char *source);
+
+/* Returns calculated shift */
+uint32_t *calculateshift(char *source);
+
+/* Translates stm (push) - stm */
+uint32_t *push_stm(char *source);
+
+/* Translates ldm (pop) - ltm */
+uint32_t *pop_ldm(char *source);
 
 #endif
