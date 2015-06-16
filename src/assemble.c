@@ -336,6 +336,7 @@ int main(int argc, char **argv) {
 
 		*output = LEtoBE(*output);
 		writeUint32(ptr_WriteFile, *output);
+		printf("output = %x\n", *output);
 		free(buffTemp);
 		free(buffer);
 		free(output);
