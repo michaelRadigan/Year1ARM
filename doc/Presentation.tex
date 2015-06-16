@@ -79,6 +79,7 @@
 \usepackage{graphicx} % Allows including images
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
 \usepackage{multimedia}
+\usepackage{hyperref}
 
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
@@ -86,7 +87,7 @@
 
 \title[FlappyPi]{The Summer C Project and FlappyPi} % The short title appears at the bottom of every slide, the full title is only on the title page
 
-\author[Group 16]{Henryk Haddass \and Mickey Li \and Michael Radigan \and Oliver Wheeler}% Your name
+\author[Group 16]{\small Henryk~Haddass \and Mickey~Li \and Michael~Radigan \and Oliver~Wheeler}% Your name
 \institute[Imperial DoC] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
 {
 Group 16
@@ -266,10 +267,11 @@ Characteristics of our assembler include:
 
 \begin{frame}
 \frametitle{Improvements}
-
-
-
-
+\begin{itemize}
+	\item Creating our own string tokeniser which is more flexible then the implementation of \textbf{strtok()}.
+	\item Spending a bit more time optimising and improving the quality of the code.
+	\item 
+\end{itemize}
 \end{frame}
 
 %------------------------------------------------
@@ -279,7 +281,13 @@ Characteristics of our assembler include:
 \frametitle{Flashing GPIO}
 
 \begin{figure}
-\movie[width = 3cm, height = 2cm ,poster]{}{CharlieChaplinTestMovie.mpg}
+%\movie[width=3cm,height=2cm,poster]{}{Testvideo.mp4}
+%\movie[width=3cm,height=2cm,poster]{}{test1.mpg}
+
+\movie[label=cells,width=4cm,height=3cm,poster,showcontrols,duration=5s]{}{test1.mpg}
+\hyperlinkmovie[start=5s,duration=7s]{cells}{\beamerbutton{Show the middle stage}}
+\hyperlinkmovie[start=12s,duration=5s]{cells}{\beamerbutton{Show the late stage}}
+
 \caption{Our Flashing Gpio Led}
 \end{figure}
 
@@ -303,10 +311,22 @@ Characteristics of our assembler include:
 %------------------------------------------------
 \begin{frame}
 \frametitle{Extending the Assembler}
+To make it possible for us to use our own Assembler to process the assemble source code, we have had to do the following:
+\\~\\
+\begin{description}
+\item[Stack (block data transfer)]\hfill\\
+	Enabling the use of \textbf{stm} and \textbf{ldm} in the assembler, so that the stack can be utilised.
+	
+\item[Opcodes Suffixes]
+	Supporting the addition of the 2 character condition codes on the end of the existing opcodes
+
+\item[Aliasing]
+	
+
+\item[Multi-File Programs]
 
 
-
-
+\end{description}
 \end{frame}
 %------------------------------------------------
 \subsection{Outcome}
@@ -335,7 +355,68 @@ Characteristics of our assembler include:
 
 
 %-------------------------------------------------
-\section*{Project Evaluation}
+\section{Project Evaluation}
+%-------------------------------------------------
+\subsection{Evaluation}
+\begin{frame}
+
+\frametitle{Problems and Challenges}
+
+\begin{description}
+
+\item[Organisation]\hfill\\
+	\begin{itemize}
+	\item Lack of a Complete Plan from the start
+	\item Redundant code
+	\item Regularly missed personal deadlines
+	\item Distribution of tasks
+	\end{itemize}
+
+\item[Communication]\hfill\\
+	\begin{itemize}
+	\item Instant messenger issues
+	\item Lack of Clarity
+	\item Sleeping Pattens
+	\end{itemize}
+
+\item[Effectiveness]\hfill\\
+	\begin{itemize}
+	\item C knowledge
+	\item Testing and Debugging
+	\item Git
+	\end{itemize}
+
+
+\end{description}
+
+
+
+
+\end{frame}
+%-------------------------------------------------
+\begin{frame}
+
+\frametitle{Use of GIT}
+
+
+
+
+
+\end{frame}
+
+
+%-------------------------------------------------
+\subsection{Improvements}
+\begin{frame}
+
+\frametitle{Improvements}
+
+
+
+
+
+\end{frame}
+
 %-------------------------------------------------
 \begin{frame}
 
