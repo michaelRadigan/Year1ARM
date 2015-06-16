@@ -40,11 +40,11 @@
 %\usetheme{Ilmenau}
 %\usetheme{JuanLesPins}
 %\usetheme{Luebeck}
-\usetheme{Madrid}
+%\usetheme{Madrid}
 %\usetheme{Malmoe}
 %\usetheme{Marburg}
 %\usetheme{Montpellier}
-%\usetheme{PaloAlto}
+\usetheme{PaloAlto}
 %\usetheme{Pittsburgh}
 %\usetheme{Rochester}
 %\usetheme{Singapore}
@@ -78,6 +78,8 @@
 
 \usepackage{graphicx} % Allows including images
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{multimedia}
+\usepackage{hyperref}
 
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
@@ -85,7 +87,7 @@
 
 \title[FlappyPi]{The Summer C Project and FlappyPi} % The short title appears at the bottom of every slide, the full title is only on the title page
 
-\author[Group 16]{Henryk Haddass \and Mickey Li \and Michael Radigan \and Oliver Wheeler}% Your name
+\author[Group 16]{\small Henryk~Haddass \and Mickey~Li \and Michael~Radigan \and Oliver~Wheeler}% Your name
 \institute[Imperial DoC] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
 {
 Group 16
@@ -116,29 +118,33 @@ Group 16
 \subsection{Implementation} % A subsection can be created just before a set of slides with a common theme to further break down your presentation into chunks
 
 \begin{frame}
-\frametitle{Paragraphs of Text}
-Sed iaculis dapibus gravida. Morbi sed tortor erat, nec interdum arcu. Sed id lorem lectus. Quisque viverra augue id sem ornare non aliquam nibh tristique. Aenean in ligula nisl. Nulla sed tellus ipsum. Donec vestibulum ligula non lorem vulputate fermentum accumsan neque mollis.\\~\\
+\frametitle{}
 
-Sed diam enim, sagittis nec condimentum sit amet, ullamcorper sit amet libero. Aliquam vel dui orci, a porta odio. Nullam id suscipit ipsum. Aenean lobortis commodo sem, ut commodo leo gravida vitae. Pellentesque vehicula ante iaculis arcu pretium rutrum eget sit amet purus. Integer ornare nulla quis neque ultrices lobortis. Vestibulum ultrices tincidunt libero, quis commodo erat ullamcorper id.
+
+
+
+
+
 \end{frame}
 
 %------------------------------------------------
-
+\subsection{Outcome}
 \begin{frame}
 \frametitle{Bullet Points}
-\begin{itemize}
-\item Lorem ipsum dolor sit amet, consectetur adipiscing elit
-\item Aliquam blandit faucibus nisi, sit amet dapibus enim tempus eu
-\item Nulla commodo, erat quis gravida posuere, elit lacus lobortis est, quis porttitor odio mauris at libero
-\item Nam cursus est eget velit posuere pellentesque
-\item Vestibulum faucibus velit a augue condimentum quis convallis nulla gravida
-\end{itemize}
+
+
+
+
 \end{frame}
 
 %------------------------------------------------
+\subsection{Evaluation}
+
 
 \begin{frame}
-\frametitle{Blocks of Highlighted Text}
+\frametitle{Problems and Challenges}
+
+
 \begin{block}{Block 1}
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
 \end{block}
@@ -150,24 +156,33 @@ Pellentesque sed tellus purus. Class aptent taciti sociosqu ad litora torquent p
 \begin{block}{Block 3}
 Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenatis rutrum, ipsum neque consectetur orci, sed blandit justo nisi ac lacus.
 \end{block}
+
+
+
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{Multiple Columns}
-\begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
+\frametitle{Improvements}
+%\frametitle{Multiple Columns}
+\begin{columns}[t] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
 
-\column{.45\textwidth} % Left column and width
-\textbf{Heading}
-\begin{enumerate}
+\column{.5\textwidth} % Left column and width
+\begin{itemize}
 \item Statement
 \item Explanation
 \item Example
-\end{enumerate}
+\end{itemize}
+
+
 
 \column{.5\textwidth} % Right column and width
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
+\begin{itemize}
+\item Statement
+\item Explanation
+\item Example
+\end{itemize}
 
 \end{columns}
 \end{frame}
@@ -181,93 +196,237 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ul
 \subsection{Implementation}
 
 \begin{frame}
-\frametitle{Table}
-\begin{table}
-\begin{tabular}{l l l}
-\toprule
-\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2}\\
-\midrule
-Treatment 1 & 0.0003262 & 0.562 \\
-Treatment 2 & 0.0015681 & 0.910 \\
-Treatment 3 & 0.0009271 & 0.296 \\
-\bottomrule
-\end{tabular}
-\caption{Table caption}
-\end{table}
+\frametitle{Our Approach}
+
+We used a simple 3 modules approach - \textit{assemble.c}, \textit{dictionary.c} and \textit{encode.c}. 
+\\~\\
+
+Characteristics of our assembler include: 
+\begin{itemize}
+\item 2 pass assembler method
+
+\item Polymorphic AVL Tree ADT dictionary
+
+\item Using the Dictionary to map functions to Opcodes
+
+\item Each Function decodes the instruction string themselves
+
+\end{itemize}
+
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{Theorem}
-\begin{theorem}[Mass--energy equivalence]
-$E = mc^2$
-\end{theorem}
+\frametitle{Structure}
+
+\begin{figure}[c]
+\includegraphics[width=0.9\linewidth]{Images/Assembler_XML.jpg}
+\end{figure}
+
+
 \end{frame}
 
 %------------------------------------------------
+\subsection{Outcome}
+\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide 
+\frametitle{Outcome - Disassembler}
 
-\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-\frametitle{Verbatim}
-\begin{example}[Theorem Slide Code]
-\begin{verbatim}
+\begin{figure}
+\includegraphics[width=1\linewidth]{Images/Screen1.png}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\linewidth]{Images/Screen2.png}
+\end{figure}
+
+\end{frame}
+
+%------------------------------------------------
+\subsection{Evaluation}
 \begin{frame}
-\frametitle{Theorem}
-\begin{theorem}[Mass--energy equivalence]
-$E = mc^2$
-\end{theorem}
-\end{frame}\end{verbatim}
-\end{example}
+\frametitle{Problems and Challenges}
+\begin{description}
+\item[String Tokenising]\hfill\\
+	Using \textbf{strtok()} and \textbf{sscanf()} proved to be very limiting
+	
+\item[Dictionary ADT]\hfill\\
+	Development of the AVL tree was time consuming and took a long time before it was bug free
+	
+\item[Memory Allocation]\hfill\\
+	Many mistakes and errors ended up being A problem with the use of \textbf{malloc()} and \textbf{free()}.
+
+\item[Code Reuse]\hfill\\
+	The compactness of the \textit{Emulator} code meant it was difficult to reuse within assembler. 
+
+
+\end{description}
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{Figure}
-Uncomment the code on this slide to include your own image from the same directory as the template .TeX file.
-%\begin{figure}
-%\includegraphics[width=0.8\linewidth]{test}
-%\end{figure}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-\frametitle{Citation}
-An example of the \verb|\cite| command to cite within the presentation:\\~
-
-This statement requires citation \cite{p1}.
+\frametitle{Improvements}
+\begin{itemize}
+	\item Creating our own string tokeniser which is more flexible then the implementation of \textbf{strtok()}.
+	\item Spending a bit more time optimising and improving the quality of the code.
+	\item 
+\end{itemize}
 \end{frame}
 
 %------------------------------------------------
 \section{Proof of use}
 %------------------------------------------------
+\begin{frame}
+\frametitle{Flashing GPIO}
+
+\begin{figure}
+%\movie[width=3cm,height=2cm,poster]{}{Testvideo.mp4}
+%\movie[width=3cm,height=2cm,poster]{}{test1.mpg}
+
+\movie[label=cells,width=4cm,height=3cm,poster,showcontrols,duration=5s]{}{test1.mpg}
+\hyperlinkmovie[start=5s,duration=7s]{cells}{\beamerbutton{Show the middle stage}}
+\hyperlinkmovie[start=12s,duration=5s]{cells}{\beamerbutton{Show the late stage}}
+
+\caption{Our Flashing Gpio Led}
+\end{figure}
 
 
-
+\end{frame}
 %------------------------------------------------
-\section{Extension - FlappyPi}
+\section{Extension}
 %------------------------------------------------
 
-
+\subsection{Implementation}
 
 \begin{frame}
-\frametitle{References}
-\footnotesize{
-\begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
-\bibitem[Smith, 2012]{p1} John Smith (2012)
-\newblock Title of the publication
-\newblock \emph{Journal Name} 12(3), 45 -- 678.
-\end{thebibliography}
-}
+\frametitle{FlappyPi}
+
+
+
+
+
 \end{frame}
 
 %------------------------------------------------
+\begin{frame}
+\frametitle{Extending the Assembler}
+To make it possible for us to use our own Assembler to process the assemble source code, we have had to do the following:
+\\~\\
+\begin{description}
+\item[Stack (block data transfer)]\hfill\\
+	Enabling the use of \textbf{stm} and \textbf{ldm} in the assembler, so that the stack can be utilised.
+	
+\item[Opcodes Suffixes]
+	Supporting the addition of the 2 character condition codes on the end of the existing opcodes
+
+\item[Aliasing]
+	
+
+\item[Multi-File Programs]
+
+
+\end{description}
+\end{frame}
+%------------------------------------------------
+\subsection{Outcome}
 
 \begin{frame}
-\Huge{\centerline{The End}}
+\frametitle{Problems and Challenges}
+
+
+
+
+
 \end{frame}
 
-%----------------------------------------------------------------------------------------
+
+%------------------------------------------------
+\subsection{Evaluation}
+
+\begin{frame}
+\frametitle{Improvements}
+
+
+
+
+
+\end{frame}
+
+
+%-------------------------------------------------
+\section{Project Evaluation}
+%-------------------------------------------------
+\subsection{Evaluation}
+\begin{frame}
+
+\frametitle{Problems and Challenges}
+
+\begin{description}
+
+\item[Organisation]\hfill\\
+	\begin{itemize}
+	\item Lack of a Complete Plan from the start
+	\item Redundant code
+	\item Regularly missed personal deadlines
+	\item Distribution of tasks
+	\end{itemize}
+
+\item[Communication]\hfill\\
+	\begin{itemize}
+	\item Instant messenger issues
+	\item Lack of Clarity
+	\item Sleeping Pattens
+	\end{itemize}
+
+\item[Effectiveness]\hfill\\
+	\begin{itemize}
+	\item C knowledge
+	\item Testing and Debugging
+	\item Git
+	\end{itemize}
+
+
+\end{description}
+
+
+
+
+\end{frame}
+%-------------------------------------------------
+\begin{frame}
+
+\frametitle{Use of GIT}
+
+
+
+
+
+\end{frame}
+
+
+%-------------------------------------------------
+\subsection{Improvements}
+\begin{frame}
+
+\frametitle{Improvements}
+
+
+
+
+
+\end{frame}
+
+%-------------------------------------------------
+\begin{frame}
+
+\frametitle{Conclusion}
+
+
+
+
+
+\end{frame}
+
 
 \end{document} 
