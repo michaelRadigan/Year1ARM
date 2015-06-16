@@ -67,7 +67,7 @@ memory_machine_init(memory_machine **memptr){
 
   int numBytes = MEM_SIZE;
 	
-  *memptr = calloc(1, sizeof(memory_machine)); 
+  *memptr = calloc(1, sizeof(memory_machine));
   (*memptr)->byte = calloc(numBytes, sizeof(uint8_t));
 }
 
@@ -78,7 +78,8 @@ memory_machine_init(memory_machine **memptr){
  */
 void
 memory_machine_destroy(memory_machine **memptr){
-  free(memptr);
+  free((*memptr)->byte);
+  free(*memptr);
 }
 
 
@@ -250,18 +251,19 @@ memory_load_file(FILE *file){
     }
   }
 
-  cpu_cycle();
 
+  cpu_cycle();
   //Deallocate memory
 
-  /*
-  memory_machine_destroy(&memory);
-  memory_cpu_destroy();
+
   memory_instr_data_proc_destroy();
   memory_instr_mult_destroy();
   memory_instr_single_data_transfer_destroy();
   memory_instr_branch_destroy();
-  stack_destroy(stack_ptr);
-*/
+  memory_cpu_destroy();
+  memoyr_pipeline_destroy();
+  memory_instr_flags_destroy();
+  memory_machine_destroy(&memory);
+
   fclose(file);
 }

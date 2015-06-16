@@ -1,18 +1,15 @@
 
 Discarded input sections
 
- .bss           0x0000000000000000        0x0 build/drawing.o
+ .bss           0x0000000000000000        0x0 build/mailbox.o
  .ARM.attributes
-                0x0000000000000000       0x14 build/drawing.o
+                0x0000000000000000       0x14 build/mailbox.o
  .bss           0x0000000000000000        0x0 build/frame_buffer.o
  .ARM.attributes
                 0x0000000000000000       0x14 build/frame_buffer.o
  .bss           0x0000000000000000        0x0 build/gpio.o
  .ARM.attributes
                 0x0000000000000000       0x14 build/gpio.o
- .bss           0x0000000000000000        0x0 build/mailbox.o
- .ARM.attributes
-                0x0000000000000000       0x14 build/mailbox.o
  .bss           0x0000000000000000        0x0 build/main.o
  .ARM.attributes
                 0x0000000000000000       0x14 build/main.o
@@ -24,45 +21,36 @@ Name             Origin             Length             Attributes
 
 Linker script and memory map
 
-LOAD build/drawing.o
+LOAD build/mailbox.o
 LOAD build/frame_buffer.o
 LOAD build/gpio.o
-LOAD build/mailbox.o
 LOAD build/main.o
 
-.init           0x0000000000008000       0x90
+.init           0x0000000000008000       0x40
  *(.init)
- .init          0x0000000000008000       0x8c build/gpio.o
+ .init          0x0000000000008000       0x3c build/gpio.o
                 0x0000000000008000                flashACT
-                0x0000000000008044                flashLED
- .init          0x000000000000808c        0x4 build/main.o
-                0x000000000000808c                _start
+ .init          0x000000000000803c        0x4 build/main.o
+                0x000000000000803c                _start
 
-.text           0x0000000000008090      0x240
+.text           0x0000000000008040      0x144
  *(.text)
- .text          0x0000000000008090       0xf0 build/drawing.o
-                0x0000000000008090                SetForeColour
-                0x00000000000080a8                SetGraphicsAddress
-                0x00000000000080b4                DrawPixel
-                0x00000000000080fc                DrawLine
- .text          0x0000000000008180       0x60 build/frame_buffer.o
-                0x0000000000008180                InitialiseFrameBuffer
- .text          0x00000000000081e0        0x0 build/gpio.o
- .text          0x00000000000081e0       0x78 build/mailbox.o
-                0x00000000000081e0                GetMailboxBase
-                0x00000000000081e8                MailboxWrite
-                0x000000000000821c                MailboxRead
- .text          0x0000000000008258       0x78 build/main.o
+ .text          0x0000000000008040       0x78 build/mailbox.o
+                0x0000000000008040                GetMailboxBase
+                0x0000000000008048                MailboxWrite
+                0x000000000000807c                MailboxRead
+ .text          0x00000000000080b8       0x5c build/frame_buffer.o
+                0x00000000000080b8                InitialiseFrameBuffer
+ .text          0x0000000000008114        0x0 build/gpio.o
+ .text          0x0000000000008114       0x70 build/main.o
 
-.data           0x0000000000009000     0x2000
+.data           0x0000000000009000     0x1000
  *(.data)
- .data          0x0000000000009000        0x8 build/drawing.o
- *fill*         0x0000000000009008      0xff8 
- .data          0x000000000000a000     0x1000 build/frame_buffer.o
-                0x000000000000a000                FrameBufferInfo
- .data          0x000000000000b000        0x0 build/gpio.o
- .data          0x000000000000b000        0x0 build/mailbox.o
- .data          0x000000000000b000        0x0 build/main.o
+ .data          0x0000000000009000        0x0 build/mailbox.o
+ .data          0x0000000000009000     0x1000 build/frame_buffer.o
+                0x0000000000009000                FrameBufferInfo
+ .data          0x000000000000a000        0x0 build/gpio.o
+ .data          0x000000000000a000        0x0 build/main.o
 
 /DISCARD/
  *(*)

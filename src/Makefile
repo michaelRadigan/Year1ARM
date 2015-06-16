@@ -11,6 +11,7 @@ emulate: emulator/cpu.o emulator/memory_proc.o emulator/ALU.o emulator/stack.o
 
 assemble: assembler/dictionary.o assembler/encode.o
 
+
 clean:
 	rm -f $(wildcard *.o)
 	rm -f assembler/assemble

@@ -13,6 +13,8 @@
 *.dvi
 *.ps
 *.syntex.gz
+*.bbl
+*.blg
 .cproject
 
 #ignore junk files from compiling C code
@@ -36,3 +38,5 @@ assemble
 *.toc
 *.gz
 /Debug
+/src/test_cases/
+/src/testing_outputs/

@@ -45,12 +45,32 @@ uint32_t flipSign(uint32_t num) {
 	return 0x0 - num;
 }
 
+void allocFS(STR_ENC *d, Encode encFunc) {
+	d = malloc(sizeof(STR_ENC));
+	d->encFunc = encFunc;
+}
+
 /* 
  Sets up structs containing function pointers
  This is a stupid method but cannot think of
  anything better at the moment
  */
 void setUPFuncStructs(void) {
+
+	/* TODO
+	 allocFS(dp1,&dataProcessing1);
+	 allocFS(dp2,&dataProcessing2);
+	 allocFS(dp3,dataProcessing3);
+	 allocFS(m,multiply);
+	 allocFS(ma,multiplyAccum);
+
+	 allocFS(ldr,&sdt_ldr);
+	 allocFS(str,&sdt_str);
+	 allocFS(b,&branch);
+	 allocFS(andeq,&spec_andeq);
+	 allocFS(lsl,&spec_lsl);
+	 */
+
 	dp1 = malloc(sizeof(STR_ENC));
 	dp1->encFunc = &dataProcessing1;
 
@@ -81,6 +101,12 @@ void setUPFuncStructs(void) {
 	lsl = malloc(sizeof(STR_ENC));
 	lsl->encFunc = &spec_lsl;
 
+	stm = malloc(sizeof(STR_ENC));
+	stm->encFunc = &push_stm;
+
+	ldm = malloc(sizeof(STR_ENC));
+	ldm->encFunc = &pop_ldm;
+
 }
 
 void destroyFuncStructs(void) {
@@ -94,68 +120,55 @@ void destroyFuncStructs(void) {
 	free(b);
 	free(andeq);
 	free(lsl);
+	free(stm);
+	free(ldm);
+}
+
+uint32_t *dAlloc(uint32_t val) {
+	uint32_t *ret;
+	if ((ret = malloc(sizeof(uint32_t *))) == NULL) {
+		printf("Trouble allocating memory for dictionary");
+		exit(EXIT_FAILURE);
+	}
+	*ret = val;
+	return ret;
 }
 
 void setUPcode_binarycode(void) {
 	DICTIONARY *d = createDictionary();
 //  BR *codes = malloc(sizeof(BR));
-	//Opcodes for binaryConditions
 
-	uint32_t *beq = malloc(sizeof(uint32_t *));
-	*beq = 0x0;
-	uint32_t *bne = malloc(sizeof(uint32_t *));
-	*bne = 0x1;
-	uint32_t *bge = malloc(sizeof(uint32_t *));
-	*bge = 0xa;
-	uint32_t *blt = malloc(sizeof(uint32_t *));
-	*blt = 0xb;
-	uint32_t *bgt = malloc(sizeof(uint32_t *));
-	*bgt = 0xc;
-	uint32_t *ble = malloc(sizeof(uint32_t *));
-	*ble = 0xd;
-	uint32_t *b = malloc(sizeof(uint32_t *));
-	*b = 0xe;
-	putElem(d, "beq", beq);  //eq
-	putElem(d, "bne", bne);  //ne
-	putElem(d, "bge", bge);  //ge
-	putElem(d, "blt", blt);  //lt
-	putElem(d, "bgt", bgt);  //gt
-	putElem(d, "ble", ble);  //le
-
-	putElem(d, "b", b);  //al
-
-	uint32_t *and = malloc(sizeof(uint32_t *));
-	*and = 0x0;
-	uint32_t *eor = malloc(sizeof(uint32_t *));
-	*eor = 0x1;
-	uint32_t *sub = malloc(sizeof(uint32_t *));
-	*sub = 0x2;
-	uint32_t *rsb = malloc(sizeof(uint32_t *));
-	*rsb = 0x3;
-	uint32_t *add = malloc(sizeof(uint32_t *));
-	*add = 0x4;
-	uint32_t *orr = malloc(sizeof(uint32_t *));
-	*orr = 0xc;
-	uint32_t *mov = malloc(sizeof(uint32_t *));
-	*mov = 0xd;
-	uint32_t *tst = malloc(sizeof(uint32_t *));
-	*tst = 0x8;
-	uint32_t *teq = malloc(sizeof(uint32_t *));
-	*teq = 0x9;
-	uint32_t *cmp = malloc(sizeof(uint32_t *));
-	*cmp = 0xa;
+//Opcodes for branchConditions
+	putElem(d, "beq", dAlloc(0x0));  //eq
+	putElem(d, "bne", dAlloc(0x1));  //ne
+	putElem(d, "bge", dAlloc(0xa));  //ge
+	putElem(d, "blt", dAlloc(0xb));  //lt
+	putElem(d, "bgt", dAlloc(0xc));  //gt
+	putElem(d, "ble", dAlloc(0xd));  //le
+	putElem(d, "b", dAlloc(0xe));  //al
 
 	//Opcodes for Data Processing
-	putElem(d, "and", and);
-	putElem(d, "eor", eor);
-	putElem(d, "sub", sub);
-	putElem(d, "rsb", rsb);
-	putElem(d, "add", add);
-	putElem(d, "orr", orr);
-	putElem(d, "mov", mov);
-	putElem(d, "tst", tst);
-	putElem(d, "teq", teq);
-	putElem(d, "cmp", cmp);
+	putElem(d, "and", dAlloc(0x0));
+	putElem(d, "eor", dAlloc(0x1));
+	putElem(d, "sub", dAlloc(0x2));
+	putElem(d, "rsb", dAlloc(0x3));
+	putElem(d, "add", dAlloc(0x4));
+	putElem(d, "orr", dAlloc(0xc));
+	putElem(d, "mov", dAlloc(0xd));
+	putElem(d, "tst", dAlloc(0x8));
+	putElem(d, "teq", dAlloc(0x9));
+	putElem(d, "cmp", dAlloc(0xa));
+
+	//Opcodes for suffixConditions
+	putElem(d, "eq", dAlloc(0x0));
+	putElem(d, "ne", dAlloc(0x1));
+	putElem(d, "hi", dAlloc(0x8));
+	putElem(d, "ls", dAlloc(0x9));
+	putElem(d, "ge", dAlloc(0xa));
+	putElem(d, "lt", dAlloc(0xb));
+	putElem(d, "gt", dAlloc(0xc));
+	putElem(d, "le", dAlloc(0xd));
+	putElem(d, "al", dAlloc(0xe));
 
 	code_binarycode = d;
 }
@@ -165,82 +178,42 @@ void setUpLDRconsts(void) {
 }
 
 void destroyLDRconsts(void) {
+	destroyDictionaryVALUES(LDRconsts);
+	//destroyDictionaryKEYS(LDRconsts);
 	destroyDictionary(LDRconsts);
 }
 
 void setUPregister_dict(void) {
 	DICTIONARY *d = createDictionary();
-
-	//Opcodes for registers
-	uint32_t *r0 = malloc(sizeof(uint32_t *));
-	*r0 = 0x0;
-	uint32_t *r1 = malloc(sizeof(uint32_t *));
-	*r1 = 0x1;
-	uint32_t *r2 = malloc(sizeof(uint32_t *));
-	*r2 = 0x2;
-	uint32_t *r3 = malloc(sizeof(uint32_t *));
-	*r3 = 0x3;
-	uint32_t *r4 = malloc(sizeof(uint32_t *));
-	*r4 = 0x4;
-	uint32_t *r5 = malloc(sizeof(uint32_t *));
-	*r5 = 0x5;
-	uint32_t *r6 = malloc(sizeof(uint32_t *));
-	*r6 = 0x6;
-	uint32_t *r7 = malloc(sizeof(uint32_t *));
-	*r7 = 0x7;
-	uint32_t *r8 = malloc(sizeof(uint32_t *));
-	*r8 = 0x8;
-	uint32_t *r9 = malloc(sizeof(uint32_t *));
-	*r9 = 0x9;
-	uint32_t *r10 = malloc(sizeof(uint32_t *));
-	*r10 = 0xa;
-	uint32_t *r11 = malloc(sizeof(uint32_t *));
-	*r11 = 0xb;
-	uint32_t *r12 = malloc(sizeof(uint32_t *));
-	*r12 = 0xc;
-	uint32_t *pc = malloc(sizeof(uint32_t *));
-	*pc = 0xf;
-	uint32_t *cpsr = malloc(sizeof(uint32_t *));
-	*cpsr = 0x10;
-
-	putElem(d, "r0", (void *) r0);
-	putElem(d, "r1", (void *) r1);
-	putElem(d, "r2", (void *) r2);
-	putElem(d, "r3", (void *) r3);
-	putElem(d, "r4", (void *) r4);
-	putElem(d, "r5", (void *) r5);
-	putElem(d, "r6", (void *) r6);
-	putElem(d, "r7", (void *) r7);
-	putElem(d, "r8", (void *) r8);
-	putElem(d, "r9", (void *) r9);
-	putElem(d, "r10", (void *) r10);
-	putElem(d, "r11", (void *) r11);
-	putElem(d, "r12", (void *) r12);
-	putElem(d, "pc", (void *) pc);
-	putElem(d, "cpsr", (void *) cpsr);
+	//Opcodes for registers 
+	putElem(d, "r0", dAlloc(0x0));
+	putElem(d, "r1", dAlloc(0x1));
+	putElem(d, "r2", dAlloc(0x2));
+	putElem(d, "r3", dAlloc(0x3));
+	putElem(d, "r4", dAlloc(0x4));
+	putElem(d, "r5", dAlloc(0x5));
+	putElem(d, "r6", dAlloc(0x6));
+	putElem(d, "r7", dAlloc(0x7));
+	putElem(d, "r8", dAlloc(0x8));
+	putElem(d, "r9", dAlloc(0x9));
+	putElem(d, "r10", dAlloc(0xa));
+	putElem(d, "r11", dAlloc(0xb));
+	putElem(d, "r12", dAlloc(0xc));
+	putElem(d, "pc", dAlloc(0xf));
+	putElem(d, "cpsr", dAlloc(0x10));
 
 	register_dict = d;
 }
 
 void destroyRegisterDictionary(void) {
+	destroyDictionaryVALUES(register_dict);
 	destroyDictionary(register_dict);
 }
 
 void destroycode_binarycode(void) {
+	destroyDictionaryVALUES(code_binarycode);
 	destroyDictionary(code_binarycode);
-	// free(BR);
 }
-
-/*  
- * Concatenates 2 binary encodings from right to left
- * @param b1: the bits to be concatentated onto the left of b2 at bit position pos
- * @param b2: the original bits to be concatenated onto.
- * @param pos: the number of bits from the right at which b1 is to begin on b2
- *
- * @return: uint32_t bitString with b1 from pos onwards on b2
- *
- * Note: Always build bit strings from the right to left
- */
 
 /*  
  * Replaces a bit chunk in b2 with b1
@@ -268,57 +241,83 @@ uint32_t binaryReplace(uint32_t b1, int numberOfBits, uint32_t *b2, int pos) {
  * @param str: the name of the register e.g. r2 or r8
  * @return: pointer to the cpu_reg version of the register name.
  */
-
 uint32_t toCpuReg(char *str) {
-
-	/*  //only the beginning r will ever be lowercase
-	 str[0] = tolower(str[0]);
-	 uint32_t *ret;
-
-	 if((ret = getElem(register_dict,str))==NULL){
-	 printf("ILLEGAL REGISTER\n");
-	 exit(EXIT_FAILURE);
-	 }
-
-	 return ret;*/
-
 	str[0] = toupper(str[0]);
-//	uint32_t *num = malloc(sizeof(uint32_t *));
 	uint32_t res;
-	//  uint32_t  *res;
-	// return (cpu_reg *)str;
-	if (strcmp(str, "R0") == 0) {
+	switch (str[1]) {
+	case '0':
 		res = R0;
-	} else if (strcmp(str, "R1") == 0) {
-		res = R1;
-	} else if (strcmp(str, "R2") == 0) {
+		break;
+	case '1':
+		switch (str[2]) {
+		case '\0':
+			res = R1;
+			break;
+		case '0':
+			res = R10;
+			break;
+		case '1':
+			res = R11;
+			break;
+		case '2':
+			res = R12;
+			break;
+		}
+		break;
+	case '2':
 		res = R2;
-	} else if (strcmp(str, "R3") == 0) {
+		break;
+	case '3':
 		res = R3;
-	} else if (strcmp(str, "R4") == 0) {
+		break;
+	case '4':
 		res = R4;
-	} else if (strcmp(str, "R5") == 0) {
+		break;
+	case '5':
 		res = R5;
-	} else if (strcmp(str, "R6") == 0) {
+		break;
+	case '6':
 		res = R6;
-	} else if (strcmp(str, "R7") == 0) {
+		break;
+	case '7':
 		res = R7;
-	} else if (strcmp(str, "R8") == 0) {
+		break;
+	case '8':
 		res = R8;
-	} else if (strcmp(str, "R9") == 0) {
+		break;
+	case '9':
 		res = R9;
-	} else if (strcmp(str, "R10") == 0) {
-		res = R10;
-	} else if (strcmp(str, "R11") == 0) {
-		res = R11;
-	} else if (strcmp(str, "R12") == 0) {
-		res = R12;
-	} else if (strcmp(str, "PC") == 0) {
+		break;
+	case 'C':
 		res = PC;
-	} else if (strcmp(str, "CPSR") == 0) {
+		break;
+	case 'P':
 		res = CPSR;
+		break;
+	default:
+		res = 0;
+		printf("REGISTER ERROR, REGISTER NON EXISTANT");
 	}
 	return res;
+}
+
+/*
+ *  @param: the opcode token including the suffix 
+ *  @return: the condition related with the opcodes' suffix
+ */
+uint32_t getCond(char *opcode) {
+	int len = strlen(opcode);
+	if (len <= 3 || opcode[1] == 'b') {
+		return 0xe;
+	}
+
+	char *suffix = opcode + 3 * sizeof(char);
+	uint32_t *out;
+	if ((out = getElem(code_binarycode, suffix)) == NULL) {
+		printf("SuffixError, suffix pattern non-existant");
+		exit(EXIT_FAILURE);
+	}
+	return *out;
 }
 
 /*Takes two ints and returns the larger*/
@@ -368,9 +367,7 @@ uint32_t convertToImm(uint32_t extractedExp) {
 }
 
 /* char *source is the string of words of the instructions */
-
 /*There is a lot of redundancy her that we could proably clean up*/
-
 // input source includes space at beginning for example is " lsr r6" or " asr #6" or " ror #0xA"
 // post : outputs bits 11 - 4 of instruction
 uint32_t calculateShift(char *source) {
@@ -466,7 +463,11 @@ uint32_t *dataProcessing1(char *source) {
 		printf("OPCODE PARAMETER NON-EXISTANT");
 		exit(EXIT_FAILURE);
 	}
-	uint32_t *opcodeint = (uint32_t *)getElem(code_binarycode, opcode);
+	uint32_t cond = getCond(opcode);
+	if (cond != 0xe) {
+		opcode[3] = '\0';
+	}
+	uint32_t *opcodeint = (uint32_t *) getElem(code_binarycode, opcode);
 	uint32_t imm = 0x1;
 
 	if ((rn = strtok(NULL, delim)) == NULL) {
@@ -499,7 +500,6 @@ uint32_t *dataProcessing1(char *source) {
 		rotAndImm = convertToImm(*temp);
 		free(temp);
 	}
-
 	/* Else It is a shift */
 	else {
 		if (operand2[0] == 'r') {
@@ -510,17 +510,21 @@ uint32_t *dataProcessing1(char *source) {
 			uint32_t roInt = toCpuReg(temp);
 			//   	    printf("roInt = %x\n", *roInt);
 			if (operand2shift == NULL) {
-				*res = 0xE << 28 | imm << 25 | *opcodeint << 21 | rdInt << 16 | rnInt << 12 | roInt;
+				*res = cond << 28 | imm << 25 | *opcodeint << 21 | rdInt << 16
+						| rnInt << 12 | roInt;
 				free(temp);
 				return res;
 			} else {
 				printf("operand2shift \"%s\"\n", operand2shift);
-				*res = 0xE << 28 | imm << 25 | *opcodeint << 21 | calculateShift(operand2shift) | rdInt << 16 | rnInt << 12 | roInt;
+				*res = cond << 28 | imm << 25 | *opcodeint << 21
+						| calculateShift(operand2shift) | rdInt << 16
+						| rnInt << 12 | roInt;
 				return res;
 			}
 		}
 	}
-	*res = 0xE << 28 | imm << 25 | *opcodeint << 21 | rdInt << 16 | rnInt << 12 | rotAndImm;
+	*res = cond << 28 | imm << 25 | *opcodeint << 21 | rdInt << 16 | rnInt << 12
+			| rotAndImm;
 	return res;
 }
 
@@ -529,14 +533,17 @@ uint32_t *dataProcessing2(char *source) {
 
 	uint32_t *res = malloc(sizeof(uint32_t *));
 
-	uint32_t *opcodeint = (uint32_t *)getElem(code_binarycode, "mov");
+	const char delim[3] = " ,";
+	source = strtok(source, delim);
+	uint32_t cond = getCond(source);
+	if (cond != 0xe) {
+		source[3] = '\0';
+	}
+	uint32_t *opcodeint = (uint32_t *) getElem(code_binarycode, source);
 	uint32_t imm = 0x1;
 
 	printf("\nNOW IN DP2\nThis is your input = %s\n", source);
 	assert(source != NULL);
-	const char delim[3] = " ,";
-	source = strtok(source, delim);
-	printf("This is your input after strtok = %s\n", source);
 
 	char *reg;
 	if ((reg = strtok(NULL, delim)) == NULL) {
@@ -572,7 +579,8 @@ uint32_t *dataProcessing2(char *source) {
 		free(temp);
 	}
 	uint32_t regint = toCpuReg(reg);
-	*res = 0xE << 28 | imm << 25 | *opcodeint << 21 | regint << 12 | operandBits;
+	*res = cond << 28 | imm << 25 | *opcodeint << 21 | regint << 12
+			| operandBits;
 	return res;
 }
 
@@ -589,11 +597,17 @@ uint32_t *dataProcessing3(char *source) {
 
 	const char delim[3] = " ,";
 	char *opcode = strtok(source, delim);
+	uint32_t cond = getCond(opcode);
 	if (opcode == NULL) {
 		printf("OPCODE PARAMETER NON-EXISTANT");
 		exit(EXIT_FAILURE);
 	}
-	opcodeint = (uint32_t *)getElem(code_binarycode, opcode);
+
+	if (cond != 0xe) {
+		opcode[3] = '\0';
+	}
+	opcodeint = (uint32_t *) getElem(code_binarycode, opcode);
+
 	if ((rn = strtok(NULL, delim)) == NULL) {
 		printf("OPCODE PARAMETER NON-EXISTANT");
 		exit(EXIT_FAILURE);
@@ -616,11 +630,13 @@ uint32_t *dataProcessing3(char *source) {
 		uint32_t rnInt = toCpuReg(rn);
 		//      	printf("rnInt = %x\n", *rnInt);
 //       	printf("operandBits = %x\n", *operandBits);
-		*res = 0xE01 << 20 | imm << 25 | *opcodeint << 21 | rnInt << 16 | operandBits;
+		*res = cond << 28 | 0x1 << 20 | imm << 25 | *opcodeint << 21
+				| rnInt << 16 | operandBits;
 		return res;
 	}
 	uint32_t rnInt = toCpuReg(rn);
-	*res = 0xE31 << 20 | imm << 25 | *opcodeint << 21 | rnInt << 16 | rotAndImm;
+	*res = cond << 28 | 0x31 << 20 | imm << 25 | *opcodeint << 21 | rnInt << 16
+			| rotAndImm;
 	return res;
 }
 
@@ -631,8 +647,10 @@ uint32_t *multiply(char *source) {
 	assert(source!=NULL);
 
 	const char p[3] = " ,";
+
 	//Remove function name 'mul'
-	strtok(source, p);
+	char *token = strtok(source, p);
+	uint32_t cond = getCond(token);
 
 	//Parse source string
 	char *rd;
@@ -661,11 +679,10 @@ uint32_t *multiply(char *source) {
 	uint32_t s = 0x0;
 	uint32_t a = 0x0;
 
-	uint32_t cond = 0xe;
+	//uint32_t cond = 0xe;
 	uint32_t k = 0x9;
 
-	*res = cond << 28 | a << 21 | s << 20 | rdb << 16 | rsb << 8
-			| k << 4 | rmb;
+	*res = cond << 28 | a << 21 | s << 20 | rdb << 16 | rsb << 8 | k << 4 | rmb;
 
 	free(temp);
 	return res;
@@ -698,7 +715,7 @@ uint32_t *sdt_ldr(char *source) {
 	printf("source = %s\n", source);
 	const char p[3] = " ,";
 	const char delimshift[3] = ",";
-	strtok(source, p);
+	uint32_t cond = getCond(strtok(source, p));
 	uint32_t I = 0x0;
 	uint32_t P = 0x1;
 	uint32_t U = 0x1;
@@ -729,7 +746,7 @@ uint32_t *sdt_ldr(char *source) {
 		sscanf(expr, "=%x", res);
 		if (*res < 0xff) {
 			//effectively a move
-			*res = 0xE3A00000 | rdint << 12 | *res;
+			*res = cond << 28 | 0x3A00000 | rdint << 12 | *res;
 		} else {
 			uint32_t offset = 0x0;
 			if (file_length + getNumElems(LDRconsts) - file_line >= 2) {
@@ -745,16 +762,21 @@ uint32_t *sdt_ldr(char *source) {
 			*ldrconstant = *res;
 			sprintf(str, "%x", file_line);
 			printf("This is str %s\n", str);
-			if (putElem(LDRconsts, str, (void *)ldrconstant) == 0) {
+			if (putElem(LDRconsts, str, (void *) ldrconstant) == 0) {
 				perror("Couldn't insert LDRconstant into dictionary");
 				exit(EXIT_FAILURE);
 			}
-			I = 0x0; P = 0x1; U = 0x1;
+			I = 0x0;
+			P = 0x1;
+			U = 0x1;
 
-			*res = 0xE01F << 16 | 1 << 26 | I << 25 | P << 24 | U << 23 | rdint << 12 | offset;
+			*res = cond << 28 | 0x01F << 16 | 1 << 26 | I << 25 | P << 24
+					| U << 23 | rdint << 12 | offset;
 		}
 	} else {
-		I = 0x0; P = 0x1; U = 0x1;
+		I = 0x0;
+		P = 0x1;
+		U = 0x1;
 		char *newexpr = malloc(sizeof(char *));
 		char *t2 = malloc(sizeof(char *));
 		sscanf(expr, "[%[^]] %[]] ", newexpr, t2);
@@ -762,45 +784,59 @@ uint32_t *sdt_ldr(char *source) {
 		uint32_t rnint = toCpuReg(newexpr);
 		free(t2);
 		if (expr2 == NULL) {
-			*res = 0xE41 << 20 | I << 25 | P << 24 | U << 23 | rnint << 16 | rdint << 12;
+			*res = cond << 28 | 0x41 << 20 | I << 25 | P << 24 | U << 23
+					| rnint << 16 | rdint << 12;
 		} else {
 			uint32_t *temp = malloc(sizeof(uint32_t *));
 			if (expr2[0] == '#') {
 				*temp = extractNum(expr2);
 				if (strchr(expr2, ']') == NULL) {
-					I = 0x0; P = 0x0; U = 0x1;
+					I = 0x0;
+					P = 0x0;
+					U = 0x1;
 					if (isNegative(*temp)) {
 						*temp = flipSign(*temp);
-						I = 0x0; P = 0x1; U = 0x0;
+						I = 0x0;
+						P = 0x1;
+						U = 0x0;
 					}
 				} else {
 					if (isNegative(*temp)) {
 						*temp = flipSign(*temp);
-						I = 0x0; P = 0x1; U = 0x0;
+						I = 0x0;
+						P = 0x1;
+						U = 0x0;
 					}
 				}
 				printf("this is temp %x \n", *temp);
-				*res = 0xE41 << 20 | I << 25 | P << 24 | U << 23 | rnint << 16 | rdint << 12 | *temp;
+				*res = cond << 28 | 0x41 << 20 | I << 25 | P << 24 | U << 23
+						| rnint << 16 | rdint << 12 | *temp;
 			} else {
 				uint32_t roff;
-				I = 0x1; P = 0x1; U = 0x1;
+				I = 0x1;
+				P = 0x1;
+				U = 0x1;
 				if (op2shift != NULL) {
 					op2shift[strlen(op2shift) - 1] = '\0';
 					printf("This is expr2 \"%s\"\n", expr2);
 					roff = toCpuReg(expr2);
 					printf("This is op2shift %s\n", op2shift);
-					*res = 0xE41 << 20 | I << 25 | P << 24 | U << 23 | rnint << 16 | rdint << 12 | roff
+					*res = 0xE << 28 | 0x41 << 20 | I << 25 | P << 24 | U << 23
+							| rnint << 16 | rdint << 12 | roff
 							| calculateShift(op2shift);
 				} else {
 					if (strchr(expr2, ']') != NULL) {
 						expr2[strlen(expr2) - 1] = '\0';
 						roff = toCpuReg(expr2);
 					} else {
-						I = 0x1; P = 0x0; U = 0x1;
+						I = 0x1;
+						P = 0x0;
+						U = 0x1;
 						roff = toCpuReg(expr2);
 					}
 					printf("This is roff %x\n", roff);
-					*res = 0xE41 << 20 | I << 25 | P << 24 | U << 23 | rnint << 16 | rdint << 12 | roff;
+					*res = 0xE << 28 | 0x41 << 20 | I << 25 | P << 24 | U << 23
+							| rnint << 16 | rdint << 12 | roff;
 				}
 			}
 		}
@@ -860,15 +896,36 @@ uint32_t *branch(char *source) {
 		printf("LABEL NONEXISTANT");
 		exit(EXIT_FAILURE);
 	}
+
 	free(temp);
 	uint32_t *offset = malloc(sizeof(uint32_t));
 	printf("labelAddress  %x, file_line %x\n", *labelAddress, file_line);
+
+	int numnestedlabels = 0;
+	STACK *iterator = dictionaryIterator(label_address);
+	while (!isStackEmpty(iterator)) {
+		uint32_t *linenum =
+				(uint32_t *) ((treeNode *) iterator->top->elem)->value;
+		printf("linenum = %x\n", *linenum);
+		if (*linenum < file_line && *linenum > *labelAddress) {
+			numnestedlabels++;
+		}
+		pop(iterator);
+	}
+	destroyStack(iterator);
+
+	printf("numnestedlabels = %d\n", numnestedlabels);
 	//lines of code offset
 	*offset = *labelAddress - file_line;
-	if (*labelAddress > file_line && *labelAddress - file_line <= 2) {
-		*offset -= 2;    // if condtion e.g. b label is above :label(jump ahead)
-	} else if (file_line > *labelAddress && file_line - *labelAddress <= 5) {
+	if (file_line > *labelAddress) {
 		*offset -= 1;
+		*offset += numnestedlabels;
+	}
+	if (*labelAddress > file_line) {
+		if (*labelAddress - file_line <= 2) {
+			*offset -= 2;
+	}
+		*offset -= numnestedlabels;
 	}
 	printf("offset = %x\n", *offset);
 
@@ -921,3 +978,59 @@ uint32_t *spec_lsl(char *source) {
 	*res = (base | regint << 12 | extractednum << 7 | regint);
 	return res;
 }
+
+/* Traslates stm (push) - stm */
+uint32_t *push_stm(char *source) {
+	uint32_t *res = malloc(sizeof(uint32_t *));
+	assert(source!=NULL);
+
+	const char p[3] = " ,";
+
+	//Remove function name 'stm/ldm'
+	char *token = strtok(source, p);
+	uint32_t cond = getCond(token);
+
+	//Parse source string
+	char *rn;
+	char *regList;
+
+	if ((rn = strtok(NULL, p)) == NULL) {
+		printf("OPCODE PARAMETER NONEXISTANT");
+		exit(EXIT_FAILURE);
+	}
+
+	if ((regList = strtok(NULL, p)) == NULL) {
+		printf("OPCODE PARAMETER NONEXISTANT");
+		exit(EXIT_FAILURE);
+	}
+
+	//Parse rn to binary
+	uint32_t rnint = toCpuReg(rn);
+	uint32_t list = 0;
+
+	//Parse regList to binary;
+
+	char *regList_cp = malloc(sizeof(regList));
+	sscanf(regList, "%[^{}]", regList_cp);
+
+	for (char *r = strtok(regList_cp, p); r != NULL; r = strtok(NULL, p)) {
+
+		uint32_t rint = toCpuReg(r);
+		uint32_t val = 1 << rint;
+		list = val | list;
+	}
+
+	*res = cond << 28 | 0x1 << 27 | rnint << 16 | list;
+	return res;
+}
+
+/* Translates ldm (pop) - ltm */
+uint32_t *pop_ldm(char *source) {
+
+	uint32_t *res = push_stm(source);
+
+	*res = binaryReplace(0x1, 1, res, 20);
+
+	return res;
+}
+
