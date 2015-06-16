@@ -93,18 +93,7 @@ void destroyAllDictionaries() {
 
 /* Checks if label exists, This will store it*/
 int storeLabel(char *source) {
-        char *t1 = calloc(1, sizeof(char *));
-        char *t2 = calloc(1, sizeof(char *));
-        sscanf(source, "%[^:] %[:] ", t1, t2);
 
-        //Not Label
-        if (t2[0] == '\0') {
-                return 0;
-        }
-
-        uint32_t *linenumlabel = malloc(sizeof(uint32_t *));
-        *linenumlabel = file_line;
-/*=======
 	char *t1 = malloc(sizeof(char *));
 	char *t2 = malloc(sizeof(char *));
 	sscanf(source, "%[^:] %[:] ", t1, t2);
@@ -117,7 +106,6 @@ int storeLabel(char *source) {
 	}
 	uint32_t *linenumlabel = malloc(sizeof(uint32_t *));
 	*linenumlabel = file_line;
->>>>>>> ea2f4aca46e8bcc6d61eeac7c1dcb23c30469339*/
 
         putElem(label_address, t1, linenumlabel);
         free(t2);
@@ -126,17 +114,6 @@ int storeLabel(char *source) {
 
 /* Removes the label from the source string if it exists */
 char *removeLabel(char *source) {
-<<<<<<< HEAD
-        char *t1 = calloc(1, sizeof(char *));
-        char *t2 = calloc(1, sizeof(char *));
-        sscanf(source, " %[^:] %*[ :] %[^:]\n\n", t1, t2);
-        if (t2[0] == 0) {
-                free(t2);
-                return (t1);
-        }
-        free(t1);
-        return (t2);
-=======
 	char *t1 = calloc(1, sizeof(char *));
 	char *t2 = calloc(1, sizeof(char *));
 	sscanf(source, " %[^:] %*[ :] %[^:]\n\n", t1, t2);
@@ -146,7 +123,7 @@ char *removeLabel(char *source) {
 	}
 	free(t1);
 	return (t2);
->>>>>>> ea2f4aca46e8bcc6d61eeac7c1dcb23c30469339
+
 }
 
 /* Replaces all aliases in the command with their proper representations */
@@ -199,8 +176,8 @@ char *replaceAliases(char *source) {
 char *replaceAliasesOli(char *source) {
 
 }
-/*
 
+*/
 /* Writes a unsigned 32 bit number to output stream */
 int writeUint32(FILE * const stream, uint32_t value) {
         /* These must be unsigned */
@@ -234,7 +211,7 @@ uint32_t LEtoBE(uint32_t word) {
 int main(int argc, char **argv) {
         assert(argc == 3);
 
-<<<<<<< HEAD
+
 	const int MAX_LINE_LENGTH = 511;
 
 	//Setup Dictionaries
@@ -355,19 +332,7 @@ int main(int argc, char **argv) {
 			exit(EXIT_FAILURE);
 		}
 
-<<<<<<< HEAD
-    //Replace all aliases
-    buffTemp = replaceAliases(buffTemp);
 
-		//Apply function
-		uint32_t *output = encodingStruct->encFunc(buffTemp);
-
-		*output = LEtoBE(*output);
-		//Write to file
-		writeUint32(ptr_WriteFile, *output);
-		printf("hex out  = %x\n", *output);
-		writeUint32(ptr_WriteFile, out);
-=======
 		//Replace all aliases
 		//TODO
 //		buffTemp = replaceAliases(buffTemp);
@@ -376,11 +341,8 @@ int main(int argc, char **argv) {
 
 		*output = LEtoBE(*output);
 		writeUint32(ptr_WriteFile, *output);
-<<<<<<< HEAD
->>>>>>> ea2f4aca46e8bcc6d61eeac7c1dcb23c30469339
-=======
+
 		printf("output = %x\n", *output);
->>>>>>> 1385eac9298fd9a8d4906af8b47d6d2089285ae2
 		free(buffTemp);
 		free(buffer);
 		free(output);
