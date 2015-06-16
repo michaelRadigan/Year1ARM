@@ -15,8 +15,8 @@ DICTIONARY *setUPlabel_address(void) {
 }
 
 DICTIONARY *setUpalias_register(void) {
-  DICTIONARY *d = createDictionary();
-  return d;
+	DICTIONARY *d = createDictionary();
+	return d;
 }
 
 DICTIONARY *setUPopcode_function(void) {
@@ -59,18 +59,18 @@ DICTIONARY *setUPopcode_function(void) {
 	putElem(d, "andeq", (void *) andeq);
 	putElem(d, "lsl", (void *) lsl);
 
-  //Functions for stacks
-  putElem(d, "stm", (void *) stm);
-  putElem(d, "ldm", (void *) ldm);
+	//Functions for stacks
+	putElem(d, "stm", (void *) stm);
+	putElem(d, "ldm", (void *) ldm);
 
 	return d;
 }
 
 /* Sets up all Dictionry structures */
-void setUpDictionaries(){
+void setUpDictionaries() {
 	label_address = setUPlabel_address();
 	setUPcode_binarycode();
-  alias_register = setUpalias_register();
+	alias_register = setUpalias_register();
 	opcode_function = setUPopcode_function();
 	setUPregister_dict();
 	setUpLDRconsts();
@@ -83,11 +83,10 @@ void destroyDictionaryfunctions(DICTIONARY *d) {
 }
 
 /* Frees all dictionaries */
-void destroyAllDictionaries(){
+void destroyAllDictionaries() {
 	destroyDictionaryKEYS(label_address);
 	destroyDictionaryVALUES(label_address); // this is where we free the values we malloced in storeLabel function
 	destroyDictionary(label_address);
-
 
 	destroycode_binarycode();
 	destroyDictionaryfunctions(opcode_function);
@@ -121,7 +120,7 @@ char *removeLabel(char *source) {
 	char *t1 = calloc(1, sizeof(char *));
 	char *t2 = calloc(1, sizeof(char *));
 	sscanf(source, " %[^:] %*[ :] %[^:]\n\n", t1, t2);
-	if (t2[0] == 0 || t2[0] =='\0') {
+	if (t2[0] == 0 || t2[0] == '\0') {
 		free(t2);
 		return (t1);
 	}
@@ -129,54 +128,52 @@ char *removeLabel(char *source) {
 	return (t2);
 }
 
-
 /* Replaces all aliases in the command with their proper representations */
-char *replaceAliases(char *source){
-  char *out = malloc(5 * sizeof(source));
-  char *c = strtok(source, " ");
-  out = strcpy(out,c);
-  
-  int len = strlen(out);
-  while( (c = strtok(NULL," "))!= NULL){
-    char *newtoken; // = malloc(sizeof(char));
-    sscanf(c , "%[^,#=:<>]" , newtoken);
-    char *cp_newToken = malloc(sizeof(char));
-    cp_newToken = strcpy(cp_newToken,newtoken);
-    
-    //Insert space
-    out[len++] = ' ';
+char *replaceAliases(char *source) {
+	char *out = malloc(5 * sizeof(source));
+	char *c = strtok(source, " ");
+	out = strcpy(out, c);
 
-    //Get possible alias from dictionary  
-    if((newtoken = getElem(alias_register,newtoken)) == NULL){
-      //if not alias, then concat c back on
-    //free(newtoken);
-      out = strcat(out, c);
-      continue;
-    }
-    //Insert space
+	int len = strlen(out);
+	while ((c = strtok(NULL, " ")) != NULL) {
+		char *newtoken; // = malloc(sizeof(char));
+		sscanf(c, "%[^,#=:<>]", newtoken);
+		char *cp_newToken = malloc(sizeof(char));
+		cp_newToken = strcpy(cp_newToken, newtoken);
 
-    //Insert chars before alias
-    int i = 0;
-    for(; c[i] != cp_newToken[0]  ; i++){
-      out[len++] = c[i];
-    }
-    //Insert alias
-    for(int j = 0; newtoken[j] != '\0' ; j++){
-      out[len++] = newtoken[j];
-    }
-    //Update search param i by alias length
-    i += strlen(cp_newToken);
+		//Insert space
+		out[len++] = ' ';
 
-    //Insert chars after alias
-    for(;c[i] != '\0';i++){
-      out[len++] = c[i];
-    }
-    free(cp_newToken);
-  }
-  free(source);
-  return out;
+		//Get possible alias from dictionary
+		if ((newtoken = getElem(alias_register, newtoken)) == NULL) {
+			//if not alias, then concat c back on
+			//free(newtoken);
+			out = strcat(out, c);
+			continue;
+		}
+		//Insert space
+
+		//Insert chars before alias
+		int i = 0;
+		for (; c[i] != cp_newToken[0]; i++) {
+			out[len++] = c[i];
+		}
+		//Insert alias
+		for (int j = 0; newtoken[j] != '\0'; j++) {
+			out[len++] = newtoken[j];
+		}
+		//Update search param i by alias length
+		i += strlen(cp_newToken);
+
+		//Insert chars after alias
+		for (; c[i] != '\0'; i++) {
+			out[len++] = c[i];
+		}
+		free(cp_newToken);
+	}
+	free(source);
+	return out;
 }
-
 
 /* Writes a unsigned 32 bit number to output stream */
 int writeUint32(FILE * const stream, uint32_t value) {
@@ -214,7 +211,7 @@ int main(int argc, char **argv) {
 	const int MAX_LINE_LENGTH = 511;
 
 	//Setup Dictionaries
-  setUpDictionaries();
+	setUpDictionaries();
 
 	//Setup File fields
 	FILE *ptr_SourceFile = NULL;
@@ -248,7 +245,8 @@ int main(int argc, char **argv) {
 		file_line++;
 	}
 
-	file_length = file_line-1;
+
+	file_length = file_line - 1;
 	printf("file_length = %x\n", file_length);
 
 	rewind(ptr_SourceFile);
@@ -259,22 +257,22 @@ int main(int argc, char **argv) {
 	/* Reads Opcode and generate Binary Encoding */
 	while (fgets(buff, MAX_LINE_LENGTH, ptr_SourceFile)) {
 
-	printf("file_line = %x\n", file_line);
-    //buff = original line
-    //buffer = original line without label, gets strtoked
-    //buffTemp = duplicate of buffer
-    //token = first elem of buffer, should be opcode.
+		printf("file_line = %x\n", file_line);
+		//buff = original line
+		//buffer = original line without label, gets strtoked
+		//buffTemp = duplicate of buffer
+		//token = first elem of buffer, should be opcode.
 
 		//Check if empty line
 		if (buff[0] == '\n' || buff[0] == '\0' || buff[0] == EOF) {
-	//		file_line++;
+			//		file_line++;
 			continue;
 		}
 
 		//Check if label exists and if so remove it also remove \n
 		char *buffer = strtok(buff, "\n");
 		buffer = removeLabel(buffer);
-    //Buffer now contains no label absolutely
+		//Buffer now contains no label absolutely
 
 		//Duplicate Buffer
 		char *buffTemp;
@@ -288,37 +286,37 @@ int main(int argc, char **argv) {
 		char *token = strtok(buffer, s);
 
 		printf("\nThis is your buff = '%s'\n", buff);
-    printf("Token before processing, should be opcode = '%s'\n\n", token);
+		printf("Token before processing, should be opcode = '%s'\n\n", token);
 
 		//Check if token is a label:
-		if (getElem(label_address, (void *) token) != NULL) {
+		if (getElem(label_address, (void *)token) != NULL) {
 			file_line++;
 			continue;
 		}
-    
-    //Check if alias command
-    if(strchr(buffTemp , '.') != NULL){
-      //Set Alias
-      char *reg;
-      if(strcmp( reg = strtok(NULL,s) , ".req") == 0){
-        reg = strtok(NULL,s);
-        putElem(alias_register,token,reg);
-      }
-      //Remove Alias
-      else if(strcmp( token , ".unreq" ) == 0){
-        if(!removeElem(alias_register , reg)){
-          printf("ALIAS Does not exist!");
-          break;
-        }
-      }
-      continue;
-    }
-    
-    if(strlen(token) > 3 || strcmp(token,"andeq") != 0){
-      token[3] = '\0';
-    }
 
-    printf("Token after processing, should be opcode = '%s'\n\n", token);    //Check if Opcode has additional condition characters on it.
+		//Check if alias command
+		if (strchr(buffTemp, '.') != NULL) {
+			//Set Alias
+			char *reg;
+			if (strcmp(reg = strtok(NULL, s), ".req") == 0) {
+				reg = strtok(NULL, s);
+				putElem(alias_register, token, reg);
+			}
+			//Remove Alias
+			else if (strcmp(token, ".unreq") == 0) {
+				if (!removeElem(alias_register, reg)) {
+					printf("ALIAS Does not exist!");
+					break;
+				}
+			}
+			continue;
+		}
+
+		if (strlen(token) > 3 || strcmp(token, "andeq") != 0) {
+			token[3] = '\0';
+		}
+
+		printf("Token after processing, should be opcode = '%s'\n\n", token); //Check if Opcode has additional condition characters on it.
 
 		//Loop-up Opcode to get function
 		STR_ENC *encodingStruct;
@@ -330,14 +328,14 @@ int main(int argc, char **argv) {
 			exit(EXIT_FAILURE);
 		}
 
-    //Replace all aliases
-    //TODO
-    buffTemp = replaceAliases(buffTemp);
+		//Replace all aliases
+		//TODO
+//		buffTemp = replaceAliases(buffTemp);
 
 		uint32_t *output = encodingStruct->encFunc(buffTemp);
 
 		*output = LEtoBE(*output);
-  	writeUint32(ptr_WriteFile, *output);
+		writeUint32(ptr_WriteFile, *output);
 		free(buffTemp);
 		free(buffer);
 		free(output);
@@ -346,7 +344,7 @@ int main(int argc, char **argv) {
 
 	uint32_t *constant;
 	while (!isEmpty(LDRconsts)) {
-		constant = (uint32_t *)removeLowestElem(LDRconsts);
+		constant = (uint32_t *) removeLowestElem(LDRconsts);
 		*constant = LEtoBE(*constant);
 		writeUint32(ptr_WriteFile, *constant);
 		printf("hex out in ldr consts = %x\n", *constant);
@@ -359,7 +357,8 @@ int main(int argc, char **argv) {
 	fclose(ptr_SourceFile);
 	fclose(ptr_WriteFile);
 
-  destroyAllDictionaries();
+	destroyAllDictionaries();
+
 
 	printf("Finished program\n");
 	return EXIT_SUCCESS;

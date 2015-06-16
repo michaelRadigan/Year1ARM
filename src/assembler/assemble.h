@@ -7,6 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "dictionary.h"
+#include "genericstack.h"
 #include "encode.h"
 #include <sys/stat.h>
 #include <limits.h>
@@ -17,6 +18,7 @@
 DICTIONARY *label_address;
 DICTIONARY *opcode_function;
 DICTIONARY *alias_register;
+
 
 uint32_t file_line;
 uint32_t file_length;
