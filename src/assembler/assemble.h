@@ -7,7 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "dictionary.h"
-#include "genericstack.h"
+//#include "genericstack.h"
 #include "encode.h"
 #include <sys/stat.h>
 #include <limits.h>

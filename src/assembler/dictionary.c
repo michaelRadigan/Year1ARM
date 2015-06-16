@@ -358,6 +358,7 @@ int destroyDictionaryKEYS(DICTIONARY *d) {
 	return 1;
 }
 
+
 void dictionaryIteratorAux(STACK *stack,treeNode *node) {
 	if (node == NULL) {
 		return;
@@ -377,6 +378,7 @@ STACK *dictionaryIterator(DICTIONARY *d) {
 	dictionaryIteratorAux(stack, d->tree);
 	return stack;
 }
+
 
 /*
  int main() {
