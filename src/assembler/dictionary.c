@@ -358,6 +358,26 @@ int destroyDictionaryKEYS(DICTIONARY *d) {
 	return 1;
 }
 
+void dictionaryIteratorAux(STACK *stack,treeNode *node) {
+	if (node == NULL) {
+		return;
+	}
+	if (node->left != NULL) {
+		dictionaryIteratorAux(stack, node->left);
+	}
+	push(stack, (void *)node);
+	if (node->right != NULL) {
+		dictionaryIteratorAux(stack, node->right);
+	}
+}
+
+
+STACK *dictionaryIterator(DICTIONARY *d) {
+	STACK *stack = createStack();
+	dictionaryIteratorAux(stack, d->tree);
+	return stack;
+}
+
 /*
  int main() {
  uint16_t a = 1;

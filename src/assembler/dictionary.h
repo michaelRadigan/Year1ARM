@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdint.h>
+#include "genericstack.h"
 
 /* Define objects for dictionary objects */
 
@@ -57,5 +58,7 @@ int destroyDictionaryVALUES(DICTIONARY *d);
 
 //Returns 1 if all dictionary memory elements have been freed, 0 otherwise;
 int destroyDictionaryKEYS(DICTIONARY *d);
+
+STACK *dictionaryIterator(DICTIONARY *d);
 
 #endif
