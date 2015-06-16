@@ -10,7 +10,6 @@
 cpu *cpu_ptr;
 instr_flags *instr_flags_ptr;
 
-
 /**
  * Carries out the fetch, decode, execute cycle
  * @param cpu Pointer to the cpu

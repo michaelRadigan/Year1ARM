@@ -10,5 +10,6 @@
 #include "memory_proc.h"
 #include "instructions.h"
 #include "ALU.h"
+#include "stack.h"
 
 #endif

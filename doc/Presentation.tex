@@ -119,20 +119,31 @@ Group 16
 
 \subsection{Implementation} % A subsection can be created just before a set of slides with a common theme to further break down your presentation into chunks
 
+
+
 \begin{frame}
-\frametitle{}
+\frametitle{Our Approach}
 
-
-
-
-
+\begin{itemize}
+\item We based the design on the structure of the CPU
+\item This allowed us to split the design into functional sections
+\item We emulated specific functionalities of the CPU with corresponding method names
+\item The code was written so as not to be repetitive 
+\end{itemize}
 
 \end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Structure}
+\includegraphics[width=0.9\linewidth]{Images/Emulator_XML(2).jpg}
+\end{frame}
+
 
 %------------------------------------------------
 \subsection{Outcome}
 \begin{frame}
-\frametitle{Bullet Points}
+\includegraphics[width=0.9\linewidth]{Images/EmulatorTestCases.png}
+\frametitle{Outcome}
 
 
 
@@ -146,19 +157,17 @@ Group 16
 \begin{frame}
 \frametitle{Problems and Challenges}
 
+\begin{description}
+\item[Design]\hfill\\
+	We were initially unsure of the most efficient (or readable) way to design our implementation.
+	
+\item[I want to break free]\hfill\\
+	We had difficulty freeing pointers in the correct place, leading to segmentation faults
+\item[Debugging]\hfill\\
+    It took us the same amount of time to debug our code as to write it. We debugged our code by using Eclipse, which was useful in showing us which variable values we had at any given time. Implement a pipeline at the start not at the end, which caused us offset issues   
 
-\begin{block}{Block 1}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-\end{block}
 
-\begin{block}{Block 2}
-Pellentesque sed tellus purus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum quis magna at risus dictum tempor eu vitae velit.
-\end{block}
-
-\begin{block}{Block 3}
-Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenatis rutrum, ipsum neque consectetur orci, sed blandit justo nisi ac lacus.
-\end{block}
-
+\end{description}
 
 
 \end{frame}
@@ -167,26 +176,14 @@ Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenati
 
 \begin{frame}
 \frametitle{Improvements}
-%\frametitle{Multiple Columns}
-\begin{columns}[t] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
-
-\column{.5\textwidth} % Left column and width
 \begin{itemize}
-\item Statement
-\item Explanation
-\item Example
+\item Make our code more compact and not be as explicit
+\item Write our code to be reusable 
+\item Plan THEN code
+\item A good night's sleep - for general health
+
 \end{itemize}
 
-
-
-\column{.5\textwidth} % Right column and width
-\begin{itemize}
-\item Statement
-\item Explanation
-\item Example
-\end{itemize}
-
-\end{columns}
 \end{frame}
 
 
@@ -259,8 +256,7 @@ Characteristics of our assembler include:
 	Many mistakes and errors ended up being A problem with the use of \textbf{malloc()} and \textbf{free()}.
 
 \item[Code Reuse]\hfill\\
-	The compactness of the \textit{Emulator} code meant it was difficult to reuse within assembler. 
-
+	We definitely could have made a better attempt to reuse code from emulator
 
 \end{description}
 \end{frame}
@@ -284,12 +280,12 @@ Characteristics of our assembler include:
 \frametitle{Flashing GPIO}
 
 \begin{figure}
-%\movie[width=3cm,height=2cm,poster]{}{Testvideo.mp4}
+\movie[width=3cm,height=2cm,poster]{}{.mp4}
 %\movie[width=3cm,height=2cm,poster]{}{test1.mpg}
 
-\movie[label=cells,width=4cm,height=3cm,poster,showcontrols,duration=5s]{}{test1.mpg}
-\hyperlinkmovie[start=5s,duration=7s]{cells}{\beamerbutton{Show the middle stage}}
-\hyperlinkmovie[start=12s,duration=5s]{cells}{\beamerbutton{Show the late stage}}
+%\movie[label=cells,width=4cm,height=3cm,poster,showcontrols,duration=5s]{}{test1.mpg}
+%\hyperlinkmovie[start=5s,duration=7s]{cells}{\beamerbutton{Show the middle stage}}
+%\hyperlinkmovie[start=12s,duration=5s]{cells}{\beamerbutton{Show the late stage}}
 
 \caption{Our Flashing Gpio Led}
 \end{figure}
@@ -338,22 +334,39 @@ To make it possible for us to use our own Assembler to process the assemble sour
 \subsection{Outcome}
 
 \begin{frame}
-\frametitle{Problems and Challenges}
-
-
-
-
-
+\frametitle{Problems and Challenges - Assembler extension}
+\begin{description}
+\item[Aliasing]\hfill\\
+	Memory corruption due to lack of compatibility with our dictionary
+\item[push/pop]\hfill\\
+	Difficult to debug as the error was very hard to find
+\end{description}
 \end{frame}
 
+%------------------------
+\begin{frame}
+\frametitle{Problems and Challenges - FlappyPi}
+\begin{description}
+\item[Lack of resources]\hfill\\
+There is a small number of helpful articles online covering assembly,
+As a result it was difficult to implement.
+However, the Cambridge bakingPi tutorial was very helpful for the screen output
+\item[Tedious]
+Flappy bird sprite was 1200+ lines of assembly which was very repetitive
+\end{description}
+\end{frame}
 
 %------------------------------------------------
 \subsection{Evaluation}
 
 \begin{frame}
 \frametitle{Improvements}
-
-
+\begin{itemize}
+\item Stop the bird form flashing
+\item Randomly generate terrain
+\item Include a button and the ability to move the bird
+\item Collision detection to allow the game to be played
+\end{itemize}
 
 
 
