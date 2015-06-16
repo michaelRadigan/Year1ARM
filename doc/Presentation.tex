@@ -101,11 +101,24 @@ Group 16
 
 \begin{frame}
 \titlepage % Print the title page as the first slide
+
 \end{frame}
 
 \begin{frame}
 \frametitle{Overview} % Table of contents slide, comment this block out to remove it
-\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+
+\begin{columns}[T] % contents are top vertically aligned
+     \begin{column}[T]{4cm} % each column can also be its own environment
+	\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+     \end{column}
+
+     
+     \begin{column}[T]{4cm} % alternative top-align that's better for graphics
+	\includegraphics[height=7cm,width=1\linewidth]{Images/Screen5.png}
+
+     \end{column}
+     
+\end{columns}
 \end{frame}
 
 %----------------------------------------------------------------------------------------
@@ -280,7 +293,7 @@ Characteristics of our assembler include:
 \frametitle{Flashing GPIO}
 
 \begin{figure}
-\movie[width=3cm,height=2cm,poster]{}{.mp4}
+\movie[width=3cm,height=2cm,poster]{}{GPIO.mp4.mp4}
 %\movie[width=3cm,height=2cm,poster]{}{test1.mpg}
 
 %\movie[label=cells,width=4cm,height=3cm,poster,showcontrols,duration=5s]{}{test1.mpg}
@@ -301,9 +314,10 @@ Characteristics of our assembler include:
 \begin{frame}
 \frametitle{FlappyPi}
 
-
-
-
+\begin{figure}
+\movie[width=3cm,height=2cm,poster]{}{Bird.mp4.mp4}
+\caption{The Bird Is The Word.}
+\end{figure}
 
 \end{frame}
 
@@ -379,7 +393,7 @@ Flappy bird sprite was 1200+ lines of assembly which was very repetitive
 \subsection{Evaluation}
 \begin{frame}
 
-\frametitle{Problems and Challenges}
+\frametitle{Problems and Solutions}
 
 \begin{description}
 
@@ -438,25 +452,16 @@ Flappy bird sprite was 1200+ lines of assembly which was very repetitive
 
 
 %-------------------------------------------------
-\subsection{Improvements}
-\begin{frame}
-
-\frametitle{Improvements}
-
-
-
-
-
-\end{frame}
-
-%-------------------------------------------------
 \begin{frame}
 
 \frametitle{Conclusion}
-
-
-
-
+\begin{itemize}
+\item Enjoyable and informative 
+\item Learned new languages of Assembly and C
+\item Deeper understanding of the CPU
+\item Low level Graphical Interfaces
+\item Learnt key aspects of working in a team.
+\end{itemize}
 
 \end{frame}
 
