@@ -195,6 +195,11 @@ char *replaceAliases(char *source) {
 	free(source);
 	return out;
 }
+/*
+char *replaceAliasesOli(char *source) {
+
+}
+/*
 
 /* Writes a unsigned 32 bit number to output stream */
 int writeUint32(FILE * const stream, uint32_t value) {
