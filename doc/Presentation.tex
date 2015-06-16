@@ -272,7 +272,8 @@ Characteristics of our assembler include:
 \begin{itemize}
 	\item Creating our own string tokeniser which is more flexible then the implementation of \textbf{strtok()}.
 	\item Spending a bit more time optimising and improving the quality of the code.
-	\item 
+	\item Reducing redundant code
+	\item Rethinking the use of pointers
 \end{itemize}
 \end{frame}
 
@@ -314,19 +315,22 @@ Characteristics of our assembler include:
 \begin{frame}
 \frametitle{Extending the Assembler}
 To make it possible for us to use our own Assembler to process the assemble source code, we have had to do the following:
-\\~\\
 \begin{description}
+
 \item[Stack (block data transfer)]\hfill\\
-	Enabling the use of \textbf{stm} and \textbf{ldm} in the assembler, so that the stack can be utilised.
+	\small Enabling the use of \textbf{stm} and \textbf{ldm} in the assembler, so that the stack can be utilised.
 	
-\item[Opcodes Suffixes]
-	Supporting the addition of the 2 character condition codes on the end of the existing opcodes
+\item[Opcodes Suffixes]\hfill\\
+	Supporting the addition of condition codes appended to existing opcodes.
 
-\item[Aliasing]
-	
+\item[Aliasing]\hfill\\
+	Supporting the aliasing of registers and commands for clearer use code.
+		
+\item[Commenting]\hfill\\
+	Supporting commenting for clearer programs.
 
-\item[Multi-File Programs]
-
+\item[Multi-File Programs]\hfill\\
+	Enabling the use of larger programs.
 
 \end{description}
 \end{frame}
@@ -399,9 +403,13 @@ To make it possible for us to use our own Assembler to process the assemble sour
 
 \begin{columns}[T] % contents are top vertically aligned
      \begin{column}[T]{4cm} % each column can also be its own environment
-		
-
-
+     We did not use Git effectively nor efficiently
+		\begin{itemize}
+			\item Branching
+			\item Merging
+			\item Excessive use of Master Branch
+			\item Non-compiling/ broken code regularly pushed
+		\end{itemize}
      \end{column}
      
      \begin{column}[T]{2.5cm} % alternative top-align that's better for graphics
