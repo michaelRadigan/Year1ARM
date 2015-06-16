@@ -13,13 +13,12 @@ all: Report.pdf Checkpoint.pdf Presentation.pdf
 clean:
 	rm -f *.aux
 	rm -f *.out
-  rm -f *.nav
-  rm -f *.dvi
-  rm -f *.snm
-  rm -f *.toc
-  rm -f *.gz
-  rm -f *.vrb
-  rm -f *.log
-	rm -f *.pdf
+	rm -f *.nav
+	rm -f *.dvi
+	rm -f *.snm
+	rm -f *.toc
+	rm -f *.gz
+	rm -f *.vrb
+	rm -f *.log
 
   
