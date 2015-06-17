@@ -88,7 +88,6 @@ void destroyAllDictionaries() {
 	destroyDictionaryfunctions(opcode_function);
 	destroyRegisterDictionary();
 	destroyLDRconsts();
-	destroyDictionaryKEYS(alias_register);
 	destroyDictionary(alias_register);
 }
 
@@ -115,9 +114,13 @@ int storeLabel(char *source) {
 
 /* Removes the label from the source string if it exists */
 char *removeLabel(char *source) {
-	char *t1 = calloc(1, sizeof(char *));
-	char *t2 = calloc(1, sizeof(char *));
+	printf("source : \"%s\"\n", source);
+	char *t1 = calloc(511, sizeof(char));
+	char *t2 = calloc(511, sizeof(char));
 	sscanf(source, " %[^:] %*[ :] %[^:]\n\n", t1, t2);
+	printf("t1 : \"%s\"\n", t1);
+	printf("t2 : \"%s\"\n", t2);
+	printf("t2 pointer: \"%p\"\n", (void *)t2);
 	if (t2[0] == 0 || t2[0] == '\0') {
 		free(t2);
 		return (t1);
@@ -135,7 +138,7 @@ char *replaceAliases(char *source) {
 
 	int len = strlen(out);
 	while ((c = strtok(NULL, " ")) != NULL) {
-		char *newtoken; // = malloc(sizeof(char));
+		char *newtoken = malloc(sizeof(char *));
 		sscanf(c, "%[^,#=:<>]", newtoken);
 		char *cp_newToken = malloc(sizeof(char));
 		cp_newToken = strcpy(cp_newToken, newtoken);
@@ -169,35 +172,82 @@ char *replaceAliases(char *source) {
 			out[len++] = c[i];
 		}
 		free(cp_newToken);
+		free(newtoken);
 	}
 	free(source);
 	return out;
 }
 
 char *replaceAliasesOli(char *source) {
-	char res[511];
-	uint8_t offset = 0;
+	printf("source pointer %p\n", (void *)source);
+	char *res = calloc(511, sizeof(char));
+	char *source_cp = malloc(sizeof(char[511]));
+
+	source_cp = strcpy(source_cp, source);
+	printf("source pointer %p\n", (void *)source);
+
+
+	uint8_t orgoffset = 0;
+	uint8_t newoffset = 0;
 	uint8_t tokenlength;
-	char delim[3] = ", ";
-	char *token = strtok(source, delim);
+	char delim[5] = " ,[]";
+	char *token = strtok(source_cp, delim);
 	tokenlength = strlen(token);
-	offset += tokenlength;
-
-	while (token != NULL) {
-		token = strtok(NULL, delim);
-		printf("token %s\n", token);
-		tokenlength = strlen(token);
-		printf("tokenlength = %x\n", tokenlength);
-		offset += tokenlength;
-		printf("offset  = %x\n", offset);
-		if (getElem(alias_register, token) != NULL) {
-
-		} else {
-
-		}
-		*token = strtok(NULL, delim);
+	orgoffset += tokenlength;
+	newoffset += tokenlength;
+	strcat(res, token);
+	char i = *(source + orgoffset);
+	while (i == ' ') {
+		res[newoffset] =  *(source + orgoffset);
+		orgoffset++;
+		newoffset++;
+		i = *(source + orgoffset);
 	}
+//	printf("res      : \"%s\"\n", res);
+//	printf("orgoffset : %x\n", orgoffset);
+//	printf("newoffset : %x\n", newoffset);
+	while ((token = strtok(NULL, delim)) != NULL) {
+		if (getElem(alias_register, token) != NULL) {
+			tokenlength = strlen(token);
+			orgoffset += tokenlength;
+			char *reg = getElem(alias_register, token);
+			newoffset += strlen(reg);
+			strcat(res, reg);
+			i = *(source + orgoffset);
+			while (i == ' ' || i == ',' || i == '[' || i == ']') {
+				res[newoffset] =  *(source + orgoffset);
+				orgoffset++;
+				newoffset++;
+				i = *(source + orgoffset);
+			}
+//			printf("res : \"%s\"\n", res);
+//			printf("orgoffset : %x\n", orgoffset);
+//			printf("newoffset : %x\n", newoffset);
+		}
+		else {
+			tokenlength = strlen(token);
+			orgoffset += tokenlength;
+			newoffset += tokenlength;
+			strcat(res, token);
+			i = *(source + orgoffset);
+			while (i == ' ' || i == ',' || i == '[' || i == ']') {
+				res[newoffset] =  *(source + orgoffset);
+				orgoffset++;
+				newoffset++;
+				i = *(source + orgoffset);
+			}
+	//		printf("res : \"%s\"\n", res);
+	//		printf("orgoffset : %x\n", orgoffset);
+	//		printf("newoffset : %x\n", newoffset);
+		}
+	}
+	res[newoffset] = '\0';
+	printf("source pointer %p\n", (void *)source);
+	free(source_cp);
+	printf("source pointer %p\n", (void *)source);
+	free(source);
 
+	return res;
 }
 
 /* Writes a unsigned 32 bit number to output stream */
@@ -292,10 +342,12 @@ int main(int argc, char **argv) {
 			//		file_line++;
 			continue;
 		}
-
+		printf("buff : \"%s\"\n", buff);
 		//Check if label exists and if so remove it also remove \n
 		char *buffer = strtok(buff, "\n");
+		printf("buffer : \"%s\"\n", buffer);
 		buffer = removeLabel(buffer);
+		printf("buffer : \"%s\"\n", buffer);
 		//Buffer now contains no label absolutely
 
 		//Duplicate Buffer
@@ -352,19 +404,20 @@ int main(int argc, char **argv) {
 			exit(EXIT_FAILURE);
 		}
 
-		//Replace all aliases
-		//TODO
-		printf("buffTemp : \"%s\"\n", buffTemp);
-		buffTemp = replaceAliasesOli(buffTemp);
 		printf("buffTemp : \"%s\"\n", buffTemp);
 
-		uint32_t *output = encodingStruct->encFunc(buffTemp);
+		char *aliased = replaceAliasesOli(buffTemp);
+
+
+		printf("replaceAliasesOli : \"%s\"\n", aliased);
+
+		uint32_t *output = encodingStruct->encFunc(aliased);
 
 		*output = LEtoBE(*output);
 		writeUint32(ptr_WriteFile, *output);
 
 		printf("output = %x\n", *output);
-		free(buffTemp);
+		free(aliased);
 		free(buffer);
 		free(output);
 		file_line++;

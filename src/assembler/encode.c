@@ -782,52 +782,69 @@ uint32_t *sdt_ldr(char *source) {
 		sscanf(expr, "[%[^]] %[]] ", newexpr, t2);
 		printf("this is temp1 %s\n", newexpr);
 		uint32_t rnint = toCpuReg(newexpr);
+		free(newexpr);
 		free(t2);
+
 		if (expr2 == NULL) {
 			*res = cond << 28 | 0x41 << 20 | I << 25 | P << 24 | U << 23
 					| rnint << 16 | rdint << 12;
 		} else {
-			uint32_t *temp = malloc(sizeof(uint32_t *));
+			uint32_t temp;
 			if (expr2[0] == '#') {
-				*temp = extractNum(expr2);
+				temp = extractNum(expr2);
 				if (strchr(expr2, ']') == NULL) {
 					I = 0x0;
 					P = 0x0;
 					U = 0x1;
-					if (isNegative(*temp)) {
-						*temp = flipSign(*temp);
+					if (isNegative(temp)) {
+						temp = flipSign(temp);
 						I = 0x0;
 						P = 0x1;
 						U = 0x0;
 					}
 				} else {
-					if (isNegative(*temp)) {
-						*temp = flipSign(*temp);
+					if (isNegative(temp)) {
+						temp = flipSign(temp);
 						I = 0x0;
 						P = 0x1;
 						U = 0x0;
 					}
 				}
-				printf("this is temp %x \n", *temp);
+				printf("this is temp %x \n", temp);
 				*res = cond << 28 | 0x41 << 20 | I << 25 | P << 24 | U << 23
-						| rnint << 16 | rdint << 12 | *temp;
+						| rnint << 16 | rdint << 12 | temp;
 			} else {
 				uint32_t roff;
 				I = 0x1;
 				P = 0x1;
 				U = 0x1;
 				if (op2shift != NULL) {
-					op2shift[strlen(op2shift) - 1] = '\0';
+					printf("this is op2shift %s\n", op2shift);
+					char *op2corshift = malloc(sizeof(char *));
+					char *bracket = malloc(sizeof(char *));
+					sscanf(op2shift, "%[^]] %[]]", op2corshift, bracket);
+					printf("this is op2corshift \"%s\"\n", op2corshift);
+					printf("this is bracket %s\n", bracket);
+					uint32_t calcshiftint = calculateShift(op2corshift);
+					free(op2corshift);
+					free(bracket);
+
 					printf("This is expr2 \"%s\"\n", expr2);
 					roff = toCpuReg(expr2);
-					printf("This is op2shift %s\n", op2shift);
 					*res = 0xE << 28 | 0x41 << 20 | I << 25 | P << 24 | U << 23
 							| rnint << 16 | rdint << 12 | roff
-							| calculateShift(op2shift);
+							| calcshiftint;
 				} else {
 					if (strchr(expr2, ']') != NULL) {
-						expr2[strlen(expr2) - 1] = '\0';
-						roff = toCpuReg(expr2);
+						printf("this is expr2 %s\n", expr2);
+						char *expr2cor = malloc(sizeof(char *));
+						char *bracket = malloc(sizeof(char *));
+						sscanf(expr2, "%[^]] %[]]", expr2cor, bracket);
+						printf("this is op2corshift \"%s\"\n", expr2cor);
+						printf("this is bracket %s\n", bracket);
+						roff = toCpuReg(expr2cor);
+						free(expr2cor);
+						free(bracket);
 					} else {
 						I = 0x1;
 						P = 0x0;
@@ -939,7 +956,6 @@ uint32_t *branch(char *source) {
 	printf("res = %x\n", *res);
 	free(offset);
 	free(binary);
-
 	return res;
 }
 
